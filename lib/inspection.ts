@@ -165,6 +165,18 @@ export function isTrailerLike(v: { name?: string | null; make?: string | null; m
   return /trailer/.test(hay);
 }
 
+/**
+ * Spare / pool trucks (no permanent driver) — exempt from the monthly required
+ * inspection, per the COO (Nov 2026). Detected by "spare" in the assigned driver or
+ * vehicle name (the fleet sheet records them as "Orlando Spare", "SPARE", "Spare
+ * Lawn", …). A query-time rule like trailers, so every current and future spare is
+ * covered and a fleet re-sync can't undo it. Spares that DO get inspected still
+ * show as completed "additional" inspections (inspectionStatus extraRows).
+ */
+export function isSpareVehicle(v: { name?: string | null; assignedTo?: string | null }): boolean {
+  return /\bspare\b/i.test(`${v.name ?? ""} ${v.assignedTo ?? ""}`);
+}
+
 /** True only when the driver clearly resolves to leadership (exec / manager /
  *  director) — they maintain their own vehicles and are never inspected. */
 export function driverIsLeadership(emp: { role?: string | null; accessLevel?: string | null } | null | undefined): boolean {
@@ -226,6 +238,7 @@ export async function listInspectableVehicles(branch?: string): Promise<Inspecta
   for (const v of vehicles) {
     if (v.inspectExempt) continue;
     if (isTrailerLike(v)) continue;
+    if (isSpareVehicle(v)) continue; // spares are exempt from the required list
     // Must have an assigned driver — unassigned spares aren't inspected.
     const hasDriver = !!(v.assignedEmployeeId || (v.assignedTo && v.assignedTo.trim()));
     if (!hasDriver) continue;
@@ -398,10 +411,12 @@ export async function inspectionMonths(branch?: string): Promise<{ year: number;
 export async function quarterInspectionCompliance(year: number, quarter: number, branch: string) {
   const months: Record<number, number[]> = { 1: [1, 2, 3], 2: [4, 5, 6], 3: [7, 8, 9], 4: [10, 11, 12] };
   const qMonths = months[quarter] ?? [];
-  const [inspectable, done] = await Promise.all([
-    listInspectableVehicles(branch),
-    prisma.vehicleInspection.count({ where: { year, month: { in: qMonths }, branch } }),
-  ]);
+  const inspectable = await listInspectableVehicles(branch);
+  // Count only inspections of REQUIRED trucks — an exempt spare's inspection is
+  // shown as extra coverage but can't stand in for a required truck that was missed.
+  const done = await prisma.vehicleInspection.count({
+    where: { year, month: { in: qMonths }, branch, vehicleId: { in: inspectable.map((v) => v.id) } },
+  });
   const vehicleCount = inspectable.length;
   const expected = vehicleCount * qMonths.length;
   const pct = expected > 0 ? Math.round((done / expected) * 1000) / 10 : 0;

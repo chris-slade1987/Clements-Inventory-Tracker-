@@ -115,6 +115,9 @@ export async function getRoutingOverview(branch: string, periodKey = currentRout
       status: month.status,
       signedName: month.signedName,
       signedAt: month.signedAt ? month.signedAt.toISOString() : null,
+      creditedAt: month.creditedAt ? month.creditedAt.toISOString() : null,
+      creditedByName: month.creditedByName,
+      creditNote: month.creditNote,
       loaded: techs.length > 0,
       uploadedAt: upload?.uploadedAt ? upload.uploadedAt.toISOString() : null,
       uploadedBy: upload?.uploadedByName ?? null,
@@ -180,8 +183,8 @@ export async function sweepMissedRouting(now: Date = new Date()): Promise<number
   for (const pk of months) {
     if (now.getTime() < routingDueDate(pk).getTime()) continue; // not due yet
     for (const b of BRANCHES) {
-      const rm = await prisma.routingMonth.findUnique({ where: { branch_periodKey: { branch: b.key, periodKey: pk } }, select: { id: true, status: true } }).catch(() => null);
-      if (!rm || rm.status === "signed") continue;
+      const rm = await prisma.routingMonth.findUnique({ where: { branch_periodKey: { branch: b.key, periodKey: pk } }, select: { id: true, status: true, creditedAt: true } }).catch(() => null);
+      if (!rm || rm.status === "signed" || rm.creditedAt) continue; // signed or credited → not missed
       const techs = await prisma.routeTechMonth.count({ where: { routingMonthId: rm.id } }).catch(() => 0);
       if (techs === 0) continue; // nothing loaded → nothing to miss
       try {
@@ -212,11 +215,69 @@ export async function listRoutingPeriods(branch: string): Promise<string[]> {
  *  the My Branch row shows the month that's actually up for review. */
 export async function getRoutingSummary(branch: string, periodKey?: string) {
   const pk = periodKey ?? (await listRoutingPeriods(branch))[0] ?? currentRoutingPeriod();
-  const month = await prisma.routingMonth.findUnique({ where: { branch_periodKey: { branch, periodKey: pk } }, select: { status: true, id: true } }).catch(() => null);
-  if (!month) return { exists: false, loaded: false, signed: false, status: "open" as string, periodKey: pk, techs: 0, approved: 0 };
+  const month = await prisma.routingMonth.findUnique({ where: { branch_periodKey: { branch, periodKey: pk } }, select: { status: true, id: true, creditedAt: true, creditedByName: true } }).catch(() => null);
+  if (!month) return { exists: false, loaded: false, signed: false, credited: false, creditedByName: null as string | null, status: "open" as string, periodKey: pk, techs: 0, approved: 0 };
   const [techs, approved] = await Promise.all([
     prisma.routeTechMonth.count({ where: { routingMonthId: month.id } }).catch(() => 0),
     prisma.routeTechMonth.count({ where: { routingMonthId: month.id, approved: true } }).catch(() => 0),
   ]);
-  return { exists: true, loaded: techs > 0, signed: month.status === "signed", status: month.status, periodKey: pk, techs, approved };
+  const credited = !!month.creditedAt;
+  // A leadership credit counts as a completed sign-off everywhere it's read.
+  return { exists: true, loaded: techs > 0, signed: month.status === "signed" || credited, credited, creditedByName: month.creditedByName, status: month.status, periodKey: pk, techs, approved };
+}
+
+const ROUTING_TEMPLATE_KEY = "routing-approval";
+
+/**
+ * Leadership credit: count a branch's monthly routing sign-off as COMPLETE for the
+ * manager when they did the work but the month can't be signed yet (e.g. their
+ * requested route changes are waiting on the routing department). Records who/
+ * when/why on the RoutingMonth (fields an upload never resets), clears any
+ * missed-duty strike for that month, and notes it on the manager's personnel file.
+ */
+export async function creditRoutingMonth(opts: { branch: string; periodKey: string; byName: string; note: string }) {
+  const month = await ensureRoutingMonth(opts.branch, opts.periodKey);
+  await prisma.routingMonth.update({
+    where: { id: month.id },
+    data: { creditedAt: new Date(), creditedByName: opts.byName, creditNote: opts.note },
+  });
+  const tmpl = await prisma.checklistTemplate.findUnique({ where: { key: ROUTING_TEMPLATE_KEY }, select: { id: true } }).catch(() => null);
+  let strikesCleared = 0;
+  if (tmpl) {
+    const r = await prisma.checklistMiss.updateMany({
+      where: { templateId: tmpl.id, branch: opts.branch, periodKey: opts.periodKey, status: "open" },
+      data: { status: "cleared", clearedByName: opts.byName, clearedAt: new Date(), clearNote: `Routing credited: ${opts.note}` },
+    });
+    strikesCleared = r.count;
+  }
+  try {
+    const mgr = await prisma.employee.findFirst({ where: { status: "active", branch: opts.branch, role: { contains: "Manager" } }, select: { id: true } });
+    if (mgr)
+      await prisma.personnelRecord.create({
+        data: { employeeId: mgr.id, branch: opts.branch, type: "note", category: "routing-approval", title: `Routing credited as complete — ${opts.periodKey}`, body: `Credited by ${opts.byName}. ${opts.note}`, authorName: opts.byName },
+      });
+  } catch { /* non-fatal */ }
+  return { ok: true as const, strikesCleared };
+}
+
+/**
+ * Undo a leadership credit: the month goes back to needing a real sign-off, and any
+ * missed-duty strike that the credit had cleared is restored (only strikes cleared
+ * BY a credit — a strike cleared by HR for another reason stays cleared).
+ */
+export async function uncreditRoutingMonth(branch: string, periodKey: string) {
+  await prisma.routingMonth.updateMany({
+    where: { branch, periodKey },
+    data: { creditedAt: null, creditedByName: null, creditNote: null },
+  });
+  const tmpl = await prisma.checklistTemplate.findUnique({ where: { key: ROUTING_TEMPLATE_KEY }, select: { id: true } }).catch(() => null);
+  let strikesRestored = 0;
+  if (tmpl) {
+    const r = await prisma.checklistMiss.updateMany({
+      where: { templateId: tmpl.id, branch, periodKey, status: "cleared", clearNote: { startsWith: "Routing credited:" } },
+      data: { status: "open", clearedById: null, clearedByName: null, clearedAt: null, clearNote: null },
+    });
+    strikesRestored = r.count;
+  }
+  return { ok: true as const, strikesRestored };
 }

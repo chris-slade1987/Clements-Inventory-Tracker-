@@ -18,6 +18,7 @@ import { sweepMissedChecklists, openMisses, endOfMonthLabel, endOfMonth } from "
 // NOTE: getCurrentBranchWeekSummary import removed with the temporary pull of the
 // Branch Command weekly to-do (COO, 2026-11-02) — restore it when re-adding, week of 11/9.
 import { getRoutingSummary, sweepMissedRouting, routingDueDate } from "@/lib/routing";
+import { ensureNovemberRoutingCredits } from "@/lib/routing-credit-ensure";
 import RemindersCard from "@/components/RemindersCard";
 import BulletinBanner from "@/components/BulletinBanner";
 import ComposeThread from "@/components/ComposeThread";
@@ -112,6 +113,8 @@ export default async function MyBranchPage({
   const routingPeriodKey = etPeriodKey(now);
   const [ry, rm] = routingPeriodKey.split("-").map(Number);
   const routingMonthName = new Date(Date.UTC(ry, rm - 1, 1)).toLocaleString("en-US", { month: "long", timeZone: "UTC" });
+  // Apply leadership routing credits before reading the summary or sweeping for misses.
+  await ensureNovemberRoutingCredits();
   const routingSummary = await getRoutingSummary(scBranch, routingPeriodKey);
   const routingDue = routingDueDate(routingPeriodKey);
   const routingOverdue = routingSummary.loaded && !routingSummary.signed && now.getTime() > routingDue.getTime();
@@ -120,7 +123,9 @@ export default async function MyBranchPage({
   // month implies every route approved; all-approved-but-not-yet-signed also counts.
   const routingSignoffDone =
     routingSummary.signed || (routingSummary.loaded && routingSummary.techs > 0 && routingSummary.approved >= routingSummary.techs);
-  const routingSignoffStatus = !routingSummary.loaded
+  const routingSignoffStatus = routingSummary.credited
+    ? `Credited as complete${routingSummary.creditedByName ? ` by ${routingSummary.creditedByName}` : ""}`
+    : !routingSummary.loaded
     ? "Routing not loaded yet"
     : routingSummary.signed
       ? "Signed off for the month"

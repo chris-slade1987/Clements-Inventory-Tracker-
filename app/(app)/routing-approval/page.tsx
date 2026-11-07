@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { requireUser, homePath, branchLocked } from "@/lib/auth";
+import { requireUser, homePath, branchLocked, isSuperAdmin } from "@/lib/auth";
+import RoutingCredit from "./RoutingCredit";
 import { branchLabel, BRANCHES } from "@/lib/management";
 import { PageHeader } from "@/components/ui";
 import { getRoutingOverview, currentRoutingPeriod, listRoutingPeriods, routingDueDate } from "@/lib/routing";
@@ -81,6 +82,14 @@ export default async function RoutingApprovalPage({ searchParams }: { searchPara
           ))}
         </div>
       ) : null}
+      <RoutingCredit
+        branch={branch}
+        periodKey={periodKey}
+        monthLabel={periodLabel(periodKey)}
+        branchName={branchLabel(branch)}
+        credited={data.month.creditedAt ? { at: data.month.creditedAt, by: data.month.creditedByName, note: data.month.creditNote } : null}
+        canCredit={isSuperAdmin(user)}
+      />
       <RoutingBoard data={data} canUpload={user.role === "admin"} periodKey={periodKey} />
     </div>
   );

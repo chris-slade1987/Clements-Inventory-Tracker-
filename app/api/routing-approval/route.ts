@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser, branchLocked } from "@/lib/auth";
+import { getSessionUser, branchLocked, isSuperAdmin } from "@/lib/auth";
 import { ingestRoutingReport, previewRoutingReport } from "@/lib/routing-ingest";
 import { ingestAppointmentSchedule } from "@/lib/routing-appointments";
 import { previewAppointmentSchedule } from "@/lib/routing-appointments-parse";
-import { ensureRoutingMonth, getRoutingOverview, getTechDays, currentRoutingPeriod } from "@/lib/routing";
+import { ensureRoutingMonth, getRoutingOverview, getTechDays, currentRoutingPeriod, creditRoutingMonth, uncreditRoutingMonth } from "@/lib/routing";
 import { geocodeRoutingMonth, geocodeRoutingTech } from "@/lib/geocode";
 import { branchLabel } from "@/lib/management";
 
@@ -53,6 +53,20 @@ export async function POST(req: Request) {
     if (!branch) return NextResponse.json({ error: "No branch." }, { status: 400 });
     if (branchLocked(user) && branch !== user.branch)
       return NextResponse.json({ error: "That is not your branch." }, { status: 403 });
+
+    // Leadership credit — SUPER ADMINS ONLY. Counts the month's routing sign-off as
+    // complete for the manager (survives later route re-uploads) and clears any
+    // missed-duty strike; "uncredit" reverses it. Allowed on any month status.
+    if (action === "credit" || action === "uncredit") {
+      if (!isSuperAdmin(user)) return NextResponse.json({ error: "Only super admins can credit routing." }, { status: 403 });
+      if (action === "credit") {
+        const note = str(body?.note);
+        if (!note) return NextResponse.json({ error: "Add a short reason for the credit." }, { status: 400 });
+        const r = await creditRoutingMonth({ branch, periodKey, byName: user.name ?? user.email, note });
+        return NextResponse.json(r);
+      }
+      return NextResponse.json(await uncreditRoutingMonth(branch, periodKey));
+    }
 
     if (action === "techDays") {
       const month = await ensureRoutingMonth(branch, periodKey);

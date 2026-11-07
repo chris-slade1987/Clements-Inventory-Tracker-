@@ -3645,6 +3645,15 @@ model RoutingMonth {
   signedName  String?   @map("signed_name")
   signedAt    DateTime? @map("signed_at")
   attestation String?
+  // Leadership CREDIT: a super admin marks the month's routing sign-off complete
+  // for the manager when the manager did the work but it can't be signed yet
+  // (e.g. their requested route changes are waiting on the routing department).
+  // Deliberately separate from the signature fields: a re-upload of revised
+  // routes resets status/signature to "open" but never touches these, so the
+  // credit survives the revision and the missed-duty sweep never fires.
+  creditedAt     DateTime? @map("credited_at")
+  creditedByName String?   @map("credited_by_name")
+  creditNote     String?   @map("credit_note")
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
 

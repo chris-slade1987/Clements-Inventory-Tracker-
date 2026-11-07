@@ -45,7 +45,10 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 50 · Last updated November 7, 2026",
+    effective: "Version 51 · Last updated November 7, 2026",
+    // v51: Routing sign-off — leadership can credit a month as complete when the
+    // manager did the work but revisions are pending at routing (counts as done,
+    // clears the strike, survives re-upload). Re-prompts.
     // v50: Vehicle inspections — November starts empty (everything before Mon 11/9
     // counts to October); one inspection per truck per month (most recent counts);
     // technicians always recorded under their full profile name. Re-prompts.
@@ -242,7 +245,7 @@ const DOCS: DocSeed[] = [
     // (Assign/Courses/Certifications/Reports tabs), automatic credit, the
     // Field-Core prerequisite guard, one-module-per-month pacing, advancement
     // stepping, and certification award gating on the approved field sign-off.
-    version: 50,
+    version: 51,
     // v11: expanded the Sales Team section to document the per-advisor visual
     // funnel (Leads → Proposals → Closed $ with per-stage goals, pace markers,
     // and plain-English leak diagnosis), the director leaderboard / most-improved
