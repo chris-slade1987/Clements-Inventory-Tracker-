@@ -1,0 +1,15 @@
+{
+  "key": "receipts-2026-11-03-orlando-siteone",
+  "source": "PestPac transfer report 'Test - November Warehouse Inventory.xlsx' (COO, 2026-11-09)",
+  "distributor": "SiteOne",
+  "invoiceNumber": "XFER-2026-11-03-ORL",
+  "date": "2026-11-03",
+  "warehouse": "Orlando",
+  "transferredBy": "CHAYSE",
+  "lines": [
+    { "material": "LESCO CROSSCHECK PL", "quantity": 10, "unitRaw": "FB", "cost": 240.30 },
+    { "material": "MISC CHEMICAL", "quantity": 2, "unitRaw": "J", "cost": 480.00 },
+    { "material": "TAURUS SC INSECTICIDE 78 OZ.", "quantity": 8, "unitRaw": "B", "cost": 760.00 },
+    { "material": "VENDETTA PLUS ROAACH BAIT 30 G", "quantity": 5, "unitRaw": "T", "cost": 206.65 }
+  ]
+}

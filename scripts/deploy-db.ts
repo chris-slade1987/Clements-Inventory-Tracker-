@@ -998,6 +998,23 @@ async function main() {
       console.log(`deploy-db: product research — matched ${r.matched}, updated ${r.updated}${r.unmatched.length ? `, unmatched: ${r.unmatched.length}` : ""}.`);
     });
 
+    // Distributor receipts reported from PestPac transfer exports since the 10/30
+    // go-live count (prisma/data/receipts/*.json) → confirmed invoices + positive
+    // check_in movements, exactly like an in-app Check-In. Products resolve like the
+    // 10/30 baseline (catalog name, then the PestPac alias map); unmatched lines are
+    // reported, never invented. Idempotent per line (externalRef). Runs AFTER the
+    // catalog reconciles so every product exists. NON-FATAL.
+    await runStep("PestPac transfer receipts", async () => {
+      const { loadReceipts } = await import("./load-receipts");
+      const r = await loadReceipts(prisma, { apply: true });
+      for (const f of r.files) {
+        console.log(
+          `deploy-db: receipts ${f.key} (${f.warehouse}) — ${f.posted} posted, ${f.skippedExisting} already loaded` +
+            (f.unmatched.length ? `; UNMATCHED: ${f.unmatched.join(", ")}` : ""),
+        );
+      }
+    });
+
     // PHASE 4 — clear existing product-linked photos so the fresh scanning pass
     // starts clean (owner authorized; photos will be re-captured + reassigned to
     // the SSOT product list). Runs ONCE, guarded by `product_photos_cleared_v1`.
