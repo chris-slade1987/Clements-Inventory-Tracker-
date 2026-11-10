@@ -16,6 +16,7 @@ import { ensureOrlandoQ4AuditDraft } from "@/lib/audit-seed";
 import { ensureApprovedCatalog } from "@/lib/approved-catalog-ensure";
 import { ensureOnHandBaseline } from "@/lib/onhand-baseline";
 import { ensureReceiptsLoaded } from "@/lib/receipts-ensure";
+import { ensureCatalogCleanup } from "@/lib/catalog-cleanup";
 import { ensureFleetMaster } from "@/lib/fleet-master-ensure";
 import { ensureHolidayCloseTimes } from "@/lib/holiday-hours-ensure";
 import { ensureStaleRegistrationNudgesCleared } from "@/lib/registration-nudge-sweep";
@@ -72,6 +73,13 @@ export default async function AppGroupLayout({
   // movements. Runtime because production only accepts runtime writes. Runs AFTER
   // the baseline so it adds on top of the verified count. Idempotent, non-fatal.
   await ensureReceiptsLoaded();
+
+  // One-time approved-catalog cleanup (COO 2026-11-10): merge SiteOne-named twins
+  // into their catalog product, rename catalog products to their full descriptions,
+  // and take everything not on the catalog back off it (undoing the 11/5 bulk
+  // approval). Runs AFTER the baseline + receipts so they land on the kept rows.
+  // Never changes on-hand; once (Setting marker); non-fatal. lib/catalog-cleanup.ts
+  await ensureCatalogCleanup();
 
   // Force-sync the Fleet registry from the reconciled master sheet (fixes the fields
   // a bad in-app upload scrambled, and adds units 43–48). Revisioned, once, non-fatal.

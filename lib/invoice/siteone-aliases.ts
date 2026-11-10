@@ -1,3 +1,4 @@
+import { canonicalProductName } from "../catalog-names";
 // SiteOne purchase-invoice → catalog resolution map.
 //
 // Used by scripts/load-purchase-invoices.ts to turn a SiteOne line item (from the
@@ -78,7 +79,7 @@ export const CREATED_PRODUCTS: Record<string, CreatedProduct> = {
  * units) or where a size/formulation match was approximate — all surfaced in the
  * load report for verification.
  */
-export const SITEONE_ALIASES: Record<string, string> = {
+const RAW_SITEONE_ALIASES: Record<string, string> = {
   // --- Liquid insecticides / aerosols ---
   "D00001542": "CrossCheck Plus", // LESCO CROSSCHECK PLUS LIQUID INSECTICIDE 1 GAL.
   "D00000906": "Bandit 2F", // LESCO BANDIT 2F SYSTEMIC LIQUID INSECTICIDE 1 GAL. JUG
@@ -166,3 +167,9 @@ export const SITEONE_ALIASES: Record<string, string> = {
   // --- Cleaner/sanitizer with a catalog match ---
   "IHSF019-12": "Invade Hot Spot", // INVADE HOT SPOT+ BIO FOAM SANITIZER 19 OZ.
 };
+
+// Targets are PestPac short names; resolve each to the catalog's full description
+// (lib/catalog-names.ts) so the loader matches the renamed product row.
+export const SITEONE_ALIASES: Record<string, string> = Object.fromEntries(
+  Object.entries(RAW_SITEONE_ALIASES).map(([k, v]) => [k, canonicalProductName(v)]),
+);

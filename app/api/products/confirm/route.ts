@@ -122,7 +122,10 @@ export async function POST(req: Request) {
       if (providedUom && !isUomCode(providedUom)) return NextResponse.json({ error: "Pick a unit of measure from the list." }, { status: 400 });
       const unitOfMeasure = providedUom ?? uomCode(existing.unitOfMeasure) ?? "EA";
       const { division, subdivision } = normalizeClassification(body?.division, body?.subdivision);
-      const notes = clean((existing.notes ?? "").replace(/Flagged for review by catalog cleanup[^.]*\.\s*/i, "").replace(/Added from transfer history[^.]*\.\s*/i, ""));
+      const baseNotes = clean((existing.notes ?? "").replace(/Flagged for review by catalog cleanup[^.]*\.\s*/i, "").replace(/Added from transfer history[^.]*\.\s*/i, ""));
+      // Stamp who put it on the catalog — the approved-catalog reconcile keeps any
+      // product carrying this marker (lib/catalog-cleanup.ts, seed isHumanApproved).
+      const notes = [baseNotes, `Approved onto catalog by ${user.name} on ${new Date().toISOString().slice(0, 10)}.`].filter(Boolean).join(" ");
       await prisma.product.update({
         where: { id },
         data: {
@@ -163,7 +166,10 @@ export async function POST(req: Request) {
       if (!id) return NextResponse.json({ error: "Missing id." }, { status: 400 });
       const existing = await prisma.product.findUnique({ where: { id } });
       if (!existing) return NextResponse.json({ error: "Product not found." }, { status: 404 });
-      const notes = clean((existing.notes ?? "").replace(/Discarded from confirm queue[^.]*\.\s*/i, ""));
+      const notes = [
+        clean((existing.notes ?? "").replace(/Discarded from confirm queue[^.]*\.\s*/i, "").replace(/Rejected backlog acknowledged\.\s*/i, "")),
+        `Approved onto catalog by ${user.name} on ${new Date().toISOString().slice(0, 10)}.`,
+      ].filter(Boolean).join(" ");
       const unitOfMeasure = uomCode(existing.unitOfMeasure) ?? "EA";
       await prisma.product.update({
         where: { id },

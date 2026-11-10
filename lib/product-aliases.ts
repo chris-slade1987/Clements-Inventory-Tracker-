@@ -10,6 +10,8 @@
 // an approved name, then match a Product whose normalized name equals it. The
 // approved-product seed guarantees a product exists for every alias VALUE here.
 
+import { canonicalProductName, shortNameAliases } from "./catalog-names";
+
 /** Canonical name key: trimmed, lower-cased, whitespace-collapsed. */
 export function normalizeProductName(name: string | null | undefined): string {
   return (name ?? "").trim().toLowerCase().replace(/\s+/g, " ");
@@ -25,7 +27,7 @@ export function normalizeProductName(name: string | null | undefined): string {
 // prisma/seed-products-approved.ts). PestPac truncates material names to ~30
 // chars, so many keys are the truncated forms exactly as they appear in the
 // transfer-history export.
-export const PRODUCT_ALIASES: Record<string, string> = {
+const RAW_ALIASES: Record<string, string> = {
   // --- Phase 1 (Naples) ---
   "contrac bait block": "Contrac Rodent Bait Blox",
   "trapper t-rex plastic snap trap": "T-Rex Snap Trap",
@@ -140,6 +142,15 @@ export const PRODUCT_ALIASES: Record<string, string> = {
   "crosscheck 0.069% plus fertilizer (0-0-7)": "Crosscheck 0.069% Plus",
   "pt alpine fleas and bedbug": "PT Alpine",
   "nutra-tech 12-0-12": "Lesco Macron Soluble Fertilizer", // verify: only liquid-macro catalog SKU
+};
+
+// The catalog now shows FULL product descriptions (lib/catalog-names.ts). Alias
+// targets above are written as PestPac short names; route every one through
+// canonicalProductName() so it lands on the renamed row, and let each short name
+// itself resolve to its full description (PestPac reports still say the short name).
+export const PRODUCT_ALIASES: Record<string, string> = {
+  ...shortNameAliases(),
+  ...Object.fromEntries(Object.entries(RAW_ALIASES).map(([k, v]) => [k, canonicalProductName(v)])),
 };
 
 /** Resolve a history material name to an approved product name, or null. */

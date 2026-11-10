@@ -45,7 +45,10 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 53 · Last updated November 7, 2026",
+    effective: "Version 54 · Last updated November 10, 2026",
+    // v54: Approved catalog — full product descriptions (no PestPac nicknames);
+    // clearing a review queue never approves anything; CSV-imported products land
+    // off-catalog until a super admin approves them. Re-prompts.
     // v53: Scorecards hub — Overview of every quarterly review (super admins) with
     // Branch Managers / Sales Director tabs; the Sales Director review moved from
     // Sales Team to Scorecards → Sales Director. Re-prompts.
@@ -250,7 +253,7 @@ const DOCS: DocSeed[] = [
     // (Assign/Courses/Certifications/Reports tabs), automatic credit, the
     // Field-Core prerequisite guard, one-module-per-month pacing, advancement
     // stepping, and certification award gating on the approved field sign-off.
-    version: 53,
+    version: 54,
     // v11: expanded the Sales Team section to document the per-advisor visual
     // funnel (Leads → Proposals → Closed $ with per-stage goals, pace markers,
     // and plain-English leak diagnosis), the director leaderboard / most-improved

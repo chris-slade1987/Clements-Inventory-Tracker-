@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { ensureCatalogCleanup } from "@/lib/catalog-cleanup";
 import { PageHeader } from "@/components/ui";
 import InventorySubnav from "@/components/InventorySubnav";
 import RequestProductButton from "@/components/RequestProductButton";
@@ -21,6 +22,7 @@ export default async function CheckOutPage({
   searchParams: Promise<{ branch?: string }>;
 }) {
   const user = await requireUser();
+  await ensureCatalogCleanup(); // catalog cleanup lands before we read products
   if (isBoardObserver(user)) redirect("/management/board");
   // Technicians (role employee) cannot check out; managers/admins can.
   if (user.role !== "admin" && user.role !== "manager") redirect("/me");

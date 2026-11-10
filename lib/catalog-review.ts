@@ -163,10 +163,9 @@ export async function catalogReview(): Promise<{
   return { all, pending, offCatalog, clusters, confirmedProducts };
 }
 
-// One-time catalog baseline. The managers curated the active product list into the
-// current source of truth, so every ACTIVE product is accepted onto the approved
-// catalog in a single pass (approved + confirmed) and the stale auto-added review
-// markers are stripped from notes. This empties the Approve/Reject, Off-catalog and
+// One-time catalog baseline (archives the Rejected backlog). It USED to accept every
+// ACTIVE product onto the approved catalog in a single pass — removed 2026-11-10,
+// see below. This empties the Approve/Reject, Off-catalog and
 // New-products queues without touching rejected (inactive) products and WITHOUT
 // hard-deleting anything (flags + note cleanup only — the core data rule holds).
 //
@@ -183,12 +182,6 @@ const BASELINE_SETTING_KEY = "catalog-baseline-approved";
 // reconcile still holds them inactive — nothing is resurrected or hard-deleted).
 const BASELINE_VERSION = "2026-11-05";
 
-// Review markers the baseline clears so confirmed products read clean.
-const STALE_MARKERS = [
-  /Added from transfer history[^.]*\.\s*/gi,
-  /Added from a check-in invoice[^.]*\.\s*/gi,
-  /Flagged for review by catalog cleanup[^.]*\.\s*/gi,
-];
 
 // Appended to a rejected (discarded) product's notes so the Rejected tab stops
 // listing the already-handled backlog, WITHOUT removing DISCARD_MARK (the deploy
@@ -200,31 +193,12 @@ export async function ensureCatalogBaseline(): Promise<{ ran: boolean; approved:
     const existing = await prisma.setting.findUnique({ where: { key: BASELINE_SETTING_KEY } }).catch(() => null);
     if (existing?.value === BASELINE_VERSION) return { ran: false, approved: 0, archivedRejected: 0 };
 
-    // Only touch active products that still need a decision — leave already
-    // approved+confirmed rows alone. Flags + note cleanup only; never a movement,
-    // so on-hand (= SUM of movements) cannot change.
-    const pending = await prisma.product.findMany({
-      where: { active: true, OR: [{ approved: false }, { confirmed: false }] },
-      select: { id: true, notes: true },
-    });
-
-    let approved = 0;
-    for (const p of pending) {
-      let notes = p.notes ?? null;
-      if (notes) {
-        for (const re of STALE_MARKERS) notes = notes.replace(re, "");
-        notes = notes.trim() || null;
-      }
-      try {
-        await prisma.product.update({
-          where: { id: p.id },
-          data: { approved: true, confirmed: true, notes },
-        });
-        approved++;
-      } catch (e) {
-        console.error("ensureCatalogBaseline: failed to approve", p.id, e);
-      }
-    }
+    // 2026-11-10: this baseline NO LONGER approves anything. The 11/5 version
+    // approved every active product still awaiting a decision, which put demo/test
+    // rows and SiteOne-named duplicates on the approved catalog; the catalog cleanup
+    // (lib/catalog-cleanup.ts) reversed it. Clearing a queue must never mean
+    // approving its contents — only a super admin's Approve does that.
+    const approved = 0;
 
     // Archive the standing Rejected backlog: append the archived marker so the
     // Rejected tab (which filters it out) empties, while KEEPING DISCARD_MARK so the

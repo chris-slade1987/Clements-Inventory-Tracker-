@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { ensureCatalogCleanup } from "@/lib/catalog-cleanup";
 import { prisma } from "@/lib/prisma";
 import { requireUser, isSuperAdmin } from "@/lib/auth";
 import ManageProducts from "./ManageProducts";
@@ -10,6 +11,7 @@ export default async function ManageProductsPage() {
   // including branch managers — uses check-out identify and the "Request new
   // product" flow instead. See lib/access-catalog.ts.
   const user = await requireUser();
+  await ensureCatalogCleanup(); // catalog cleanup lands before we read products
   if (!isSuperAdmin(user)) redirect("/dashboard");
   const products = await prisma.product.findMany({ orderBy: { name: "asc" } });
   return (

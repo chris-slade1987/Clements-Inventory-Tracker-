@@ -2,6 +2,7 @@ import type { PrismaClient } from "@prisma/client";
 import { categorizeProduct, normalizeClassification } from "../lib/constants";
 import { isUomCode } from "../lib/uom";
 import { normalizeProductName } from "../lib/product-aliases";
+import { canonicalProductName } from "../lib/catalog-names";
 
 /**
  * Reconcile the CEO's approved product catalog into the database.
@@ -288,6 +289,17 @@ const NON_CHEMICAL_NOTE = "Generic line for non-chemical purchases (gloves, hose
 // A reconcile row carries an optional base note and its confirmation state.
 type ReconcileRow = ApprovedRow & { note?: string; confirmed: boolean; baseNote?: string };
 
+/** Notes markers written when a super admin approves a product in-app. */
+export const HUMAN_APPROVAL_MARKERS = ["Cataloged via approval request", "Created via product approval request", "Approved onto catalog by"];
+export function isHumanApproved(notes: string | null | undefined): boolean {
+  return HUMAN_APPROVAL_MARKERS.some((m) => (notes ?? "").includes(m));
+}
+
+/** Every catalog row's PestPac short name (APPROVED + ADDED + the non-chemical line). */
+export function approvedCatalogShortNames(): string[] {
+  return [...APPROVED, ...ADDED, NON_CHEMICAL].map((r) => r.name);
+}
+
 export async function seedApprovedProducts(prisma: PrismaClient) {
   const all: ReconcileRow[] = [
     ...APPROVED.map((a) => ({ ...a, confirmed: true })),
@@ -298,17 +310,30 @@ export async function seedApprovedProducts(prisma: PrismaClient) {
 
   // Existing products, indexed by normalized name (the stable upsert key).
   const existing = await prisma.product.findMany();
-  const byNorm = new Map(existing.map((p) => [normalizeProductName(p.name), p]));
+  // Prefer a live row when two normalize alike (a merged-away duplicate is inactive
+  // and carries a "Merged into" note — never pick it over the real catalog row).
+  const rank = (p: (typeof existing)[number]) => (p.active ? 2 : 0) + ((p.notes ?? "").includes("Merged into") ? 0 : 1);
+  const byNorm = new Map<string, (typeof existing)[number]>();
+  for (const p of existing) {
+    const n = normalizeProductName(p.name);
+    const prev = byNorm.get(n);
+    if (!prev || rank(p) > rank(prev)) byNorm.set(n, p);
+  }
   const approvedNorms = new Set<string>();
 
   let created = 0;
   let updated = 0;
   for (const row of all) {
-    const norm = normalizeProductName(row.name);
+    // The catalog shows the FULL product description (lib/catalog-names.ts); the
+    // PestPac short name stays the lookup key, so an older short-named row is found
+    // and renamed in place (its stock + history stay on it).
+    const fullName = canonicalProductName(row.name);
+    const norm = normalizeProductName(fullName);
     approvedNorms.add(norm);
+    approvedNorms.add(normalizeProductName(row.name));
     const code = isUomCode(row.code) ? row.code.toUpperCase() : "EA";
     const category = categorizeProduct(row.name, row.activeIngredient ?? "", row.target ?? "", code);
-    const found = byNorm.get(norm);
+    const found = byNorm.get(norm) ?? byNorm.get(normalizeProductName(row.name));
 
     // Line-of-service classification (authoritative; overwrite on every run).
     const cls = CLASSIFICATION[row.name];
@@ -341,6 +366,7 @@ export async function seedApprovedProducts(prisma: PrismaClient) {
       await prisma.product.update({
         where: { id: found.id },
         data: {
+          name: fullName,
           unitOfMeasure: code,
           approved: discarded ? false : true,
           active: discarded ? false : true,
@@ -363,7 +389,7 @@ export async function seedApprovedProducts(prisma: PrismaClient) {
     } else {
       await prisma.product.create({
         data: {
-          name: row.name,
+          name: fullName,
           unitOfMeasure: code,
           approved: true,
           confirmed: row.confirmed,
@@ -384,7 +410,10 @@ export async function seedApprovedProducts(prisma: PrismaClient) {
   }
 
   // Everything not on the approved list is off-catalog: still usable, flagged.
-  const offList = existing.filter((p) => !approvedNorms.has(normalizeProductName(p.name)));
+  // A product a super admin put on the catalog in-app (product-request approval or
+  // Product Review → Approve) stays approved — the list above is the PestPac base,
+  // not the whole catalog.
+  const offList = existing.filter((p) => !approvedNorms.has(normalizeProductName(p.name)) && !isHumanApproved(p.notes));
   let demoted = 0;
   for (const p of offList) {
     if (p.approved) {

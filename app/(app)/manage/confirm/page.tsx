@@ -10,6 +10,8 @@ import DuplicateClusters from "./DuplicateClusters";
 import ReviewAll from "./ReviewAll";
 import RejectedList from "./RejectedList";
 import ReviewTabs from "./ReviewTabs";
+import CleanupReport from "./CleanupReport";
+import { ensureCatalogCleanup, readCatalogCleanupReport } from "@/lib/catalog-cleanup";
 
 export const dynamic = "force-dynamic";
 
@@ -28,14 +30,16 @@ export default async function CatalogReviewPage() {
   // accept it onto the approved catalog and clear the stale review backlog. Runs once
   // per version on the live DB (gated by a Setting row).
   await ensureCatalogBaseline();
+  await ensureCatalogCleanup(); // catalog cleanup lands before we read products
 
-  const [pendingRaw, rejectedRaw, review] = await Promise.all([
+  const [pendingRaw, rejectedRaw, review, cleanup] = await Promise.all([
     prisma.product.findMany({ where: { confirmed: false, active: true }, orderBy: { name: "asc" } }),
     prisma.product.findMany({
       where: { active: false, notes: { contains: DISCARD_MARK }, NOT: { notes: { contains: REJECTED_ARCHIVED_MARK } } },
       orderBy: { name: "asc" },
     }),
     catalogReview(),
+    readCatalogCleanupReport(),
   ]);
 
   const rejectedNode = (
@@ -68,6 +72,8 @@ export default async function CatalogReviewPage() {
   );
 
   return (
+    <>
+    {cleanup ? <CleanupReport report={cleanup} /> : null}
     <ReviewTabs
       tabs={[
         { key: "all", label: "Approve / Reject", count: review.all.filter((p) => !(p.approved && p.confirmed)).length, node: <ReviewAll products={review.all} /> },
@@ -77,5 +83,6 @@ export default async function CatalogReviewPage() {
         { key: "rejected", label: "Rejected", count: rejectedRaw.length, node: rejectedNode },
       ]}
     />
+    </>
   );
 }

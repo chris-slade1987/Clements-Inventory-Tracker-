@@ -60,12 +60,20 @@ export async function POST(req: Request) {
         data.subdivision = norm.subdivision;
       }
 
+      // A super admin deliberately putting a product on the catalog: stamp it so the
+      // approved-catalog reconcile keeps it (seed isHumanApproved / catalog cleanup).
+      const stamp = `Approved onto catalog by ${user.name} on ${new Date().toISOString().slice(0, 10)}.`;
       if (action === "create") {
+        if (data.approved !== false) data.notes = [data.notes, stamp].filter(Boolean).join(" ");
         const p = await prisma.product.create({ data });
         return NextResponse.json({ ok: true, id: p.id });
       } else {
         const id = String(body?.id ?? "");
         if (!id) return NextResponse.json({ error: "Missing id." }, { status: 400 });
+        if (data.approved === true) {
+          const cur = await prisma.product.findUnique({ where: { id }, select: { approved: true, notes: true } });
+          if (cur && !cur.approved) data.notes = [has("notes") ? data.notes : cur.notes, stamp].filter(Boolean).join(" ");
+        }
         await prisma.product.update({ where: { id }, data });
         return NextResponse.json({ ok: true });
       }

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ensureCatalogCleanup } from "@/lib/catalog-cleanup";
 import { Card, PageHeader } from "@/components/ui";
 import { requireUser, branchLocked, isSuperAdmin } from "@/lib/auth";
 import { ensureReceiptsLoaded } from "@/lib/receipts-ensure";
@@ -48,6 +49,7 @@ export default async function DashboardPage({
   // Independent reads — the session user and the (promised) search params.
   const [user, sp] = await Promise.all([requireUser(), searchParams]);
   await ensureReceiptsLoaded(); // receipts from PestPac transfer exports land before we read
+  await ensureCatalogCleanup(); // catalog cleanup lands before we read products
   const now = new Date();
   const p = currentPeriods(now);
 

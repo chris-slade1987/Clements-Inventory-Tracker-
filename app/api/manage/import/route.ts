@@ -87,7 +87,10 @@ export async function POST(req: Request) {
           await prisma.product.update({ where: { id: found.id }, data });
           updated++;
         } else {
-          await prisma.product.create({ data });
+          // An imported row is NOT on the approved catalog until a super admin
+          // approves it in Product Review (the schema defaults approved=true, which
+          // is how sample rows like "Chemical X" reached the catalog).
+          await prisma.product.create({ data: { ...data, approved: false } });
           created++;
         }
       } catch (e) {
