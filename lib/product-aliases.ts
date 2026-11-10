@@ -34,6 +34,7 @@ export const PRODUCT_ALIASES: Record<string, string> = {
   "lesco fertilizer 21-0-6 50 lb": "Fertilizer - 21-0-6",
   "fertilizer 21-0-6 (turf)": "Fertilizer - 21-0-6", // physical-count sheet variant
   "lesco k-flow liquid fert 0-0-25": "Lesco Liquid 0-0-25",
+  "lesco nutra-tech 0-0-25 liquid": "Lesco Liquid 0-0-25", // PestPac transfer 11/3/2026 (Vero, 4 J @ $20.90) — 0-0-25 liquid potash; verify
   "gentrol igr insecticide": "Gentrol IGR Concentrate",
 
   // --- Phase 2: 4-branch transfer histories (Naples/Orlando/Stuart/Vero) ---

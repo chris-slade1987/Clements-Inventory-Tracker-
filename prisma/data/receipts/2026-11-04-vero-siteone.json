@@ -1,0 +1,17 @@
+{
+  "key": "receipts-2026-11-04-vero-siteone",
+  "source": "PestPac transfer report 'November Warehouse Inventory.xlsx' (COO, 2026-11-10) \u2014 Vero Beach rows only; Orlando rows were loaded from the first file",
+  "distributor": "SiteOne",
+  "invoiceNumber": "XFER-2026-11-04-VERO",
+  "date": "2026-11-04",
+  "warehouse": "Vero Beach (HQ)",
+  "transferredBy": "CHAYSE",
+  "lines": [
+    {
+      "material": "LESCO 16-0-8 SPAR TECH",
+      "quantity": 40.0,
+      "unitRaw": "FB",
+      "cost": 988.0
+    }
+  ]
+}

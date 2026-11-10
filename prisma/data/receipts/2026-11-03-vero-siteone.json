@@ -1,0 +1,125 @@
+{
+  "key": "receipts-2026-11-03-vero-siteone",
+  "source": "PestPac transfer report 'November Warehouse Inventory.xlsx' (COO, 2026-11-10) \u2014 Vero Beach rows only; Orlando rows were loaded from the first file",
+  "distributor": "SiteOne",
+  "invoiceNumber": "XFER-2026-11-03-VERO",
+  "date": "2026-11-03",
+  "warehouse": "Vero Beach (HQ)",
+  "transferredBy": "CHAYSE",
+  "lines": [
+    {
+      "material": "ADVION INSECT GRANULE 25 LB.",
+      "quantity": 1.0,
+      "unitRaw": "FB",
+      "cost": 152.89
+    },
+    {
+      "material": "ARTAVIA 2SC FUNGICIDE",
+      "quantity": 4.0,
+      "unitRaw": "J",
+      "cost": 540.0
+    },
+    {
+      "material": "BIFEN XTS INSECTICIDE 1 GAL.",
+      "quantity": 4.0,
+      "unitRaw": "J",
+      "cost": 560.88
+    },
+    {
+      "material": "CB-80 DUAL SPRAY CAN AEROSOL I",
+      "quantity": 6.0,
+      "unitRaw": "AC",
+      "cost": 161.34
+    },
+    {
+      "material": "CB-80 DUAL SPRAY CAN AEROSOL I",
+      "quantity": 6.0,
+      "unitRaw": "AC",
+      "cost": 161.34
+    },
+    {
+      "material": "CONTRAC BAIT BLOCK",
+      "quantity": 3.0,
+      "unitRaw": "BU",
+      "cost": 283.83
+    },
+    {
+      "material": "EXTINGUISH PRO FIRE ANT BAIT",
+      "quantity": 1.0,
+      "unitRaw": "FB",
+      "cost": 238.12
+    },
+    {
+      "material": "LESCO 25-0-10 GRANULAR FERT",
+      "quantity": 40.0,
+      "unitRaw": "FB",
+      "cost": 1279.6
+    },
+    {
+      "material": "LESCO BANDIT 2F SYSTEMIC LIQUI",
+      "quantity": 4.0,
+      "unitRaw": "J",
+      "cost": 245.08
+    },
+    {
+      "material": "LESCO BIO IRON PLUS LIQUID FER",
+      "quantity": 2.0,
+      "unitRaw": "J",
+      "cost": 159.48
+    },
+    {
+      "material": "LESCO L&O PALM 8-0-10 RANULAR",
+      "quantity": 40.0,
+      "unitRaw": "FB",
+      "cost": 876.0
+    },
+    {
+      "material": "LESCO NUTRA-TECH 0-0-25 LIQUID",
+      "quantity": 4.0,
+      "unitRaw": "J",
+      "cost": 83.6
+    },
+    {
+      "material": "LESCO SPREADER STICKER 2.5 GAL",
+      "quantity": 1.0,
+      "unitRaw": "J",
+      "cost": 83.59
+    },
+    {
+      "material": "LESCO T-STORM LIQUID FUNGICIDE",
+      "quantity": 2.0,
+      "unitRaw": "J",
+      "cost": 268.18
+    },
+    {
+      "material": "MISC CHEMICAL",
+      "quantity": 0.0078,
+      "unitRaw": "J",
+      "cost": 11.18
+    },
+    {
+      "material": "PT ALPINE PRESSURIZED INSECTIC",
+      "quantity": 1.0,
+      "unitRaw": "AC",
+      "cost": 25.87
+    },
+    {
+      "material": "PT PHANTOM II PRESSURIZED INSE",
+      "quantity": 1.0,
+      "unitRaw": "AC",
+      "cost": 28.75
+    },
+    {
+      "material": "TAURUS SC INSECTICIDE 78 OZ.",
+      "quantity": 4.0,
+      "unitRaw": "B",
+      "cost": 380.0
+    },
+    {
+      "material": "WELLMARK EXTINGUISH PLUS FIRE",
+      "quantity": 2.0,
+      "unitRaw": "FB",
+      "cost": 491.26
+    }
+  ]
+}

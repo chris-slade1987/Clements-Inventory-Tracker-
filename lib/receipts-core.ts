@@ -35,13 +35,16 @@ export type ReceiptFileResult = {
   posted: number;
   skippedExisting: number;
   unmatched: string[];
+  /** Lines skipped because the same product + quantity was already received at this
+   *  warehouse within a few days (e.g. through the in-app Check-In) — never double-post. */
+  alreadyReceived: string[];
   detail: { material: string; product: string | null; quantity: number }[];
 };
 
 const isUniqueViolation = (e: unknown) => (e as { code?: string })?.code === "P2002";
 
 export async function applyReceiptFile(prisma: PrismaClient, f: ReceiptFile, opts: { apply: boolean }): Promise<ReceiptFileResult> {
-  const res: ReceiptFileResult = { key: f.key, warehouse: f.warehouse, ready: false, posted: 0, skippedExisting: 0, unmatched: [], detail: [] };
+  const res: ReceiptFileResult = { key: f.key, warehouse: f.warehouse, ready: false, posted: 0, skippedExisting: 0, unmatched: [], alreadyReceived: [], detail: [] };
 
   const wh = await prisma.warehouse.findFirst({ where: { name: f.warehouse }, select: { id: true } });
   if (!wh) return res;
@@ -93,6 +96,23 @@ export async function applyReceiptFile(prisma: PrismaClient, f: ReceiptFile, opt
     const prod = r.prod!;
     if (await prisma.stockMovement.findUnique({ where: { externalRef: r.ref }, select: { id: true } })) {
       res.skippedExisting++;
+      continue;
+    }
+    // Guard: the same product + quantity already received at this warehouse within
+    // a few days on a DIFFERENT invoice (e.g. a manager's in-app Check-In of the same
+    // shipment) → skip and report it rather than double the stock.
+    const DAY = 864e5;
+    const dup = await prisma.invoiceLine.findFirst({
+      where: {
+        productId: prod.id,
+        quantity: r.l.quantity,
+        invoiceId: { not: invoiceId },
+        invoice: { warehouseId: wh.id, status: "confirmed", invoiceDate: { gte: new Date(date.getTime() - 3 * DAY), lte: new Date(date.getTime() + 7 * DAY) } },
+      },
+      select: { id: true, invoice: { select: { invoiceNumber: true } } },
+    });
+    if (dup) {
+      res.alreadyReceived.push(`${r.l.material} ×${r.l.quantity} (already on invoice ${dup.invoice.invoiceNumber})`);
       continue;
     }
     const unitPrice = r.l.quantity ? Math.round((r.l.cost / r.l.quantity) * 1000) / 1000 : null;
