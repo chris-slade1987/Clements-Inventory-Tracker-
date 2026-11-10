@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Card, PageHeader } from "@/components/ui";
 import { requireUser, branchLocked, isSuperAdmin } from "@/lib/auth";
+import { ensureReceiptsLoaded } from "@/lib/receipts-ensure";
 import { prisma } from "@/lib/prisma";
 import { pendingProductRequestCount } from "@/lib/product-requests";
 import { INVENTORY_ALERT_TYPES } from "@/lib/anomaly";
@@ -46,6 +47,7 @@ export default async function DashboardPage({
 }) {
   // Independent reads — the session user and the (promised) search params.
   const [user, sp] = await Promise.all([requireUser(), searchParams]);
+  await ensureReceiptsLoaded(); // receipts from PestPac transfer exports land before we read
   const now = new Date();
   const p = currentPeriods(now);
 

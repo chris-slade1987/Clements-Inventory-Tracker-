@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Card, PageHeader } from "@/components/ui";
+import { ensureReceiptsLoaded } from "@/lib/receipts-ensure";
 import { requireUser, branchLocked } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import {
@@ -48,6 +49,7 @@ export default async function ReportsPage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const user = await requireUser();
+  await ensureReceiptsLoaded(); // receipts from PestPac transfer exports land before we read
   const sp = await searchParams;
   const filters = parseFilters(sp);
   const view: ViewKey = (TABS.find((t) => t.key === sp.view)?.key ?? "overview") as ViewKey;

@@ -15,6 +15,7 @@ import { ensureProductionSeed } from "@/lib/seed-production";
 import { ensureOrlandoQ4AuditDraft } from "@/lib/audit-seed";
 import { ensureApprovedCatalog } from "@/lib/approved-catalog-ensure";
 import { ensureOnHandBaseline } from "@/lib/onhand-baseline";
+import { ensureReceiptsLoaded } from "@/lib/receipts-ensure";
 import { ensureFleetMaster } from "@/lib/fleet-master-ensure";
 import { ensureHolidayCloseTimes } from "@/lib/holiday-hours-ensure";
 import { ensureStaleRegistrationNudgesCleared } from "@/lib/registration-nudge-sweep";
@@ -65,6 +66,12 @@ export default async function AppGroupLayout({
   // count sheet; idempotent (Setting marker), self-retries until the catalog +
   // warehouses exist, non-fatal.
   await ensureOnHandBaseline();
+
+  // Post distributor receipts reported since the 10/30 count (PestPac transfer
+  // exports committed under prisma/data/receipts/) as confirmed invoices + check_in
+  // movements. Runtime because production only accepts runtime writes. Runs AFTER
+  // the baseline so it adds on top of the verified count. Idempotent, non-fatal.
+  await ensureReceiptsLoaded();
 
   // Force-sync the Fleet registry from the reconciled master sheet (fixes the fields
   // a bad in-app upload scrambled, and adds units 43–48). Revisioned, once, non-fatal.
