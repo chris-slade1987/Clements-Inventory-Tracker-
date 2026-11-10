@@ -1,6 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
-import { applyReceiptFile, type ReceiptFile } from "@/lib/receipts-core";
+import { applyReceiptFile, removeReceiptLines, type ReceiptFile } from "@/lib/receipts-core";
 import r20261103orlando from "@/prisma/data/receipts/2026-11-03-orlando-siteone.json";
 import r20261103vero from "@/prisma/data/receipts/2026-11-03-vero-siteone.json";
 import r20261104vero from "@/prisma/data/receipts/2026-11-04-vero-siteone.json";
@@ -38,6 +38,23 @@ async function run(): Promise<void> {
     } catch (e) {
       pending = true;
       console.error(`ensureReceiptsLoaded: ${f.key} failed (non-fatal, will retry):`, e);
+    }
+  }
+  // Lines later flagged `remove` (COO review) — reverse them if they were posted.
+  // Runs after the loads above; once per file (Setting marker), self-retries.
+  for (const f of FILES) {
+    if (!f.lines.some((l) => l.remove)) continue;
+    const marker = `receipts_removed:${f.key}:${f.lines.map((l, i) => (l.remove ? i + 1 : "")).filter(Boolean).join(",")}`;
+    try {
+      if (await prisma.setting.findUnique({ where: { key: marker } })) continue;
+      if (!(await prisma.setting.findUnique({ where: { key: `receipts_loaded:${f.key}` } }))) { pending = true; continue; }
+      const n = await removeReceiptLines(prisma, f);
+      const value = JSON.stringify({ at: new Date().toISOString(), reversed: n });
+      await prisma.setting.upsert({ where: { key: marker }, update: { value }, create: { key: marker, value } });
+      console.log(`ensureReceiptsLoaded: ${f.key} — ${n} removed line(s) reversed.`);
+    } catch (e) {
+      pending = true;
+      console.error(`ensureReceiptsLoaded: removing lines from ${f.key} failed (non-fatal, will retry):`, e);
     }
   }
   if (pending) _run = null; // allow a later request to retry

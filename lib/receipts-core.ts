@@ -25,7 +25,10 @@ export type ReceiptFile = {
   date: string; // YYYY-MM-DD
   warehouse: string;
   transferredBy?: string;
-  lines: { material: string; quantity: number; unitRaw?: string; cost: number }[];
+  /** `remove` (a reason) = never post this line; if it was already posted, reverse it
+   *  (removeReceiptLines). The line stays in the file so every other line keeps its
+   *  position-based externalRef. */
+  lines: { material: string; quantity: number; unitRaw?: string; cost: number; remove?: string }[];
 };
 
 export type ReceiptFileResult = {
@@ -69,7 +72,9 @@ export async function applyReceiptFile(prisma: PrismaClient, f: ReceiptFile, opt
   };
 
   const date = new Date(`${f.date}T12:00:00Z`); // noon UTC → correct ET calendar day
-  const lines = f.lines.map((l, i) => ({ l, prod: resolve(l.material), ref: `${f.key}#${i + 1}` }));
+  const lines = f.lines
+    .map((l, i) => ({ l, prod: resolve(l.material), ref: `${f.key}#${i + 1}` }))
+    .filter((r) => !r.l.remove);
   for (const r of lines) {
     res.detail.push({ material: r.l.material, product: r.prod?.name ?? null, quantity: r.l.quantity });
     if (!r.prod) res.unmatched.push(r.l.material);
@@ -143,4 +148,41 @@ export async function applyReceiptFile(prisma: PrismaClient, f: ReceiptFile, opt
     if (unitPrice != null) await prisma.product.update({ where: { id: prod.id }, data: { lastUnitCost: unitPrice } }).catch(() => {});
   }
   return res;
+}
+
+/** Reverse lines flagged `remove` that were already posted: an offsetting negative
+ *  `adjustment` (reversalOfId → the original check_in, same movement date) so on-hand
+ *  nets out with the audit trail kept, then the invoice line comes off the receipt and
+ *  the invoice total is recomputed so Purchases no longer shows it. Movements are never
+ *  deleted. Idempotent (reversalOfId is unique). Returns how many lines it reversed. */
+export async function removeReceiptLines(prisma: PrismaClient, f: ReceiptFile): Promise<number> {
+  let n = 0;
+  const invoiceId = `rcpt-${f.key}`;
+  for (const [i, l] of f.lines.entries()) {
+    if (!l.remove) continue;
+    const ref = `${f.key}#${i + 1}`;
+    const mv = await prisma.stockMovement.findUnique({ where: { externalRef: ref } });
+    if (mv && !(await prisma.stockMovement.findUnique({ where: { reversalOfId: mv.id }, select: { id: true } }))) {
+      try {
+        await prisma.stockMovement.create({
+          data: {
+            type: "adjustment", productId: mv.productId, warehouseId: mv.warehouseId, quantity: -mv.quantity,
+            unit: mv.unit, unitPrice: mv.unitPrice, movementDate: mv.movementDate, reversalOfId: mv.id,
+            reason: `Receipt line removed (${f.invoiceNumber}: ${l.material}) — ${l.remove}`,
+          },
+        });
+        n++;
+      } catch (e) { if (!isUniqueViolation(e)) throw e; }
+    }
+    await prisma.invoiceLine.deleteMany({ where: { externalRef: ref } });
+  }
+  if (n > 0 || f.lines.some((l) => l.remove)) {
+    const inv = await prisma.invoice.findUnique({ where: { id: invoiceId }, select: { id: true } });
+    if (inv) {
+      const agg = await prisma.invoiceLine.aggregate({ where: { invoiceId }, _sum: { lineTotal: true } });
+      const total = Math.round((agg._sum.lineTotal ?? 0) * 100) / 100;
+      await prisma.invoice.update({ where: { id: invoiceId }, data: { subtotal: total, total } });
+    }
+  }
+  return n;
 }

@@ -93,6 +93,7 @@
     },
     {
       "material": "MISC CHEMICAL",
+      "remove": "COO 2026-11-10: ignore the Miscellaneous Chemical line \u2014 removed from on-hand and Purchases",
       "quantity": 0.0078,
       "unitRaw": "J",
       "cost": 11.18
