@@ -1,6 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
-import { scoreInspection, parseJson, criticalFailures, isServiceAdvisorDriver, type Ratings, type Checks } from "@/lib/inspection";
+import { scoreInspection, parseJson, criticalFailures, isServiceAdvisorDriver, isAdvisorName, type Ratings, type Checks } from "@/lib/inspection";
 import { matchEmployeeByName } from "@/lib/people";
 
 // Runtime healer: re-score every stored vehicle inspection under the current
@@ -73,48 +73,73 @@ export async function ensureInspectionsRescored(): Promise<void> {
 // inspection whose graded driver is a service advisor under the advisor profile
 // (out of 9), and clears / rewrites the critical-safety alert when its only
 // "critical failures" were N/A items. Raw ratings/checks and photos are kept.
-// Once (Setting marker), non-fatal; no emails are sent.
+// Non-fatal; no emails are sent.
 
-const ADVISOR_MARKER_KEY = "inspection_rescore_advisor_v1";
-let _advisorRan = false;
+// Runs as a cheap self-heal (not one-time): the advisor rule can only become
+// MORE complete (e.g. a profile fixed in HR, a vehicle re-linked), so every pass
+// re-checks all inspections. Throttled to once per server instance per 10 min;
+// writes only rows whose stored grade is wrong. The first version (marker
+// inspection_rescore_advisor_v1) missed advisors whose profile didn't read as an
+// advisor — e.g. Josh Flagg's #48, still at 60%.
+const ADVISOR_REPORT_KEY = "inspection_rescore_advisor_report";
+const THROTTLE_MS = 10 * 60 * 1000;
+let _advisorAt = 0;
+let _advisorRun: Promise<void> | null = null;
 
-export async function ensureAdvisorInspectionsRescored(): Promise<void> {
-  if (_advisorRan) return;
-  try {
-    if (await prisma.setting.findUnique({ where: { key: ADVISOR_MARKER_KEY } })) { _advisorRan = true; return; }
-    const res = await rescoreAdvisorInspections();
-    await prisma.setting.upsert({
-      where: { key: ADVISOR_MARKER_KEY },
-      update: { value: JSON.stringify({ at: new Date().toISOString(), ...res }) },
-      create: { key: ADVISOR_MARKER_KEY, value: JSON.stringify({ at: new Date().toISOString(), ...res }) },
-    });
-    _advisorRan = true;
-    console.log(`ensureAdvisorInspectionsRescored: ${res.rescored} advisor inspection(s) re-scored, ${res.alertsCleared} critical alert(s) cleared.`);
-  } catch (e) {
-    console.error("ensureAdvisorInspectionsRescored failed (non-fatal):", e);
-  }
+export function ensureAdvisorInspectionsRescored(force = false): Promise<void> {
+  if (!force && _advisorRun) return _advisorRun;
+  if (!force && Date.now() - _advisorAt < THROTTLE_MS) return Promise.resolve();
+  _advisorRun = (async () => {
+    try {
+      const res = await rescoreAdvisorInspections();
+      _advisorAt = Date.now();
+      if (res.rescored > 0 || res.alertsCleared > 0) {
+        const value = JSON.stringify({ at: new Date().toISOString(), ...res });
+        await prisma.setting.upsert({ where: { key: ADVISOR_REPORT_KEY }, update: { value }, create: { key: ADVISOR_REPORT_KEY, value } });
+        console.log(`ensureAdvisorInspectionsRescored: ${res.rescored} advisor inspection(s) re-scored, ${res.alertsCleared} critical alert(s) cleared (${res.advisors.join(", ")}).`);
+      }
+    } catch (e) {
+      console.error("ensureAdvisorInspectionsRescored failed (non-fatal):", e);
+    } finally {
+      _advisorRun = null;
+    }
+  })();
+  return _advisorRun;
 }
 
 /** Exported for the dev test script. */
 export async function rescoreAdvisorInspections(): Promise<{ rescored: number; alertsCleared: number; advisors: string[] }> {
   const [rows, employees] = await Promise.all([
     prisma.vehicleInspection.findMany({
-      select: { id: true, vehicleId: true, year: true, month: true, branch: true, employeeId: true, technicianName: true, ratings: true, checks: true, score: true, maxScore: true, scorePct: true, grade: true },
+      select: {
+        id: true, vehicleId: true, year: true, month: true, branch: true, employeeId: true, technicianName: true,
+        ratings: true, checks: true, score: true, maxScore: true, scorePct: true, grade: true,
+        vehicle: { select: { assignedEmployeeId: true, assignedTo: true } },
+      },
     }),
-    prisma.employee.findMany({ select: { id: true, name: true, nickname: true, role: true, division: true, branch: true, user: { select: { accessLevel: true } } } }),
+    prisma.employee.findMany({ select: { id: true, name: true, nickname: true, role: true, title: true, division: true, branch: true, user: { select: { accessLevel: true } } } }),
   ]);
   const advisorIds = new Set(
-    employees.filter((e) => isServiceAdvisorDriver({ role: e.role, accessLevel: e.user?.accessLevel ?? null })).map((e) => e.id),
+    employees.filter((e) => isServiceAdvisorDriver({ ...e, accessLevel: e.user?.accessLevel ?? null })).map((e) => e.id),
   );
   const lite = employees.map((e) => ({ id: e.id, name: e.name, nickname: e.nickname, role: e.role, division: e.division, branch: e.branch }));
+  const branchLite = (b: string | null) => lite.filter((e) => !b || e.branch === b);
 
   let rescored = 0;
   let alertsCleared = 0;
   const advisors = new Set<string>();
   for (const r of rows) {
-    const empId = r.employeeId ?? matchEmployeeByName(r.technicianName, lite.filter((e) => !r.branch || e.branch === r.branch));
-    if (!empId || !advisorIds.has(empId)) continue;
-    advisors.add(r.technicianName ?? empId);
+    // Advisor if the graded employee, the vehicle's assigned driver, or the
+    // recorded names resolve to a service advisor.
+    const gradedId = r.employeeId ?? matchEmployeeByName(r.technicianName, branchLite(r.branch));
+    const driverId = r.vehicle?.assignedEmployeeId ?? matchEmployeeByName(r.vehicle?.assignedTo, branchLite(r.branch));
+    const isAdvisor =
+      (!!gradedId && advisorIds.has(gradedId)) ||
+      (!!driverId && advisorIds.has(driverId)) ||
+      isAdvisorName(r.technicianName) ||
+      isAdvisorName(r.vehicle?.assignedTo);
+    if (!isAdvisor) continue;
+    advisors.add(r.technicianName ?? r.vehicle?.assignedTo ?? r.id);
     const ratings = parseJson<Ratings>(r.ratings, {});
     const checks = parseJson<Checks>(r.checks, {});
     const next = scoreInspection(ratings, checks, "advisor");
@@ -133,13 +158,8 @@ export async function rescoreAdvisorInspections(): Promise<{ rescored: number; a
       alertsCleared += d.count;
     } else {
       const a = await prisma.alert.findUnique({ where: { dedupeKey } });
-      if (a) {
-        const label = a.message.split(":")[0];
-        await prisma.alert.update({
-          where: { dedupeKey },
-          data: { message: `${label}: ${fails.length} critical inspection failure${fails.length === 1 ? "" : "s"} — ${fails.map((f) => f.label).join("; ")}.` },
-        });
-      }
+      const msg = a ? `${a.message.split(":")[0]}: ${fails.length} critical inspection failure${fails.length === 1 ? "" : "s"} — ${fails.map((f) => f.label).join("; ")}.` : null;
+      if (a && msg && a.message !== msg) await prisma.alert.update({ where: { dedupeKey }, data: { message: msg } });
     }
   }
   return { rescored, alertsCleared, advisors: [...advisors] };

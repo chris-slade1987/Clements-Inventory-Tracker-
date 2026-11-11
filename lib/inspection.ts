@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { matchEmployeeByName, type EmployeeLite } from "@/lib/people";
+import techNumbers from "@/prisma/data/tech-numbers.json";
 
 // Monthly vehicle inspection — a digital version of the paper form. Section A
 // rates 4 condition areas Exceeds / Meets / Below (3 pts each max → 12; Meets
@@ -103,18 +104,64 @@ export function maxScoreFor(profile: InspectionProfile = "technician"): number {
   return conditionItemsFor(profile).length * CONDITION_ITEM_MAX + checkItemsFor(profile).length;
 }
 
-/** A driver whose job title is an advisor (Service Advisor, Sales Advisor, …) or
- *  whose login is the Service Advisor level ("sales"). Leadership never counts. */
-export function isServiceAdvisorDriver(emp: { role?: string | null; accessLevel?: string | null } | null | undefined): boolean {
-  if (!emp || driverIsLeadership(emp)) return false;
-  return emp.accessLevel === "sales" || /advisor/i.test(emp.role ?? "");
+// Who is a service advisor / salesperson. Prod profile data is inconsistent (Josh
+// Flagg's login is the technician level; a role may be blank or "Technician"), so
+// several signals count — any one is enough:
+//   - job title / role contains "advisor" (Service Advisor, Sales Advisor, …);
+//   - the Service Advisor login level ("sales");
+//   - the name is on the COO's company phone list as a Service Advisor
+//     (prisma/data/tech-numbers.json — Josh Flagg, Matthew McCormack, Michael Hanna),
+//     plus the spellings the COO uses. Leadership never counts.
+const normName = (s: string | null | undefined) => (s ?? "").toLowerCase().replace(/[^a-z ]/g, " ").replace(/\s+/g, " ").trim();
+const ADVISOR_NAMES = new Set<string>([
+  ...((techNumbers as { people: { name: string; role?: string | null }[] }).people ?? [])
+    .filter((p) => /advisor|sales/i.test(p.role ?? ""))
+    .map((p) => normName(p.name)),
+  // COO 2026-11-11 named the advisors; cover the spellings in use.
+  "josh flagg", "joshua flagg", "matthew mccormack", "matthew mccormick", "matthew mckormick", "matt mccormack", "matt mccormick", "michael hanna",
+]);
+
+/** True when a free-text name (full name or nickname) is a known service advisor. */
+export function isAdvisorName(name: string | null | undefined): boolean {
+  const n = normName(name);
+  return !!n && ADVISOR_NAMES.has(n);
 }
 
-/** The inspection profile for a graded employee (technician when unknown). */
-export async function inspectionProfileFor(employeeId: string | null | undefined): Promise<InspectionProfile> {
-  if (!employeeId) return "technician";
-  const e = await prisma.employee.findUnique({ where: { id: employeeId }, select: { role: true, user: { select: { accessLevel: true } } } });
-  return isServiceAdvisorDriver(e ? { role: e.role, accessLevel: e.user?.accessLevel ?? null } : null) ? "advisor" : "technician";
+/** A driver who is a service advisor / salesperson (see the signals above). */
+export function isServiceAdvisorDriver(
+  emp: { name?: string | null; nickname?: string | null; role?: string | null; title?: string | null; accessLevel?: string | null } | null | undefined,
+): boolean {
+  if (!emp || driverIsLeadership(emp)) return false;
+  return (
+    emp.accessLevel === "sales" ||
+    /advisor/i.test(emp.role ?? "") ||
+    /advisor/i.test(emp.title ?? "") ||
+    isAdvisorName(emp.name) ||
+    isAdvisorName(emp.nickname)
+  );
+}
+
+const ADVISOR_EMP_SELECT = { name: true, nickname: true, role: true, title: true, user: { select: { accessLevel: true } } } as const;
+
+async function employeeIsAdvisor(employeeId: string | null | undefined): Promise<boolean> {
+  if (!employeeId) return false;
+  const e = await prisma.employee.findUnique({ where: { id: employeeId }, select: ADVISOR_EMP_SELECT });
+  return !!e && isServiceAdvisorDriver({ ...e, accessLevel: e.user?.accessLevel ?? null });
+}
+
+/** The inspection profile: "advisor" when the graded employee OR the vehicle's
+ *  assigned driver is a service advisor (the vehicle is "linked to" an advisor),
+ *  else "technician". */
+export async function inspectionProfileFor(
+  employeeId: string | null | undefined,
+  vehicle?: { assignedEmployeeId?: string | null; assignedTo?: string | null } | null,
+): Promise<InspectionProfile> {
+  if (await employeeIsAdvisor(employeeId)) return "advisor";
+  if (vehicle) {
+    if (await employeeIsAdvisor(vehicle.assignedEmployeeId)) return "advisor";
+    if (isAdvisorName(vehicle.assignedTo)) return "advisor";
+  }
+  return "technician";
 }
 
 export function scoreInspection(ratings: Ratings, checks: Checks, profile: InspectionProfile = "technician") {

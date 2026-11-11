@@ -119,7 +119,7 @@ export default async function AppGroupLayout({
   await ensureInspectionsRescored();
   // Service-advisor vehicles: re-grade filed inspections without the technician-only
   // items (toolbox, truck bed, PPE, pesticides, signage, sprayers) — COO 2026-11-11.
-  // Once (Setting marker), non-fatal, no emails. See lib/inspection-rescore.ts.
+  // Self-heal (throttled, writes only wrong rows), non-fatal, no emails. See lib/inspection-rescore.ts.
   await ensureAdvisorInspectionsRescored();
 
   // Forced default-password change. The pathname arrives as a request header set

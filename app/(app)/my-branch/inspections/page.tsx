@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ensureAdvisorInspectionsRescored } from "@/lib/inspection-rescore";
 import { Card, PageHeader } from "@/components/ui";
 import { requireUser, scopedBranch, branchLocked, isSuperAdmin } from "@/lib/auth";
 import { planRescoreNotices, techEmail, managerEmail } from "@/lib/inspection-rescore-notify";
@@ -24,6 +25,7 @@ export default async function InspectionsPage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const user = await requireUser();
+  await ensureAdvisorInspectionsRescored(); // advisor vehicles graded without technician-only items
   const sp = await searchParams;
   const requested = BRANCHES.find((b) => b.key === sp.branch)?.key ?? null;
   const branch = scopedBranch(user, requested);

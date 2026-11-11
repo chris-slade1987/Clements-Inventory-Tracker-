@@ -32,7 +32,7 @@ export async function resendInspectionReport(opts: {
   const branch = insp.branch ? branchLabel(insp.branch) : null;
   const monthName = new Date(insp.year, insp.month - 1, 1).toLocaleString("en-US", { month: "long" });
   const checks = parseJson<Checks>(insp.checks, {});
-  const fails = criticalFailures(checks, await inspectionProfileFor(insp.employeeId));
+  const fails = criticalFailures(checks, await inspectionProfileFor(insp.employeeId, insp.vehicle));
 
   const origin =
     appUrl() ||

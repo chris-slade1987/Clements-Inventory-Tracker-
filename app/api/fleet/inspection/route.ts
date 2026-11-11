@@ -86,7 +86,7 @@ export async function POST(req: Request) {
 
     // Service-advisor vehicles skip the technician-only items (toolbox, truck bed,
     // PPE, pesticides, signage, sprayers) and the truck-bed photo — scored out of 9.
-    const profile = await inspectionProfileFor(employeeId);
+    const profile = await inspectionProfileFor(employeeId, vehicle);
     const { score, maxScore, scorePct, grade } = scoreInspection(ratings, checks, profile);
 
     // Photos: all four required. Each value is a new data URL or an existing URL.

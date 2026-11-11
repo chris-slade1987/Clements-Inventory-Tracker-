@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ensureAdvisorInspectionsRescored } from "@/lib/inspection-rescore";
 import { notFound, redirect } from "next/navigation";
 import { PageHeader } from "@/components/ui";
 import { requireUser, branchLocked } from "@/lib/auth";
@@ -23,6 +24,7 @@ export default async function InspectPage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const user = await requireUser();
+  await ensureAdvisorInspectionsRescored(); // advisor vehicles graded without technician-only items
   const { id } = await params;
   const sp = await searchParams;
 
@@ -72,9 +74,9 @@ export default async function InspectPage({
   });
   const levelByEmp = new Map(logins.map((u) => [u.employeeId!, u.accessLevel]));
   const advisorEmployeeIds = employees
-    .filter((e) => isServiceAdvisorDriver({ role: e.role, accessLevel: levelByEmp.get(e.id) ?? null }))
+    .filter((e) => isServiceAdvisorDriver({ name: e.name, nickname: e.nickname, role: e.role, title: e.title, accessLevel: levelByEmp.get(e.id) ?? null }))
     .map((e) => e.id);
-  const profile = await inspectionProfileFor(matchedEmployeeId);
+  const profile = await inspectionProfileFor(matchedEmployeeId, vehicle);
 
   const prefill = {
     date: existing ? iso(existing.date) : iso(now),
