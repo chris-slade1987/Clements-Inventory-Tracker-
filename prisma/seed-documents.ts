@@ -46,9 +46,13 @@ const DOCS: DocSeed[] = [
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
     effective: "Version 54 · Last updated November 10, 2026",
+    // NOTE: the Manager Manual is a read-only reference with NO acknowledgment
+    // step (only the Employee Handbook collects sign-offs), so a version bump here
+    // never asks managers to acknowledge anything — older "Re-prompts" notes below
+    // are inaccurate. COO 2026-11-11: do not seek manager acknowledgments for it.
     // v54: Approved catalog — full product descriptions (no PestPac nicknames);
     // clearing a review queue never approves anything; CSV-imported products land
-    // off-catalog until a super admin approves them. Re-prompts.
+    // off-catalog until a super admin approves them.
     // v53: Scorecards hub — Overview of every quarterly review (super admins) with
     // Branch Managers / Sales Director tabs; the Sales Director review moved from
     // Sales Team to Scorecards → Sales Director. Re-prompts.
