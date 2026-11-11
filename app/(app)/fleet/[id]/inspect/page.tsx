@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/ui";
 import { requireUser, branchLocked } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { branchLabel } from "@/lib/management";
-import { parseJson } from "@/lib/inspection";
+import { parseJson, isServiceAdvisorDriver, inspectionProfileFor } from "@/lib/inspection";
 import { listEmployees, matchEmployeeByName } from "@/lib/people";
 import { managerTodoPeriod } from "@/lib/date";
 import InspectionForm from "./InspectionForm";
@@ -63,6 +63,19 @@ export default async function InspectPage({
   // short "Renzo" / "Josh F*"), so every inspection files under one consistent name.
   const matchedEmployeeName = matchedEmployeeId ? employees.find((e) => e.id === matchedEmployeeId)?.name ?? null : null;
 
+  // Service advisors' vehicles are graded without the technician-only items
+  // (lib/inspection.ts itemApplies). Which employees are advisors, by job title or
+  // the Service Advisor login level.
+  const logins = await prisma.user.findMany({
+    where: { employeeId: { in: employees.map((e) => e.id) } },
+    select: { employeeId: true, accessLevel: true },
+  });
+  const levelByEmp = new Map(logins.map((u) => [u.employeeId!, u.accessLevel]));
+  const advisorEmployeeIds = employees
+    .filter((e) => isServiceAdvisorDriver({ role: e.role, accessLevel: levelByEmp.get(e.id) ?? null }))
+    .map((e) => e.id);
+  const profile = await inspectionProfileFor(matchedEmployeeId);
+
   const prefill = {
     date: existing ? iso(existing.date) : iso(now),
     employeeId: matchedEmployeeId ?? "",
@@ -114,6 +127,7 @@ export default async function InspectPage({
           periodLabel={`${monthName} ${year}`}
           canEdit={canEdit}
           inspection={existing}
+          profile={profile}
         />
       </>
     );
@@ -136,6 +150,8 @@ export default async function InspectPage({
         isEdit={!!existing}
         prefill={prefill}
         employees={empLite.map((e) => ({ id: e.id, name: e.name }))}
+        advisorEmployeeIds={advisorEmployeeIds}
+        defaultProfile={profile}
       />
     </>
   );

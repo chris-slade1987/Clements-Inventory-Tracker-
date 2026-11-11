@@ -10,6 +10,8 @@ import {
   CONDITION_ITEM_MAX,
   conditionPoints,
   parseJson,
+  itemApplies,
+  type InspectionProfile,
 } from "@/lib/inspection";
 
 // Read-only, printable view of a completed monthly vehicle inspection — the "filed
@@ -52,6 +54,7 @@ export default function InspectionReport({
   periodLabel,
   canEdit,
   inspection: i,
+  profile = "technician",
 }: {
   vehicleId: string;
   vlabel: string;
@@ -59,6 +62,8 @@ export default function InspectionReport({
   periodLabel: string;
   canEdit: boolean;
   inspection: InspectionWithPhotos;
+  /** "advisor" = service advisor's vehicle: technician-only items read N/A (not scored). */
+  profile?: InspectionProfile;
 }) {
   const ratings = parseJson<Record<string, number>>(i.ratings, {});
   const issues = parseJson<Record<string, string>>(i.ratingIssues, {});
@@ -99,9 +104,9 @@ export default function InspectionReport({
             <div key={it.key} className="py-1 text-sm">
               <div className="flex justify-between gap-4">
                 <span className="text-muted">{it.label}</span>
-                <span className="text-ink">{ratings[it.key] ? ratingLabel(ratings[it.key]) : "—"}</span>
+                <span className="text-ink">{!itemApplies(it.key, profile) ? <span className="text-muted">N/A</span> : ratings[it.key] ? ratingLabel(ratings[it.key]) : "—"}</span>
               </div>
-              {issues[it.key] ? <div className="text-[11px] text-amber-700">Issue: {issues[it.key]}</div> : null}
+              {issues[it.key] && itemApplies(it.key, profile) ? <div className="text-[11px] text-amber-700">Issue: {issues[it.key]}</div> : null}
             </div>
           ))}
         </div>
@@ -109,8 +114,19 @@ export default function InspectionReport({
 
       <div className="mt-4">
         <div className="text-xs font-semibold uppercase tracking-wide text-muted">Compliance</div>
+        {profile === "advisor" ? (
+          <p className="mt-0.5 text-[11px] text-muted">Service advisor vehicle — technician-only items are N/A and not scored.</p>
+        ) : null}
         <div className="mt-1 grid gap-x-6 gap-y-1 sm:grid-cols-2">
           {CHECK_ITEMS.map((it) => {
+            if (!itemApplies(it.key, profile)) {
+              return (
+                <div key={it.key} className="flex items-center justify-between gap-3 text-sm">
+                  <span className="text-muted">{it.label}</span>
+                  <span className="text-muted">N/A</span>
+                </div>
+              );
+            }
             const pass = checks[it.key];
             const failedCritical = it.critical && pass === false;
             return (
@@ -135,7 +151,7 @@ export default function InspectionReport({
       <div className="mt-4">
         <div className="text-xs font-semibold uppercase tracking-wide text-muted">Photos</div>
         <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {INSPECTION_PHOTO_KINDS.map((k) => {
+          {INSPECTION_PHOTO_KINDS.filter((k) => itemApplies(k.key, profile) || photoByKind.has(k.key)).map((k) => {
             const url = photoByKind.get(k.key);
             return (
               <div key={k.key} className="text-center text-[11px] text-muted">

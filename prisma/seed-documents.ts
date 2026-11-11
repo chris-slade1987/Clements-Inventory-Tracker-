@@ -45,7 +45,9 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 54 · Last updated November 10, 2026",
+    effective: "Version 55 · Last updated November 11, 2026",
+    // v55: Vehicle inspections — service advisors' vehicles graded without the
+    // technician-only items (out of 9). (Label only — no acknowledgment step.)
     // NOTE: the Manager Manual is a read-only reference with NO acknowledgment
     // step (only the Employee Handbook collects sign-offs), so a version bump here
     // never asks managers to acknowledge anything — older "Re-prompts" notes below
@@ -257,7 +259,7 @@ const DOCS: DocSeed[] = [
     // (Assign/Courses/Certifications/Reports tabs), automatic credit, the
     // Field-Core prerequisite guard, one-module-per-month pacing, advancement
     // stepping, and certification award gating on the approved field sign-off.
-    version: 54,
+    version: 55,
     // v11: expanded the Sales Team section to document the per-advisor visual
     // funnel (Leads → Proposals → Closed $ with per-stage goals, pace markers,
     // and plain-English leak diagnosis), the director leaderboard / most-improved

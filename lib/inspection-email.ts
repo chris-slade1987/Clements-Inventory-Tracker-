@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
 import { appUrl } from "@/lib/app-url";
 import { branchLabel } from "@/lib/management";
-import { criticalFailures, inspectionPhotoLabel, parseJson, type Checks } from "@/lib/inspection";
+import { criticalFailures, inspectionPhotoLabel, inspectionProfileFor, parseJson, type Checks } from "@/lib/inspection";
 
 // Rebuilds a filed inspection's report email from the stored row and sends a copy
 // to the given recipients. Used by the "Resend report" action (and reusable by any
@@ -32,7 +32,7 @@ export async function resendInspectionReport(opts: {
   const branch = insp.branch ? branchLabel(insp.branch) : null;
   const monthName = new Date(insp.year, insp.month - 1, 1).toLocaleString("en-US", { month: "long" });
   const checks = parseJson<Checks>(insp.checks, {});
-  const fails = criticalFailures(checks);
+  const fails = criticalFailures(checks, await inspectionProfileFor(insp.employeeId));
 
   const origin =
     appUrl() ||

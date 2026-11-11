@@ -2,7 +2,7 @@ import { fail } from "@/lib/http";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser, branchLocked } from "@/lib/auth";
-import { scoreInspection, criticalFailures, INSPECTION_PHOTO_KINDS, inspectionPhotoLabel, type Ratings, type Checks } from "@/lib/inspection";
+import { scoreInspection, criticalFailures, photoKindsFor, inspectionProfileFor, inspectionPhotoLabel, type Ratings, type Checks } from "@/lib/inspection";
 import { branchLabel } from "@/lib/management";
 import { listEmployees, matchEmployeeByName } from "@/lib/people";
 import { sendEmail } from "@/lib/email";
@@ -59,7 +59,6 @@ export async function POST(req: Request) {
     const month = int(body?.month) ?? when.getMonth() + 1;
     const ratings: Ratings = (body?.ratings ?? {}) as Ratings;
     const checks: Checks = (body?.checks ?? {}) as Checks;
-    const { score, maxScore, scorePct, grade } = scoreInspection(ratings, checks);
 
     // ── Required-field validation (mirrors the client) ──────────────────────
     const mileage = int(body?.mileage);
@@ -71,6 +70,25 @@ export async function POST(req: Request) {
     if ((oilChangeNextMileage == null || oilChangeNextMileage <= 0) && !oilChangeNext)
       return NextResponse.json({ error: "Next oil change is required — enter a next-due mileage and/or a next-due date." }, { status: 400 });
 
+    // Resolve the graded employee: explicit pick wins; else match by name.
+    let technicianName = str(body?.technicianName) ?? vehicle.assignedTo;
+    let employeeId = str(body?.employeeId);
+    if (!employeeId && technicianName) {
+      const emps = await listEmployees(vehicle.branch ?? undefined);
+      employeeId = matchEmployeeByName(technicianName, emps.map((e) => ({ id: e.id, name: e.name, role: e.role, division: e.division, branch: e.branch, nickname: e.nickname })));
+    }
+    // Always file under the technician's FULL company-profile name when linked, so
+    // one person never splits into "Renzo" + "Renzo Rodriguez" in the grades.
+    if (employeeId) {
+      const linked = await prisma.employee.findUnique({ where: { id: employeeId }, select: { name: true } });
+      if (linked?.name) technicianName = linked.name;
+    }
+
+    // Service-advisor vehicles skip the technician-only items (toolbox, truck bed,
+    // PPE, pesticides, signage, sprayers) and the truck-bed photo — scored out of 9.
+    const profile = await inspectionProfileFor(employeeId);
+    const { score, maxScore, scorePct, grade } = scoreInspection(ratings, checks, profile);
+
     // Photos: all four required. Each value is a new data URL or an existing URL.
     const photosIn = (body?.photos ?? {}) as Record<string, unknown>;
     const existingInsp = await prisma.vehicleInspection.findUnique({
@@ -80,7 +98,8 @@ export async function POST(req: Request) {
     const existingByKind = new Map((existingInsp?.photos ?? []).map((p) => [p.kind, p]));
     const resolvedPhotos: { kind: string; photoUrl: string }[] = [];
     const replacedUrls: string[] = [];
-    for (const { key, label } of INSPECTION_PHOTO_KINDS) {
+    const requiredPhotos = photoKindsFor(profile);
+    for (const { key, label } of requiredPhotos) {
       const raw = typeof photosIn[key] === "string" ? (photosIn[key] as string).trim() : "";
       if (raw.startsWith("data:")) {
         const parsed = parseDataUrl(raw);
@@ -99,24 +118,10 @@ export async function POST(req: Request) {
         resolvedPhotos.push({ kind: key, photoUrl: raw });
       }
     }
-    if (resolvedPhotos.length < INSPECTION_PHOTO_KINDS.length) {
+    if (resolvedPhotos.length < requiredPhotos.length) {
       const have = new Set(resolvedPhotos.map((p) => p.kind));
-      const missing = INSPECTION_PHOTO_KINDS.filter((p) => !have.has(p.key)).map((p) => p.label);
+      const missing = requiredPhotos.filter((p) => !have.has(p.key)).map((p) => p.label);
       return NextResponse.json({ error: `Missing required photo(s): ${missing.join(", ")}.` }, { status: 400 });
-    }
-
-    // Resolve the graded employee: explicit pick wins; else match by name.
-    let technicianName = str(body?.technicianName) ?? vehicle.assignedTo;
-    let employeeId = str(body?.employeeId);
-    if (!employeeId && technicianName) {
-      const emps = await listEmployees(vehicle.branch ?? undefined);
-      employeeId = matchEmployeeByName(technicianName, emps.map((e) => ({ id: e.id, name: e.name, role: e.role, division: e.division, branch: e.branch, nickname: e.nickname })));
-    }
-    // Always file under the technician's FULL company-profile name when linked, so
-    // one person never splits into "Renzo" + "Renzo Rodriguez" in the grades.
-    if (employeeId) {
-      const linked = await prisma.employee.findUnique({ where: { id: employeeId }, select: { name: true } });
-      if (linked?.name) technicianName = linked.name;
     }
 
     const data = {
@@ -163,7 +168,7 @@ export async function POST(req: Request) {
     }
 
     // Critical safety failures -> alert (dedupe per vehicle+month). Clear it if resolved.
-    const fails = criticalFailures(checks);
+    const fails = criticalFailures(checks, profile);
     const dedupeKey = `inspection_critical:${vehicleId}:${year}-${String(month).padStart(2, "0")}`;
     const vlabel = `${vehicle.unitNumber ? `#${vehicle.unitNumber} ` : ""}${vehicle.name}${vehicle.branch ? ` (${branchLabel(vehicle.branch)})` : ""}`;
     if (fails.length > 0) {

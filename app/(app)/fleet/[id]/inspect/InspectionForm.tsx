@@ -6,12 +6,12 @@ import { Card, btn } from "@/components/ui";
 import DateInput from "@/components/DateInput";
 import { fileToJpegDataUrl } from "@/lib/client-image";
 import {
-  CONDITION_ITEMS,
   RATING_SCALE,
-  CHECK_ITEMS,
-  MAX_SCORE,
-  INSPECTION_PHOTO_KINDS,
+  conditionItemsFor,
+  checkItemsFor,
+  photoKindsFor,
   scoreInspection,
+  type InspectionProfile,
   conditionPoints,
   type Ratings,
   type Checks,
@@ -42,6 +42,8 @@ export default function InspectionForm({
   isEdit,
   prefill,
   employees,
+  advisorEmployeeIds = [],
+  defaultProfile = "technician",
 }: {
   vehicleId: string;
   vehicleLabel: string;
@@ -50,6 +52,10 @@ export default function InspectionForm({
   isEdit: boolean;
   prefill: Prefill;
   employees: { id: string; name: string }[];
+  /** Employees whose vehicles are graded as a service advisor's (no technician items). */
+  advisorEmployeeIds?: string[];
+  /** Profile when no employee is linked (from the vehicle's assigned driver). */
+  defaultProfile?: InspectionProfile;
 }) {
   const router = useRouter();
   const [f, setF] = useState({
@@ -93,24 +99,32 @@ export default function InspectionForm({
     return null;
   })();
 
-  const live = useMemo(() => scoreInspection(ratings, checks), [ratings, checks]);
-  const critFails = CHECK_ITEMS.filter((it) => it.critical && checks[it.key] === false);
-  const answered = CONDITION_ITEMS.filter((it) => ratings[it.key]).length + CHECK_ITEMS.filter((it) => checks[it.key] != null).length;
-  const totalItems = CONDITION_ITEMS.length + CHECK_ITEMS.length;
+  // Service-advisor vehicles skip the technician-only items (toolbox, truck bed,
+  // PPE, pesticides, signage, sprayers) and the truck-bed photo.
+  const profile: InspectionProfile = f.employeeId
+    ? (advisorEmployeeIds.includes(f.employeeId) ? "advisor" : "technician")
+    : defaultProfile;
+  const conditionItems = conditionItemsFor(profile);
+  const checkItems = checkItemsFor(profile);
+  const photoKinds = photoKindsFor(profile);
+  const live = useMemo(() => scoreInspection(ratings, checks, profile), [ratings, checks, profile]);
+  const critFails = checkItems.filter((it) => it.critical && checks[it.key] === false);
+  const answered = conditionItems.filter((it) => ratings[it.key]).length + checkItems.filter((it) => checks[it.key] != null).length;
+  const totalItems = conditionItems.length + checkItems.length;
 
   // ── Required-field validation (mirrored server-side) ──────────────────────
   const mileageNum = parseInt(String(f.mileage).replace(/[^0-9]/g, ""), 10);
   const mileageValid = Number.isFinite(mileageNum) && mileageNum > 0;
   const oilMileageNum = parseInt(String(f.oilChangeNextMileage).replace(/[^0-9]/g, ""), 10);
   const oilValid = (Number.isFinite(oilMileageNum) && oilMileageNum > 0) || f.oilChangeNext.trim() !== "";
-  const missingPhotos = INSPECTION_PHOTO_KINDS.filter((p) => !photos[p.key]);
+  const missingPhotos = photoKinds.filter((p) => !photos[p.key]);
   const photosComplete = missingPhotos.length === 0;
   const canSubmit = mileageValid && oilValid && photosComplete && !busy && !photoBusy;
 
   function validationMessage(): string | null {
     if (!mileageValid) return "Enter the current odometer mileage.";
     if (!oilValid) return "Enter the next oil change — a next-due mileage and/or a next-due month.";
-    if (!photosComplete) return `Capture all 4 required photos (missing: ${missingPhotos.map((p) => p.label).join(", ")}).`;
+    if (!photosComplete) return `Capture all ${photoKinds.length} required photos (missing: ${missingPhotos.map((p) => p.label).join(", ")}).`;
     return null;
   }
 
@@ -154,7 +168,7 @@ export default function InspectionForm({
           <h2 className="text-lg font-semibold">Inspection saved</h2>
         </div>
         <p className="mt-2 text-sm text-muted">
-          {vehicleLabel} — {MONTHS[month]} {year}. Grade <span className="font-semibold text-ink">{live.grade}</span> ({live.score}/{MAX_SCORE}, {live.scorePct}%).
+          {vehicleLabel} — {MONTHS[month]} {year}. Grade <span className="font-semibold text-ink">{live.grade}</span> ({live.score}/{live.maxScore}, {live.scorePct}%).
           {critFails.length > 0 ? ` ${critFails.length} critical item flagged for follow-up.` : ""}
         </p>
         <div className="mt-5 flex gap-2">
@@ -198,7 +212,10 @@ export default function InspectionForm({
       {/* Section A — condition ratings */}
       <SectionTitle n="A" title="Condition" hint="Rate each area. Meets or Exceeds earns the full 3 points; only Below standards loses points (1)." />
       <div className="space-y-2">
-        {CONDITION_ITEMS.map((it) => (
+        {profile === "advisor" ? (
+          <p className="text-xs text-muted">Service advisor vehicle — toolbox and truck bed don&apos;t apply and aren&apos;t scored.</p>
+        ) : null}
+        {conditionItems.map((it) => (
           <Card key={it.key} className="p-3">
             <div className="flex flex-col sm:flex-row sm:items-center gap-3">
               <div className="flex-1 text-sm font-medium text-ink">{it.label}</div>
@@ -246,9 +263,9 @@ export default function InspectionForm({
       </Card>
 
       {/* Section B2 — required photos */}
-      <SectionTitle n="D" title="Required photos" hint="Capture all 4. Use the camera or upload from your phone." />
+      <SectionTitle n="D" title="Required photos" hint={`Capture all ${photoKinds.length}. Use the camera or upload from your phone.`} />
       <div className="grid gap-2 sm:grid-cols-2">
-        {INSPECTION_PHOTO_KINDS.map((p) => (
+        {photoKinds.map((p) => (
           <PhotoTile
             key={p.key}
             label={p.label}
@@ -263,7 +280,10 @@ export default function InspectionForm({
       {/* Section C — compliance checks */}
       <SectionTitle n="C" title="FDACS / insurance / maintenance" hint="1 point each. Critical items flag a safety alert when failed." />
       <div className="space-y-2">
-        {CHECK_ITEMS.map((it) => {
+        {profile === "advisor" ? (
+          <p className="text-xs text-muted">Service advisor vehicle — pesticides, PPE / spill kit, lawn signage and spray equipment don&apos;t apply and aren&apos;t scored.</p>
+        ) : null}
+        {checkItems.map((it) => {
           const val = checks[it.key];
           return (
             <Card key={it.key} className={`p-3 ${it.critical && val === false ? "ring-1 ring-red-300" : ""}`}>
@@ -304,7 +324,7 @@ export default function InspectionForm({
           <div className="flex items-center gap-3">
             <div className={`grid h-12 w-12 place-items-center rounded-full text-lg font-bold ${gradeColor(live.grade)}`}>{live.grade}</div>
             <div className="text-sm">
-              <div className="font-semibold tabular-nums">{live.score}/{MAX_SCORE} · {live.scorePct}%</div>
+              <div className="font-semibold tabular-nums">{live.score}/{live.maxScore} · {live.scorePct}%</div>
               <div className="text-xs text-muted">
                 {answered}/{totalItems} answered
                 {critFails.length > 0 ? <span className="ml-2 text-red-600 font-medium">· {critFails.length} critical fail</span> : null}

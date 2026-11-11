@@ -65,17 +65,65 @@ export function conditionPoints(rating: unknown): number {
 
 export const CONDITION_MAX = CONDITION_ITEMS.length * CONDITION_ITEM_MAX; // 12
 export const CHECK_MAX = CHECK_ITEMS.length; // 8
-export const MAX_SCORE = CONDITION_MAX + CHECK_MAX; // 20
+export const MAX_SCORE = CONDITION_MAX + CHECK_MAX; // 20 (technician vehicle)
 
 export type Ratings = Record<string, number>; // item key -> 1..3 (rating, not points)
 export type Checks = Record<string, boolean>; // item key -> pass
 
-export function scoreInspection(ratings: Ratings, checks: Checks) {
+// ── Who the vehicle belongs to decides which items apply ───────────────────
+// COO (2026-11-11): service advisors / salespeople carry no toolbox, PPE,
+// pesticides, lawn signs, B&Gs, sprayers or other technician equipment, and
+// their vehicles have no truck bed — so those items are NOT APPLICABLE to an
+// advisor's vehicle. They are hidden on the form, shown as "N/A" on the report,
+// and left out of BOTH the points earned and the points possible (an advisor's
+// vehicle is graded out of 9: outside + inside appearance, ID card, insurance /
+// registration, oil change). Technician vehicles are unchanged (out of 20).
+export type InspectionProfile = "technician" | "advisor";
+
+const ADVISOR_NOT_APPLICABLE = new Set<string>([
+  "toolbox", "truckbed", // Section A
+  "pesticides_locked", "containers_labeled", "ppe", "signage", "equipment_working", // Section C
+  "truck_bed", // photo
+]);
+
+/** Does this checklist item / photo apply to a vehicle of this profile? */
+export function itemApplies(key: string, profile: InspectionProfile = "technician"): boolean {
+  return profile !== "advisor" || !ADVISOR_NOT_APPLICABLE.has(key);
+}
+export function conditionItemsFor(profile: InspectionProfile = "technician") {
+  return CONDITION_ITEMS.filter((it) => itemApplies(it.key, profile));
+}
+export function checkItemsFor(profile: InspectionProfile = "technician") {
+  return CHECK_ITEMS.filter((it) => itemApplies(it.key, profile));
+}
+export function photoKindsFor(profile: InspectionProfile = "technician") {
+  return INSPECTION_PHOTO_KINDS.filter((p) => itemApplies(p.key, profile));
+}
+export function maxScoreFor(profile: InspectionProfile = "technician"): number {
+  return conditionItemsFor(profile).length * CONDITION_ITEM_MAX + checkItemsFor(profile).length;
+}
+
+/** A driver whose job title is an advisor (Service Advisor, Sales Advisor, …) or
+ *  whose login is the Service Advisor level ("sales"). Leadership never counts. */
+export function isServiceAdvisorDriver(emp: { role?: string | null; accessLevel?: string | null } | null | undefined): boolean {
+  if (!emp || driverIsLeadership(emp)) return false;
+  return emp.accessLevel === "sales" || /advisor/i.test(emp.role ?? "");
+}
+
+/** The inspection profile for a graded employee (technician when unknown). */
+export async function inspectionProfileFor(employeeId: string | null | undefined): Promise<InspectionProfile> {
+  if (!employeeId) return "technician";
+  const e = await prisma.employee.findUnique({ where: { id: employeeId }, select: { role: true, user: { select: { accessLevel: true } } } });
+  return isServiceAdvisorDriver(e ? { role: e.role, accessLevel: e.user?.accessLevel ?? null } : null) ? "advisor" : "technician";
+}
+
+export function scoreInspection(ratings: Ratings, checks: Checks, profile: InspectionProfile = "technician") {
   let score = 0;
-  for (const it of CONDITION_ITEMS) score += conditionPoints(ratings[it.key]);
-  for (const it of CHECK_ITEMS) if (checks[it.key]) score += 1;
-  const scorePct = Math.round((score / MAX_SCORE) * 1000) / 10;
-  return { score, maxScore: MAX_SCORE, scorePct, grade: gradeLetter(scorePct) };
+  for (const it of conditionItemsFor(profile)) score += conditionPoints(ratings[it.key]);
+  for (const it of checkItemsFor(profile)) if (checks[it.key]) score += 1;
+  const maxScore = maxScoreFor(profile);
+  const scorePct = Math.round((score / maxScore) * 1000) / 10;
+  return { score, maxScore, scorePct, grade: gradeLetter(scorePct) };
 }
 
 export function gradeLetter(pct: number): string {
@@ -87,8 +135,8 @@ export function gradeLetter(pct: number): string {
 }
 
 /** Critical compliance items that were explicitly failed (present and false). */
-export function criticalFailures(checks: Checks): { key: string; label: string }[] {
-  return CHECK_ITEMS.filter((it) => it.critical && checks[it.key] === false).map((it) => ({ key: it.key, label: it.label }));
+export function criticalFailures(checks: Checks, profile: InspectionProfile = "technician"): { key: string; label: string }[] {
+  return checkItemsFor(profile).filter((it) => it.critical && checks[it.key] === false).map((it) => ({ key: it.key, label: it.label }));
 }
 
 export function parseJson<T>(s: string | null | undefined, fallback: T): T {

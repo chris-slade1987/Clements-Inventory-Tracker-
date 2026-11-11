@@ -23,7 +23,7 @@ import { ensureStaleRegistrationNudgesCleared } from "@/lib/registration-nudge-s
 import { ensureRoutingAppointments } from "@/lib/routing-appointments-ensure";
 import { ensureGraceInspectionsRefiled, ensureInspectionTechnicianNames } from "@/lib/inspection-grace";
 import { ensureNovemberRoutingCredits } from "@/lib/routing-credit-ensure";
-import { ensureInspectionsRescored } from "@/lib/inspection-rescore";
+import { ensureInspectionsRescored, ensureAdvisorInspectionsRescored } from "@/lib/inspection-rescore";
 
 // Layout for all authenticated app screens. Redirects to /login when there is
 // no valid manager session, and provides the persistent nav shell.
@@ -117,6 +117,10 @@ export default async function AppGroupLayout({
   // ratings/checks; idempotent (Setting marker), once, non-fatal.
   // See lib/inspection-rescore.ts.
   await ensureInspectionsRescored();
+  // Service-advisor vehicles: re-grade filed inspections without the technician-only
+  // items (toolbox, truck bed, PPE, pesticides, signage, sprayers) — COO 2026-11-11.
+  // Once (Setting marker), non-fatal, no emails. See lib/inspection-rescore.ts.
+  await ensureAdvisorInspectionsRescored();
 
   // Forced default-password change. The pathname arrives as a request header set
   // by proxy.ts (the layout can't otherwise see the URL). Once a user who is still
