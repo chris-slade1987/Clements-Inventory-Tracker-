@@ -11,7 +11,7 @@ import ReviewAll from "./ReviewAll";
 import RejectedList from "./RejectedList";
 import ReviewTabs from "./ReviewTabs";
 import CleanupReport from "./CleanupReport";
-import { ensureCatalogCleanup, readCatalogCleanupReport } from "@/lib/catalog-cleanup";
+import { ensureCatalogCleanup, readCatalogCleanupReport, readCatalogDecisionsReport } from "@/lib/catalog-cleanup";
 
 export const dynamic = "force-dynamic";
 
@@ -32,7 +32,7 @@ export default async function CatalogReviewPage() {
   await ensureCatalogBaseline();
   await ensureCatalogCleanup(); // catalog cleanup lands before we read products
 
-  const [pendingRaw, rejectedRaw, review, cleanup] = await Promise.all([
+  const [pendingRaw, rejectedRaw, review, cleanup, decisions] = await Promise.all([
     prisma.product.findMany({ where: { confirmed: false, active: true }, orderBy: { name: "asc" } }),
     prisma.product.findMany({
       where: { active: false, notes: { contains: DISCARD_MARK }, NOT: { notes: { contains: REJECTED_ARCHIVED_MARK } } },
@@ -40,6 +40,7 @@ export default async function CatalogReviewPage() {
     }),
     catalogReview(),
     readCatalogCleanupReport(),
+    readCatalogDecisionsReport(),
   ]);
 
   const rejectedNode = (
@@ -73,7 +74,7 @@ export default async function CatalogReviewPage() {
 
   return (
     <>
-    {cleanup ? <CleanupReport report={cleanup} /> : null}
+    {cleanup ? <CleanupReport report={cleanup} decisions={decisions} /> : null}
     <ReviewTabs
       tabs={[
         { key: "all", label: "Approve / Reject", count: review.all.filter((p) => !(p.approved && p.confirmed)).length, node: <ReviewAll products={review.all} /> },

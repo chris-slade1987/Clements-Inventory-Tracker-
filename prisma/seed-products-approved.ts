@@ -2,7 +2,7 @@ import type { PrismaClient } from "@prisma/client";
 import { categorizeProduct, normalizeClassification } from "../lib/constants";
 import { isUomCode } from "../lib/uom";
 import { normalizeProductName } from "../lib/product-aliases";
-import { canonicalProductName } from "../lib/catalog-names";
+import { canonicalProductName, CATALOG_MERGES, CATALOG_UNIT_OVERRIDES, DISCONTINUED_PRODUCTS, PREVIOUS_FULL_NAMES } from "../lib/catalog-names";
 
 /**
  * Reconcile the CEO's approved product catalog into the database.
@@ -296,15 +296,21 @@ export function isHumanApproved(notes: string | null | undefined): boolean {
 }
 
 /** Every catalog row's PestPac short name (APPROVED + ADDED + the non-chemical line). */
+// Julie (2026-11-11): two rows were duplicates of other catalog rows (merged) and
+// the two PestPac "Miscellaneous" catch-alls are discontinued — none of them is a
+// catalog row any more.
+const RETIRED_SHORTS = new Set([...Object.keys(CATALOG_MERGES), ...DISCONTINUED_PRODUCTS]);
+const liveRows = (rows: ApprovedRow[]) => rows.filter((r) => !RETIRED_SHORTS.has(r.name));
+
 export function approvedCatalogShortNames(): string[] {
-  return [...APPROVED, ...ADDED, NON_CHEMICAL].map((r) => r.name);
+  return [...liveRows(APPROVED), ...liveRows(ADDED), NON_CHEMICAL].map((r) => r.name);
 }
 
 export async function seedApprovedProducts(prisma: PrismaClient) {
   const all: ReconcileRow[] = [
-    ...APPROVED.map((a) => ({ ...a, confirmed: true })),
+    ...liveRows(APPROVED).map((a) => ({ ...a, confirmed: true })),
     // ADDED products stay unconfirmed (Part C) until an admin confirms them.
-    ...ADDED.map((a) => ({ ...a, baseNote: ADD_NOTE, confirmed: false })),
+    ...liveRows(ADDED).map((a) => ({ ...a, baseNote: ADD_NOTE, confirmed: false })),
     { ...NON_CHEMICAL, baseNote: NON_CHEMICAL_NOTE, confirmed: true },
   ];
 
@@ -331,9 +337,12 @@ export async function seedApprovedProducts(prisma: PrismaClient) {
     const norm = normalizeProductName(fullName);
     approvedNorms.add(norm);
     approvedNorms.add(normalizeProductName(row.name));
-    const code = isUomCode(row.code) ? row.code.toUpperCase() : "EA";
+    const prevNames = PREVIOUS_FULL_NAMES[row.name] ?? [];
+    const rawCode = CATALOG_UNIT_OVERRIDES[row.name] ?? row.code;
+    const code = isUomCode(rawCode) ? rawCode.toUpperCase() : "EA";
     const category = categorizeProduct(row.name, row.activeIngredient ?? "", row.target ?? "", code);
-    const found = byNorm.get(norm) ?? byNorm.get(normalizeProductName(row.name));
+    const found = byNorm.get(norm) ?? byNorm.get(normalizeProductName(row.name))
+      ?? prevNames.map((n) => byNorm.get(normalizeProductName(n))).find(Boolean);
 
     // Line-of-service classification (authoritative; overwrite on every run).
     const cls = CLASSIFICATION[row.name];

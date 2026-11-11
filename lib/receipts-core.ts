@@ -17,6 +17,7 @@
 // unique on both InvoiceLine and StockMovement.
 import type { PrismaClient } from "@prisma/client";
 import { normalizeProductName, PRODUCT_ALIASES } from "./product-aliases";
+import { isDiscontinuedProduct } from "./catalog-names";
 
 export type ReceiptFile = {
   key: string;
@@ -74,7 +75,10 @@ export async function applyReceiptFile(prisma: PrismaClient, f: ReceiptFile, opt
   const date = new Date(`${f.date}T12:00:00Z`); // noon UTC → correct ET calendar day
   const lines = f.lines
     .map((l, i) => ({ l, prod: resolve(l.material), ref: `${f.key}#${i + 1}` }))
-    .filter((r) => !r.l.remove);
+    .filter((r) => !r.l.remove)
+    // Discontinued catch-all categories (Miscellaneous Chemical / Fertilizer) are
+    // never entered — skip them like a removed line (Julie, 2026-11-11).
+    .filter((r) => !isDiscontinuedProduct(r.prod?.name) && !isDiscontinuedProduct(PRODUCT_ALIASES[normalizeProductName(r.l.material)]));
   for (const r of lines) {
     res.detail.push({ material: r.l.material, product: r.prod?.name ?? null, quantity: r.l.quantity });
     if (!r.prod) res.unmatched.push(r.l.material);

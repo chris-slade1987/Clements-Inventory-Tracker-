@@ -53,7 +53,7 @@ export const CATALOG_FULL_NAMES: Record<string, string> = {
   "Fertilizer - 21-0-6": "LESCO Fertilizer 21-0-6 50 lb.",
   "Fertilizer 8-0-10 (Shrub)": "LESCO L&O Palm 8-0-10 Granular Fertilizer 50 lb. Bag",
   "Lesco Liquid 0-0-25": "LESCO Liquid Fertilizer 0-0-25 2.5 gal.",
-  "20-20-20 Sprayable Fertilizer": "LESCO MacroN Soluble Fertilizer 20-20-20 25 lb. Bag",
+  "20-20-20 Sprayable Fertilizer": "LESCO 20-20-20 AM Ornamental and Turfgrass Soluble Fertilizer 25 lb. Pail",
   "Mansion Turf Herbicide": "LESCO Mansion Post Emergent Dry Granule Herbicide 8 oz. Bottle",
   "Blackout Fertilizer 0-0-18 (turf)": "LESCO Organic/Organic-Base Fertilizer 0-0-18 40 lb.",
   "Prosecutor": "LESCO Prosecutor Pro Non-Selective Liquid Herbicide 2.5 gal.",
@@ -90,6 +90,25 @@ export const CATALOG_FULL_NAMES: Record<string, string> = {
   "ULD BP-300": "ULD BP-300 Formula II Insecticide 1 gal.",
   "Vendetta Plus": "Vendetta Plus Roach Bait 30 gm. x 4",
   "Extinguish Plus": "Wellmark Extinguish Plus Fire Ant Bait 25 lb.",
+  // Confirmed by Julie (Chief of Staff) 2026-11-11.
+  "Atrazine": "LESCO Atrazine Post Emergent Plus Fertilizer 50 lb.",
+  "Lutz Perfect Spike": "Lutz Perfect Spike 8-10-10 Tree/Shrub Spike 5 pk.",
+  "Artavia 2SC Fungicide": "Atticus Artavia 2 SC (Azoxy) Liquid Fungicide 1 gal. Jug",
+  "Lesco 25-0-10 Granular Fert": "LESCO 25-0-10 Turfgrass Granular Fertilizer 50 lb. Bag",
+  "Suspend PolyZone Insecticide": "Suspend PolyZone Insecticide 16 oz.",
+  "Syngenta Heritage Granular Fungicide": "Syngenta Heritage G Granular Fungicide 30 lb. Bag",
+  "Victor M9 Pro Rat Trap": "Victor M9 Professional Rat Trap (12 count/case)",
+  "Catchmaster PB Glue Board": "Catchmaster Multi-Catch PB Mouse/Insect Glue Board",
+  "Precor 2000 Premise Spray": "Precor 2000 Plus Premise Spray 16 oz.",
+  "PT PI Pressurized Contact": "PT P.I. Pressurized Contact Insecticide 14 oz.",
+  "Pageant Intrinsic Fungicide": "Pageant Intrinsic Brand Fungicide 1 lb.",
+  "Roundup QuikPro Granular Herbicide": "Roundup QuikPro Non-Selective WDG Herbicide 6.8 lb.",
+  "Vector Fruit Fly Trap": "Vector 960 Fruit Fly Trap 12 Count Box",
+  "Eaton Stick-Em Rat and Mouse": "JT Eaton Stick-Em Rat and Mouse Glue Trap",
+  "Lesco 13-3-13 Spar-Tech": "LESCO 13-3-13 Spar-Tech T&O Granular Fertilizer",
+  "Lesco 16-0-8 Spar Tech": "LESCO 16-0-8 Spar-Tech Turfgrass Granular Fertilizer 50 lb. Bag",
+  "Promate 20-0-10": "Pro-Mate 20-0-10 Fertilizer",
+  "Stop The Bites!": "Stop the Bites! Mosquito and Tick Control 2.5 gal.",
 };
 
 /** SiteOne item numbers per catalog product (owner catalog), keyed by PestPac short
@@ -149,34 +168,42 @@ export const CATALOG_ITEM_NUMBERS: Record<string, string[]> = {
   "Extinguish Plus": ["24560-FAB"],
 };
 
-/** Full names DRAFTED but NOT applied — awaiting the COO's confirmation. `mergeInto`
- *  marks a catalog row that looks like the same product as another catalog row. */
-export const PENDING_FULL_NAMES: { short: string; draft: string; note: string; mergeInto: string | null }[] = [
-  { short: "Atrazine", draft: "LESCO Atrazine Post Emergent Plus Fertilizer 50 lb.", note: "SiteOne sells this as a 50 lb. bag, but PestPac counts Atrazine by the jug. Confirm which product you stock.", mergeInto: null },
-  { short: "Lutz Perfect Spike", draft: "Lutz Perfect General Purpose Fertilizer Spike 8-10-10", note: "Pack size not on file.", mergeInto: null },
-  { short: "Crosscheck 0.069% Plus", draft: "LESCO Crosscheck 0.069% 0-0-7 AM Insecticide Plus Fertilizer 50 lb.", note: "Same product as \"0-0-7 Fertilizer + Insecticide\" \u2014 proposed MERGE into it.", mergeInto: "0-0-7 Fertilizer + Insecticide" },
-  { short: "Artavia 2SC Fungicide", draft: "Artavia 2SC Fungicide", note: "Container size not on file.", mergeInto: null },
-  { short: "Lesco 25-0-10 Granular Fert", draft: "LESCO 25-0-10 Turfgrass Granular Fertilizer 50 lb. Bag", note: "", mergeInto: null },
-  { short: "Suspend PolyZone Insecticide", draft: "Suspend PolyZone Insecticide 16 oz.", note: "SiteOne ships a 16 oz. bottle; PestPac counts it by the jug \u2014 confirm the unit.", mergeInto: null },
-  { short: "Syngenta Heritage Granular Fungicide", draft: "Syngenta Heritage G Granular Fungicide 30 lb. Bag", note: "", mergeInto: null },
-  { short: "Victor M9 Pro Rat Trap", draft: "Victor M9 Professional Rat Trap (12 count/case)", note: "", mergeInto: null },
-  { short: "Miscellaneous Chemical", draft: "Miscellaneous Chemical", note: "PestPac catch-all line \u2014 proposed to keep as is.", mergeInto: null },
-  { short: "Miscellaneous Fertilizer", draft: "Miscellaneous Fertilizer", note: "PestPac catch-all line \u2014 proposed to keep as is.", mergeInto: null },
-  { short: "Catchmaster PB Glue Board", draft: "Catchmaster Multi-Catch PB Mouse/Insect Glue Board", note: "", mergeInto: null },
-  { short: "Precor 2000 Premise Spray", draft: "Precor 2000 Plus Premise Spray 16 oz.", note: "", mergeInto: null },
-  { short: "PT PI Pressurized Contact", draft: "PT P.I. Pressurized Contact Insecticide 14 oz.", note: "", mergeInto: null },
-  { short: "Pageant Intrinsic Fungicide", draft: "Pageant Intrinsic Brand Fungicide 1 lb.", note: "", mergeInto: null },
-  { short: "Roundup QuikPro Granular Herbicide", draft: "Roundup QuikPro Non-Selective WDG Herbicide 6.8 lb.", note: "", mergeInto: null },
-  { short: "Vector Fruit Fly Trap", draft: "960 Vector Fruit Fly Trap", note: "Case size not on file.", mergeInto: null },
-  { short: "Eaton Stick-Em Rat and Mouse", draft: "JT Eaton Stick-Em Rat and Mouse Glue Trap", note: "", mergeInto: null },
-  { short: "Lesco 13-3-13 Spar-Tech", draft: "LESCO 13-3-13 Spar-Tech T&O Granular Fertilizer", note: "Bag size not on file.", mergeInto: null },
-  { short: "Lesco 16-0-8 Spar Tech", draft: "LESCO 16-0-8 Spar-Tech Turfgrass Granular Fertilizer 50 lb. Bag", note: "", mergeInto: null },
-  { short: "Lesco Macron Soluble Fertilizer", draft: "LESCO MacroN Soluble Fertilizer 20-20-20 25 lb. Bag", note: "Same product as \"20-20-20 Sprayable Fertilizer\" \u2014 proposed MERGE into it.", mergeInto: "20-20-20 Sprayable Fertilizer" },
-  { short: "Promate 20-0-10", draft: "Pro-Mate 20-0-10 Fertilizer", note: "Bag size not on file.", mergeInto: null },
-  { short: "Stop The Bites!", draft: "Stop the Bites! Mosquito and Tick Control 2.5 gal.", note: "", mergeInto: null },
-];
+/** Full names drafted but not yet applied — none open (Julie confirmed all 22 on 2026-11-11). */
+export const PENDING_FULL_NAMES: { short: string; draft: string; note: string; mergeInto: string | null }[] = [];
 
-const BY_SHORT = new Map(Object.entries(CATALOG_FULL_NAMES).map(([s, f]) => [norm(s), f]));
+/** Catalog rows that were the SAME product as another catalog row (Julie,
+ *  2026-11-11): source short name -> target short name. The source is merged into
+ *  the target (stock + history move over) and its name resolves to the target. */
+export const CATALOG_MERGES: Record<string, string> = {
+  "Crosscheck 0.069% Plus": "0-0-7 Fertilizer + Insecticide",
+  "Lesco Macron Soluble Fertilizer": "20-20-20 Sprayable Fertilizer",
+};
+
+/** Full names applied earlier and since corrected — still recognized so the
+ *  renamed row is found (short name -> earlier full names). */
+export const PREVIOUS_FULL_NAMES: Record<string, string[]> = {
+  "20-20-20 Sprayable Fertilizer": ["LESCO MacroN Soluble Fertilizer 20-20-20 25 lb. Bag"],
+};
+
+/** Unit-of-measure corrections (Julie, 2026-11-11), by short name. */
+export const CATALOG_UNIT_OVERRIDES: Record<string, string> = {
+  "Atrazine": "FB", // 50 lb. bag, not a jug
+  "Suspend PolyZone Insecticide": "B", // bottle
+  "20-20-20 Sprayable Fertilizer": "BU", // 25 lb. pail
+};
+
+/** PestPac catch-all categories the company no longer uses (Julie, 2026-11-11):
+ *  skipped on every report/import, never entered anywhere, removed from the catalog. */
+export const DISCONTINUED_PRODUCTS = ["Miscellaneous Chemical", "Miscellaneous Fertilizer"];
+
+export function isDiscontinuedProduct(name: string | null | undefined): boolean {
+  const n = norm(name);
+  return DISCONTINUED_PRODUCTS.some((d) => norm(d) === n);
+}
+
+const BY_SHORT = new Map<string, string>(Object.entries(CATALOG_FULL_NAMES).map(([s, f]) => [norm(s), f]));
+for (const [src, tgt] of Object.entries(CATALOG_MERGES)) BY_SHORT.set(norm(src), CATALOG_FULL_NAMES[tgt] ?? tgt);
+for (const [short, olds] of Object.entries(PREVIOUS_FULL_NAMES)) for (const o of olds) BY_SHORT.set(norm(o), CATALOG_FULL_NAMES[short] ?? short);
 
 /** The catalog's display name for a product name: the full description when the
  *  name is a PestPac short name we have one for, otherwise the name unchanged. */

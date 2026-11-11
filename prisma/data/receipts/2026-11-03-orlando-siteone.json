@@ -7,9 +7,30 @@
   "warehouse": "Orlando",
   "transferredBy": "CHAYSE",
   "lines": [
-    { "material": "LESCO CROSSCHECK PL", "quantity": 10, "unitRaw": "FB", "cost": 240.30 },
-    { "material": "MISC CHEMICAL", "quantity": 2, "unitRaw": "J", "cost": 480.00 },
-    { "material": "TAURUS SC INSECTICIDE 78 OZ.", "quantity": 8, "unitRaw": "B", "cost": 760.00 },
-    { "material": "VENDETTA PLUS ROAACH BAIT 30 G", "quantity": 5, "unitRaw": "T", "cost": 206.65 }
+    {
+      "material": "LESCO CROSSCHECK PL",
+      "quantity": 10,
+      "unitRaw": "FB",
+      "cost": 240.3
+    },
+    {
+      "material": "MISC CHEMICAL",
+      "remove": "Julie 2026-11-11: Miscellaneous categories are discontinued \u2014 never entered; removed from on-hand and Purchases",
+      "quantity": 2,
+      "unitRaw": "J",
+      "cost": 480.0
+    },
+    {
+      "material": "TAURUS SC INSECTICIDE 78 OZ.",
+      "quantity": 8,
+      "unitRaw": "B",
+      "cost": 760.0
+    },
+    {
+      "material": "VENDETTA PLUS ROAACH BAIT 30 G",
+      "quantity": 5,
+      "unitRaw": "T",
+      "cost": 206.65
+    }
   ]
 }

@@ -2,7 +2,8 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import { normalizeProductName, PRODUCT_ALIASES } from "@/lib/product-aliases";
 import { SITEONE_ALIASES } from "@/lib/invoice/siteone-aliases";
-import { canonicalProductName, CATALOG_ITEM_NUMBERS } from "@/lib/catalog-names";
+import { canonicalProductName, CATALOG_ITEM_NUMBERS, CATALOG_MERGES, CATALOG_UNIT_OVERRIDES, DISCONTINUED_PRODUCTS, PREVIOUS_FULL_NAMES } from "@/lib/catalog-names";
+import { ensureReceiptsLoaded } from "@/lib/receipts-ensure";
 import { approvedCatalogShortNames, isHumanApproved, NON_CHEMICAL_PRODUCT_NAME } from "@/prisma/seed-products-approved";
 
 // One-time approved-catalog cleanup (COO directive 2026-11-10). Undoes the 11/5
@@ -55,9 +56,15 @@ export function ensureCatalogCleanup(): Promise<void> {
 
 async function run(): Promise<void> {
   const marker = await prisma.setting.findUnique({ where: { key: REV_KEY } });
-  if (marker?.value === CATALOG_CLEANUP_REVISION) return;
+  if (marker?.value !== CATALOG_CLEANUP_REVISION) {
+    if (!(await runCleanup())) { _run = null; return; } // catalog not loaded yet — retry later
+  }
+  await runDecisions();
+}
+
+async function runCleanup(): Promise<boolean> {
   const report = await cleanupCatalog();
-  if (!report) { _run = null; return; } // catalog not loaded yet — retry later
+  if (!report) return false;
   const value = JSON.stringify(report);
   await prisma.setting.upsert({ where: { key: CATALOG_CLEANUP_REPORT_KEY }, update: { value }, create: { key: CATALOG_CLEANUP_REPORT_KEY, value } });
   await prisma.setting.upsert({ where: { key: REV_KEY }, update: { value: CATALOG_CLEANUP_REVISION }, create: { key: REV_KEY, value: CATALOG_CLEANUP_REVISION } });
@@ -65,6 +72,7 @@ async function run(): Promise<void> {
     `ensureCatalogCleanup: ${report.renamed.length} renamed, ${report.merged.length} merged, ${report.deactivated.length} deactivated, ` +
       `${report.offCatalogWithStock.length} left off-catalog with stock, ${report.keptApprovedInApp.length} kept (approved in-app).`,
   );
+  return true;
 }
 
 export async function readCatalogCleanupReport(): Promise<CatalogCleanupReport | null> {
@@ -153,26 +161,7 @@ export async function cleanupCatalog(): Promise<CatalogCleanupReport | null> {
     if (!k) continue;
     const fullName = canonicalProductName(s!);
     const stock = stockOf(p.id);
-    const moveBarcode = !!p.barcode && !k.barcode;
-    await prisma.$transaction([
-      prisma.invoiceLine.updateMany({ where: { productId: p.id }, data: { productId: k.id } }),
-      prisma.stockMovement.updateMany({ where: { productId: p.id }, data: { productId: k.id } }),
-      prisma.productBarcode.updateMany({ where: { productId: p.id }, data: { productId: k.id } }),
-      prisma.checkoutLine.updateMany({ where: { productId: p.id }, data: { productId: k.id } }),
-      prisma.productPhoto.updateMany({ where: { productId: p.id }, data: { productId: k.id, primary: false } }),
-      prisma.product.update({
-        where: { id: p.id },
-        data: {
-          active: false, approved: false, confirmed: true,
-          // Renamed so it never collides with the catalog row's name in a lookup.
-          name: `${p.name} (merged)`,
-          ...(moveBarcode ? { barcode: null } : {}),
-          notes: [p.notes, `Merged into "${fullName}" (${k.id}) by the catalog cleanup ${CATALOG_CLEANUP_REVISION}.`].filter(Boolean).join(" "),
-        },
-      }),
-      ...(moveBarcode ? [prisma.product.update({ where: { id: k.id }, data: { barcode: p.barcode } })] : []),
-    ]);
-    if (moveBarcode) k.barcode = p.barcode;
+    await mergeProductInto(p, k, fullName, `by the catalog cleanup ${CATALOG_CLEANUP_REVISION}`);
     mergedIds.add(p.id);
     report.merged.push({ from: p.name, into: fullName, stock });
   }
@@ -217,5 +206,148 @@ export async function cleanupCatalog(): Promise<CatalogCleanupReport | null> {
   report.offCatalogWithStock.sort(by((r: { name: string }) => r.name));
   report.deactivated.sort();
   report.keptApprovedInApp.sort();
+  return report;
+}
+
+type MergeRow = { id: string; name: string; notes: string | null; barcode: string | null };
+
+/** Merge one product row into another (same mechanics as Product Review → Merge):
+ *  re-point purchase lines, stock movements, barcodes, checkout lines and photos;
+ *  deactivate the twin and rename it "… (merged)" so it never collides in a lookup.
+ *  No movement quantity is written or deleted. */
+async function mergeProductInto(p: MergeRow, k: MergeRow, fullName: string, by: string): Promise<void> {
+  const moveBarcode = !!p.barcode && !k.barcode;
+  await prisma.$transaction([
+    prisma.invoiceLine.updateMany({ where: { productId: p.id }, data: { productId: k.id } }),
+    prisma.stockMovement.updateMany({ where: { productId: p.id }, data: { productId: k.id } }),
+    prisma.productBarcode.updateMany({ where: { productId: p.id }, data: { productId: k.id } }),
+    prisma.checkoutLine.updateMany({ where: { productId: p.id }, data: { productId: k.id } }),
+    prisma.productPhoto.updateMany({ where: { productId: p.id }, data: { productId: k.id, primary: false } }),
+    prisma.product.update({
+      where: { id: p.id },
+      data: {
+        active: false, approved: false, confirmed: true,
+        name: `${p.name} (merged)`,
+        ...(moveBarcode ? { barcode: null } : {}),
+        notes: [p.notes, `Merged into "${fullName}" (${k.id}) ${by}.`].filter(Boolean).join(" "),
+      },
+    }),
+    ...(moveBarcode ? [prisma.product.update({ where: { id: k.id }, data: { barcode: p.barcode } })] : []),
+  ]);
+  if (moveBarcode) k.barcode = p.barcode;
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// Julie's catalog decisions (2026-11-11), applied once after the 11/10 cleanup:
+//   - the 20 drafted full names confirmed (lib/catalog-names.ts), incl. a corrected
+//     20-20-20 name, plus unit fixes (Atrazine = 50 lb bag, Suspend PolyZone =
+//     bottle, 20-20-20 = pail/bucket);
+//   - two catalog rows merged into the product they duplicate (Crosscheck 0.069%
+//     Plus → LESCO Crosscheck 0-0-7; Lesco Macron → 20-20-20);
+//   - the PestPac "Miscellaneous Chemical" / "Miscellaneous Fertilizer" categories
+//     discontinued: any on-hand is zeroed by an offsetting adjustment (audit trail
+//     kept) and the products are deactivated.
+export const CATALOG_DECISIONS_REVISION = "2026-11-11";
+const DECISIONS_REV_KEY = "catalog_decisions_rev";
+export const CATALOG_DECISIONS_REPORT_KEY = "catalog_decisions_report";
+
+export type CatalogDecisionsReport = {
+  at: string;
+  renamed: { from: string; to: string }[];
+  unitsChanged: { name: string; from: string; to: string }[];
+  merged: { from: string; into: string; stock: Stock[] }[];
+  discontinued: { name: string; removed: Stock[] }[];
+};
+
+async function runDecisions(): Promise<void> {
+  const marker = await prisma.setting.findUnique({ where: { key: DECISIONS_REV_KEY } });
+  if (marker?.value === CATALOG_DECISIONS_REVISION) return;
+  // Receipt-line removals (the Orlando Misc line) must land BEFORE the discontinued
+  // zeroing, or the two would double-count the removal.
+  await ensureReceiptsLoaded();
+  const report = await applyCatalogDecisions();
+  const value = JSON.stringify(report);
+  await prisma.setting.upsert({ where: { key: CATALOG_DECISIONS_REPORT_KEY }, update: { value }, create: { key: CATALOG_DECISIONS_REPORT_KEY, value } });
+  await prisma.setting.upsert({ where: { key: DECISIONS_REV_KEY }, update: { value: CATALOG_DECISIONS_REVISION }, create: { key: DECISIONS_REV_KEY, value: CATALOG_DECISIONS_REVISION } });
+  console.log(`ensureCatalogCleanup (decisions): ${report.renamed.length} renamed, ${report.unitsChanged.length} unit fixes, ${report.merged.length} merged, ${report.discontinued.length} discontinued.`);
+}
+
+export async function readCatalogDecisionsReport(): Promise<CatalogDecisionsReport | null> {
+  const row = await prisma.setting.findUnique({ where: { key: CATALOG_DECISIONS_REPORT_KEY } }).catch(() => null);
+  if (!row) return null;
+  try { return JSON.parse(row.value) as CatalogDecisionsReport; } catch { return null; }
+}
+
+/** Exported for the dev test script. */
+export async function applyCatalogDecisions(): Promise<CatalogDecisionsReport> {
+  const report: CatalogDecisionsReport = { at: new Date().toISOString(), renamed: [], unitsChanged: [], merged: [], discontinued: [] };
+  const [products, sums, warehouses] = await Promise.all([
+    prisma.product.findMany({ where: { active: true }, select: { id: true, name: true, approved: true, notes: true, barcode: true, unitOfMeasure: true } }),
+    prisma.stockMovement.groupBy({ by: ["productId", "warehouseId"], _sum: { quantity: true } }),
+    prisma.warehouse.findMany({ select: { id: true, name: true } }),
+  ]);
+  const whName = new Map(warehouses.map((w) => [w.id, w.name]));
+  const stockOf = (productId: string): (Stock & { warehouseId: string })[] =>
+    sums
+      .filter((x) => x.productId === productId && Math.abs(x._sum.quantity ?? 0) > EPS)
+      .map((x) => ({ warehouseId: x.warehouseId, warehouse: whName.get(x.warehouseId) ?? x.warehouseId, qty: Math.round((x._sum.quantity ?? 0) * 10000) / 10000 }));
+  const n = normalizeProductName;
+  const keysFor = (short: string) => new Set([short, canonicalProductName(short), ...(PREVIOUS_FULL_NAMES[short] ?? [])].map(n));
+  const findRow = (short: string) => {
+    const keys = keysFor(short);
+    const c = products.filter((p) => keys.has(n(p.name)));
+    return c.find((p) => n(p.name) === n(short) && p.approved) ?? c.find((p) => p.approved) ?? c[0] ?? null;
+  };
+  const gone = new Set<string>();
+
+  // 1) Merges (before renames, so the twin's name never collides).
+  for (const [src, tgt] of Object.entries(CATALOG_MERGES)) {
+    const k = findRow(tgt);
+    if (!k) continue;
+    const srcKeys = new Set([n(src)]);
+    for (const p of products) {
+      if (p.id === k.id || gone.has(p.id) || !srcKeys.has(n(p.name))) continue;
+      const fullName = canonicalProductName(tgt);
+      report.merged.push({ from: p.name, into: fullName, stock: stockOf(p.id).map(({ warehouse, qty }) => ({ warehouse, qty })) });
+      await mergeProductInto(p, k, fullName, `per Julie's catalog review ${CATALOG_DECISIONS_REVISION}`);
+      gone.add(p.id);
+    }
+  }
+
+  // 2) Renames + unit fixes for every catalog row.
+  for (const short of approvedCatalogShortNames()) {
+    const k = findRow(short);
+    if (!k || gone.has(k.id)) continue;
+    const fullName = canonicalProductName(short);
+    const unit = CATALOG_UNIT_OVERRIDES[short];
+    const data: { name?: string; unitOfMeasure?: string } = {};
+    if (k.name !== fullName) { data.name = fullName; report.renamed.push({ from: k.name, to: fullName }); }
+    if (unit && k.unitOfMeasure !== unit) { data.unitOfMeasure = unit; report.unitsChanged.push({ name: fullName, from: k.unitOfMeasure, to: unit }); }
+    if (Object.keys(data).length) await prisma.product.update({ where: { id: k.id }, data });
+  }
+
+  // 3) Discontinued catch-alls: zero any on-hand (offsetting adjustment), deactivate.
+  for (const name of DISCONTINUED_PRODUCTS) {
+    for (const p of products.filter((x) => n(x.name) === n(name) && !gone.has(x.id))) {
+      const stock = stockOf(p.id);
+      for (const st of stock) {
+        await prisma.stockMovement.create({
+          data: {
+            type: "adjustment", productId: p.id, warehouseId: st.warehouseId, quantity: -st.qty,
+            reason: `Category discontinued — "${p.name}" is no longer tracked (Julie, ${CATALOG_DECISIONS_REVISION}); on-hand removed.`,
+            source: "catalog_decision",
+          },
+        });
+      }
+      await prisma.product.update({
+        where: { id: p.id },
+        data: {
+          active: false, approved: false, confirmed: true,
+          notes: [p.notes, `${DISCARD_MARK} — category discontinued (Julie, ${CATALOG_DECISIONS_REVISION}). ${REJECTED_ARCHIVED_MARK}.`].filter(Boolean).join(" "),
+        },
+      });
+      report.discontinued.push({ name: p.name, removed: stock.map(({ warehouse, qty }) => ({ warehouse, qty })) });
+    }
+  }
   return report;
 }
