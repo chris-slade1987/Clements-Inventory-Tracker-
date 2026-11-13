@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import Link from "next/link";
 import { Card, btn, UnitSelect } from "@/components/ui";
 import DateInput from "@/components/DateInput";
-import { uomCode } from "@/lib/uom";
+import { uomCode, uomLabel } from "@/lib/uom";
 import { money } from "@/lib/format";
 import { matchProduct } from "@/lib/invoice/match";
 import type { ParsedLine } from "@/lib/invoice/types";
@@ -616,44 +616,51 @@ export default function CheckInClient({
                   <p className="mt-1 text-xs text-amber-600">Pick a product or create one — otherwise this line is skipped.</p>
                 ) : null}
 
-                <div className="mt-2 grid grid-cols-3 gap-2">
-                  <label className="text-xs text-muted">
-                    Qty
-                    <input
-                      type="number"
-                      inputMode="decimal"
-                      value={l.quantity}
-                      onChange={(e) =>
-                        updateLine(l.key, { quantity: Number(e.target.value) })
-                      }
-                      className="mt-0.5 w-full rounded-lg border border-line px-2 py-1.5 text-sm"
-                    />
-                    {(() => {
-                      const per = products.find((p) => p.id === l.productId)?.unitsPerCase;
-                      if (!per || per <= 1) return null;
-                      return (
-                        <button
-                          type="button"
-                          onClick={() => updateLine(l.key, { quantity: (Number(l.quantity) || 0) * per })}
-                          className="mt-0.5 block text-[10px] font-medium text-brand-700 hover:underline"
-                          title={`This product ships ${per} units per case`}
-                        >
-                          × case ({per}/case → {(Number(l.quantity) || 0) * per} units)
-                        </button>
-                      );
-                    })()}
-                  </label>
-                  <label className="text-xs text-muted">
-                    Unit
-                    <UnitSelect
-                      value={l.unit}
-                      onChange={(code) => updateLine(l.key, { unit: code })}
-                      className="mt-0.5 w-full rounded-lg border border-line px-2 py-1.5 text-sm bg-surface"
-                    />
-                    <span className="mt-0.5 block text-[10px] text-muted/80">defaults to the product&rsquo;s approved unit</span>
-                  </label>
-                  <label className="text-xs text-muted">
-                    Unit price
+                {(() => {
+                  // Case items (set on the product profile → Packaging): the quantity
+                  // here is CASES; the server adds cases × units-per-case to on-hand.
+                  // Nothing is assumed to come in a case unless the profile says so.
+                  const prod = products.find((p) => p.id === l.productId);
+                  const per = prod?.unitsPerCase && prod.unitsPerCase >= 2 ? prod.unitsPerCase : null;
+                  const q = Number(l.quantity) || 0;
+                  return (
+                    <div className="mt-2 grid grid-cols-3 gap-2">
+                      <label className="text-xs text-muted">
+                        {per ? "Cases received" : "Qty"}
+                        <input
+                          type="number"
+                          inputMode="decimal"
+                          value={l.quantity}
+                          onChange={(e) =>
+                            updateLine(l.key, { quantity: Number(e.target.value) })
+                          }
+                          className="mt-0.5 w-full rounded-lg border border-line px-2 py-1.5 text-sm"
+                        />
+                        {per ? (
+                          <span className="mt-0.5 block text-[10px] text-muted">
+                            {q} case{q === 1 ? "" : "s"} × {per} = {q * per} {uomLabel(prod?.unit).toLowerCase()} to on-hand
+                          </span>
+                        ) : null}
+                      </label>
+                      {per ? (
+                        <div className="text-xs text-muted">
+                          Unit
+                          <div className="mt-0.5 rounded-lg border border-line bg-black/[0.02] px-2 py-1.5 text-sm text-ink">Case of {per}</div>
+                          <span className="mt-0.5 block text-[10px] text-muted/80">set on the product profile</span>
+                        </div>
+                      ) : (
+                        <label className="text-xs text-muted">
+                          Unit
+                          <UnitSelect
+                            value={l.unit}
+                            onChange={(code) => updateLine(l.key, { unit: code })}
+                            className="mt-0.5 w-full rounded-lg border border-line px-2 py-1.5 text-sm bg-surface"
+                          />
+                          <span className="mt-0.5 block text-[10px] text-muted/80">defaults to the product&rsquo;s approved unit</span>
+                        </label>
+                      )}
+                      <label className="text-xs text-muted">
+                    {per ? "Price per case" : "Unit price"}
                     <input
                       type="number"
                       inputMode="decimal"
@@ -666,7 +673,9 @@ export default function CheckInClient({
                       className="mt-0.5 w-full rounded-lg border border-line px-2 py-1.5 text-sm"
                     />
                   </label>
-                </div>
+                    </div>
+                  );
+                })()}
 
                 {/* Invoice mode keeps the raw line text visible/editable. */}
                 {!manualMode ? (

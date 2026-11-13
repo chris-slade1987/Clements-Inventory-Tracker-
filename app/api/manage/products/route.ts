@@ -54,6 +54,12 @@ export async function POST(req: Request) {
       if (has("notes")) data.notes = clean(body?.notes);
       if (has("approved")) data.approved = body?.approved === true;
       if (has("active")) data.active = body?.active === true;
+      // Packaging: units per case (≥ 2) when the product is received by the case and
+      // checked out by the unit; null = not a case item (never assumed).
+      if (has("unitsPerCase")) {
+        const n = Math.trunc(Number(body?.unitsPerCase));
+        data.unitsPerCase = Number.isFinite(n) && n >= 2 ? n : null;
+      }
       if (has("division") || has("subdivision")) {
         const norm = normalizeClassification(body?.division, body?.subdivision);
         data.division = norm.division;

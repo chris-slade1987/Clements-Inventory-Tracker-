@@ -121,6 +121,15 @@ export async function POST(req: Request) {
   // carries NO onHandQty (approval must never double-count).
   const createdProducts: { id: string; name: string }[] = [];
 
+  // Case items (product profile → Packaging): the line quantity is CASES; on-hand
+  // moves by cases × units-per-case. Nothing is assumed to come in a case.
+  const caseInfo = new Map(
+    (await prisma.product.findMany({
+      where: { id: { in: lines.map((l) => l.productId).filter((x): x is string => !!x) } },
+      select: { id: true, unitsPerCase: true, unitOfMeasure: true },
+    })).map((p) => [p.id, p]),
+  );
+
   const result = await prisma.$transaction(async (tx) => {
     const invoice = await tx.invoice.create({
       data: {
@@ -167,34 +176,42 @@ export async function POST(req: Request) {
 
       const qty = Math.abs(Number(l.quantity));
       const unitPrice = numOrNull(l.unitPrice);
+      const prod = caseInfo.get(productId);
+      const per = prod?.unitsPerCase && prod.unitsPerCase >= 2 ? prod.unitsPerCase : null;
+      // On-hand quantity (single units) and the per-unit cost.
+      const units = per ? qty * per : qty;
+      const perUnitPrice = per && unitPrice != null ? Math.round((unitPrice / per) * 1000) / 1000 : unitPrice;
 
       await tx.invoiceLine.create({
         data: {
           invoiceId: invoice.id,
           productId,
           descriptionRaw: l.descriptionRaw ?? "",
-          quantity: qty,
-          unit: lineUnit,
+          quantity: qty, // as invoiced (cases for a case item)
+          unit: per ? "C" : lineUnit,
           unitPrice,
           lineTotal: numOrNull(l.lineTotal),
           matched: true,
+          invoiceUnits: units,
+          unitCost: perUnitPrice,
         },
       });
 
-      // Positive check_in movement. Price history is derived from invoice_lines.
+      // Positive check_in movement in single units. Price history is derived from invoice_lines.
       await tx.stockMovement.create({
         data: {
           type: "check_in",
           productId,
           warehouseId,
-          quantity: qty,
-          unit: lineUnit,
-          unitPrice,
+          quantity: units,
+          unit: per ? prod!.unitOfMeasure : lineUnit,
+          unitPrice: perUnitPrice,
           sourceInvoiceId: invoice.id,
           userId: user.id,
+          ...(per ? { reason: `${qty} case${qty === 1 ? "" : "s"} × ${per}` } : {}),
         },
       });
-      itemCount += qty;
+      itemCount += units;
     }
 
     return { invoiceId: invoice.id, itemCount, lineCount: lines.length };

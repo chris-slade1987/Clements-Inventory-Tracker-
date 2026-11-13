@@ -37,7 +37,7 @@ export default function CleanupReport({ report, decisions }: { report: CatalogCl
 
       {decisions ? (
         <Section
-          title="Julie's catalog decisions applied (11/11)"
+          title="Julie's catalog decisions applied"
           count={decisions.renamed.length + decisions.unitsChanged.length + decisions.merged.length + decisions.discontinued.length}
         >
           <ul className="space-y-1">

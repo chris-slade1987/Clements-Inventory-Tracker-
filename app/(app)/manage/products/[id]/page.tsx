@@ -57,7 +57,12 @@ export default async function ProductProfilePage({ params }: { params: Promise<{
     { label: "Target pest", value: product.targetPest ?? "—" },
     { label: "Application method", value: product.applicationMethod ?? "—" },
     { label: "Unit of measure", value: `${unit} (${product.unitOfMeasure})` },
-    { label: "Units per case", value: product.unitsPerCase != null ? String(product.unitsPerCase) : "—" },
+    {
+      label: "Packaging",
+      value: (product.unitsPerCase ?? 0) >= 2
+        ? `Comes in a case of ${product.unitsPerCase} — checked in by the case, checked out by the ${uomLabel(product.unitOfMeasure).toLowerCase()}`
+        : "Not a case item — checked in and out by the same unit",
+    },
     { label: "EPA reg. no.", value: product.epaRegNumber ?? <span className="text-muted">Not on file</span> },
     { label: "Distributor SKU", value: product.distributorSku ?? "—" },
     {

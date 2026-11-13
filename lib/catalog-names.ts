@@ -52,14 +52,14 @@ export const CATALOG_FULL_NAMES: Record<string, string> = {
   "Lesco Fertilizer 13-0-0": "LESCO Fertilizer 13-0-0 2.5 gal.",
   "Fertilizer - 21-0-6": "LESCO Fertilizer 21-0-6 50 lb.",
   "Fertilizer 8-0-10 (Shrub)": "LESCO L&O Palm 8-0-10 Granular Fertilizer 50 lb. Bag",
-  "Lesco Liquid 0-0-25": "LESCO Liquid Fertilizer 0-0-25 2.5 gal.",
+  "Lesco Liquid 0-0-25": "LESCO K-Flow Liquid Fertilizer 0-0-25 2.5 gal.", // Julie 2026-11-13 (merged with the other listing)
   "20-20-20 Sprayable Fertilizer": "LESCO 20-20-20 AM Ornamental and Turfgrass Soluble Fertilizer 25 lb. Pail",
   "Mansion Turf Herbicide": "LESCO Mansion Post Emergent Dry Granule Herbicide 8 oz. Bottle",
   "Blackout Fertilizer 0-0-18 (turf)": "LESCO Organic/Organic-Base Fertilizer 0-0-18 40 lb.",
   "Prosecutor": "LESCO Prosecutor Pro Non-Selective Liquid Herbicide 2.5 gal.",
   "Spreader Sticker": "LESCO Spreader Sticker 2.5 gal.",
   "Lesco T&O Chelated Liquid Fertilizer": "LESCO T&O Chelated Liquid Micronutrient Fertilizer 2.5 gal. Jug",
-  "T-Storm Fungicide": "LESCO T-Storm Liquid Fungicide 2.5 gal. Jug",
+  "T-Storm Fungicide": "LESCO T-Storm Flowable Systemic Fungicide 2.5 gal. Jug", // Julie 2026-11-13 (merged with the other listing)
   "Maxforce Complete Granular Bait": "Maxforce Complete Insect Bait 4 lb.",
   "Maxforce Quantum Ant Bait": "Maxforce Quantum Ant Bait 120 gm.",
   "Arena Granular Insecticide": "Nufarm Arena 0.25G Granular Insecticide 30 lb. Bag",
@@ -177,12 +177,19 @@ export const PENDING_FULL_NAMES: { short: string; draft: string; note: string; m
 export const CATALOG_MERGES: Record<string, string> = {
   "Crosscheck 0.069% Plus": "0-0-7 Fertilizer + Insecticide",
   "Lesco Macron Soluble Fertilizer": "20-20-20 Sprayable Fertilizer",
+  // Julie 2026-11-13: same products listed twice — merge into the second name.
+  // (Both listings of 0-0-25 and T-Storm are matched through the target's current
+  // and previous names; the survivor carries Julie's chosen name.)
+  "LESCO Bandit 2F Insecticide/Miticide 1 gal.": "Bandit 2F",
+  "LESCO Mansion Turf Herbicide": "Mansion Turf Herbicide",
 };
 
 /** Full names applied earlier and since corrected — still recognized so the
  *  renamed row is found (short name -> earlier full names). */
 export const PREVIOUS_FULL_NAMES: Record<string, string[]> = {
   "20-20-20 Sprayable Fertilizer": ["LESCO MacroN Soluble Fertilizer 20-20-20 25 lb. Bag"],
+  "Lesco Liquid 0-0-25": ["LESCO Liquid Fertilizer 0-0-25 2.5 gal."],
+  "T-Storm Fungicide": ["LESCO T-Storm Liquid Fungicide 2.5 gal. Jug"],
 };
 
 /** Unit-of-measure corrections (Julie, 2026-11-11), by short name. */

@@ -4,7 +4,7 @@ import { normalizeProductName, PRODUCT_ALIASES } from "@/lib/product-aliases";
 import { SITEONE_ALIASES } from "@/lib/invoice/siteone-aliases";
 import { canonicalProductName, CATALOG_ITEM_NUMBERS, CATALOG_MERGES, CATALOG_UNIT_OVERRIDES, DISCONTINUED_PRODUCTS, PREVIOUS_FULL_NAMES } from "@/lib/catalog-names";
 import { ensureReceiptsLoaded } from "@/lib/receipts-ensure";
-import { approvedCatalogShortNames, isHumanApproved, NON_CHEMICAL_PRODUCT_NAME } from "@/prisma/seed-products-approved";
+import { packSizeFor, approvedCatalogShortNames, isHumanApproved, NON_CHEMICAL_PRODUCT_NAME } from "@/prisma/seed-products-approved";
 
 // One-time approved-catalog cleanup (COO directive 2026-11-10). Undoes the 11/5
 // "clear the review queues" change, which approved EVERY active product (demo seed
@@ -247,7 +247,7 @@ async function mergeProductInto(p: MergeRow, k: MergeRow, fullName: string, by: 
 //   - the PestPac "Miscellaneous Chemical" / "Miscellaneous Fertilizer" categories
 //     discontinued: any on-hand is zeroed by an offsetting adjustment (audit trail
 //     kept) and the products are deactivated.
-export const CATALOG_DECISIONS_REVISION = "2026-11-11";
+export const CATALOG_DECISIONS_REVISION = "2026-11-13";
 const DECISIONS_REV_KEY = "catalog_decisions_rev";
 export const CATALOG_DECISIONS_REPORT_KEY = "catalog_decisions_report";
 
@@ -257,6 +257,8 @@ export type CatalogDecisionsReport = {
   unitsChanged: { name: string; from: string; to: string }[];
   merged: { from: string; into: string; stock: Stock[] }[];
   discontinued: { name: string; removed: Stock[] }[];
+  /** Products whose auto-filled case size was cleared (never assume a case). */
+  caseSizesCleared?: number;
 };
 
 async function runDecisions(): Promise<void> {
@@ -266,6 +268,15 @@ async function runDecisions(): Promise<void> {
   // zeroing, or the two would double-count the removal.
   await ensureReceiptsLoaded();
   const report = await applyCatalogDecisions();
+  // Keep earlier rounds of decisions on the record: append this round to the last.
+  const prev = await readCatalogDecisionsReport();
+  if (prev) {
+    report.renamed = [...prev.renamed, ...report.renamed];
+    report.unitsChanged = [...prev.unitsChanged, ...report.unitsChanged];
+    report.merged = [...prev.merged, ...report.merged];
+    report.discontinued = [...prev.discontinued, ...report.discontinued];
+    report.caseSizesCleared = (prev.caseSizesCleared ?? 0) + (report.caseSizesCleared ?? 0);
+  }
   const value = JSON.stringify(report);
   await prisma.setting.upsert({ where: { key: CATALOG_DECISIONS_REPORT_KEY }, update: { value }, create: { key: CATALOG_DECISIONS_REPORT_KEY, value } });
   await prisma.setting.upsert({ where: { key: DECISIONS_REV_KEY }, update: { value: CATALOG_DECISIONS_REVISION }, create: { key: DECISIONS_REV_KEY, value: CATALOG_DECISIONS_REVISION } });
@@ -282,7 +293,7 @@ export async function readCatalogDecisionsReport(): Promise<CatalogDecisionsRepo
 export async function applyCatalogDecisions(): Promise<CatalogDecisionsReport> {
   const report: CatalogDecisionsReport = { at: new Date().toISOString(), renamed: [], unitsChanged: [], merged: [], discontinued: [] };
   const [products, sums, warehouses] = await Promise.all([
-    prisma.product.findMany({ where: { active: true }, select: { id: true, name: true, approved: true, notes: true, barcode: true, unitOfMeasure: true } }),
+    prisma.product.findMany({ where: { active: true }, select: { id: true, name: true, approved: true, notes: true, barcode: true, unitOfMeasure: true, unitsPerCase: true } }),
     prisma.stockMovement.groupBy({ by: ["productId", "warehouseId"], _sum: { quantity: true } }),
     prisma.warehouse.findMany({ select: { id: true, name: true } }),
   ]);
@@ -301,12 +312,20 @@ export async function applyCatalogDecisions(): Promise<CatalogDecisionsReport> {
   const gone = new Set<string>();
 
   // 1) Merges (before renames, so the twin's name never collides).
-  for (const [src, tgt] of Object.entries(CATALOG_MERGES)) {
+  // Targets: every merge target plus every catalog row whose name changed (its old
+  // listing may survive as a separate row — e.g. "LESCO K-Flow …" vs the catalog's
+  // "LESCO Liquid Fertilizer 0-0-25 …"). Sources: the listed names plus any other
+  // active row carrying the target's current / previous names.
+  const compact = (x: string) => x.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const sourcesByTarget = new Map<string, string[]>();
+  for (const [src, tgt] of Object.entries(CATALOG_MERGES)) sourcesByTarget.set(tgt, [...(sourcesByTarget.get(tgt) ?? []), src]);
+  for (const tgt of Object.keys(PREVIOUS_FULL_NAMES)) if (!sourcesByTarget.has(tgt)) sourcesByTarget.set(tgt, []);
+  for (const [tgt, srcs] of sourcesByTarget) {
     const k = findRow(tgt);
     if (!k) continue;
-    const srcKeys = new Set([n(src)]);
+    const srcKeys = new Set([...srcs, ...keysFor(tgt)].map(compact));
     for (const p of products) {
-      if (p.id === k.id || gone.has(p.id) || !srcKeys.has(n(p.name))) continue;
+      if (p.id === k.id || gone.has(p.id) || !srcKeys.has(compact(p.name))) continue;
       const fullName = canonicalProductName(tgt);
       report.merged.push({ from: p.name, into: fullName, stock: stockOf(p.id).map(({ warehouse, qty }) => ({ warehouse, qty })) });
       await mergeProductInto(p, k, fullName, `per Julie's catalog review ${CATALOG_DECISIONS_REVISION}`);
@@ -349,5 +368,17 @@ export async function applyCatalogDecisions(): Promise<CatalogDecisionsReport> {
       report.discontinued.push({ name: p.name, removed: stock.map(({ warehouse, qty }) => ({ warehouse, qty })) });
     }
   }
+  // 4) Never assume a case (Julie 2026-11-13): clear the case size the old seed
+  // stamped on every catalog row (4 for tubes, else 12). Case packaging is now set
+  // per product on its profile (Packaging).
+  let cleared = 0;
+  for (const p of products) {
+    if (gone.has(p.id) || p.unitsPerCase == null) continue;
+    if (p.unitsPerCase === packSizeFor(p.unitOfMeasure) || p.unitsPerCase === 12 || p.unitsPerCase === 4) {
+      await prisma.product.update({ where: { id: p.id }, data: { unitsPerCase: null } });
+      cleared++;
+    }
+  }
+  report.caseSizesCleared = cleared;
   return report;
 }

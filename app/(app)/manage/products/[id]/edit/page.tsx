@@ -50,6 +50,7 @@ export default async function ProductEditPage({ params }: { params: Promise<{ id
           notes: product.notes,
           active: product.active,
           approved: product.approved,
+          unitsPerCase: product.unitsPerCase,
         }}
         photos={photos.map((p) => ({ id: p.id, photoUrl: p.photoUrl, kind: p.kind, primary: p.primary }))}
         barcodes={linkedBarcodes}

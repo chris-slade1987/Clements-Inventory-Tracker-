@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Card, btn, UnitSelect } from "@/components/ui";
+import { uomLabel } from "@/lib/uom";
 import { PRODUCT_CATEGORIES, DIVISIONS, DIVISION_LABELS, SUBDIVISIONS, type Division } from "@/lib/constants";
 import ProductPhotos, { type PhotoTile } from "../ProductPhotos";
 
@@ -30,6 +31,7 @@ type ProductFields = {
   notes: string | null;
   active: boolean;
   approved: boolean;
+  unitsPerCase: number | null;
 };
 
 type Barcode = { id: string; code: string; symbology: string | null };
@@ -62,6 +64,10 @@ export default function ProductEditor({
     notes: product.notes ?? "",
     active: product.active,
     approved: product.approved,
+    // Packaging: received by the case (e.g. a 4-pack of bait tubes) but checked out
+    // one unit at a time. Off = received and checked out in the same unit.
+    comesInCase: (product.unitsPerCase ?? 0) >= 2,
+    unitsPerCase: (product.unitsPerCase ?? 0) >= 2 ? String(product.unitsPerCase) : "",
   });
 
   const [busy, setBusy] = useState(false);
@@ -91,7 +97,10 @@ export default function ProductEditor({
     const res = await fetch("/api/manage/products", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "update", id: product.id, ...form }),
+      body: JSON.stringify({
+        action: "update", id: product.id, ...form,
+        unitsPerCase: form.comesInCase ? Number(form.unitsPerCase) || null : null,
+      }),
     });
     const data = await res.json().catch(() => ({}));
     setBusy(false);
@@ -247,6 +256,42 @@ export default function ProductEditor({
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Field label="Distributor SKU" value={form.distributorSku} onChange={(v) => setForm({ ...form, distributorSku: v })} />
             <Field label="Primary barcode (legacy field)" value={form.barcode} onChange={(v) => setForm({ ...form, barcode: v })} placeholder="Prefer the barcode reader below" />
+          </div>
+          <div className="rounded-lg border border-line p-3">
+            <div className="text-sm font-medium text-ink">Packaging</div>
+            <p className="text-[11px] text-muted">
+              Mark this only if the product is received as a case or pack but checked out one unit at a time
+              (e.g. a 4-pack of bait tubes: check in 1 case, technicians check out 1 tube).
+            </p>
+            <label className="mt-2 flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={form.comesInCase}
+                onChange={(e) => setForm({ ...form, comesInCase: e.target.checked, unitsPerCase: e.target.checked ? form.unitsPerCase : "" })}
+              />
+              Comes in a case / pack
+            </label>
+            {form.comesInCase ? (
+              <label className="mt-2 block text-sm font-medium">
+                Units per case <span className="font-normal text-muted">({uomLabel(form.unitOfMeasure)} — what technicians check out)</span>
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  min={2}
+                  value={form.unitsPerCase}
+                  onChange={(e) => setForm({ ...form, unitsPerCase: e.target.value })}
+                  className="mt-1 w-32 rounded-lg border border-line px-3 py-2 text-sm"
+                  placeholder="e.g. 4"
+                />
+                {Number(form.unitsPerCase) >= 2 ? (
+                  <span className="mt-1 block text-[11px] font-normal text-muted">
+                    Check-In counts cases: 1 case received = {Number(form.unitsPerCase)} {uomLabel(form.unitOfMeasure)} added to on-hand.
+                  </span>
+                ) : (
+                  <span className="mt-1 block text-[11px] font-normal text-amber-700">Enter 2 or more.</span>
+                )}
+              </label>
+            ) : null}
           </div>
           <label className="block text-sm font-medium">Notes
             <textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} rows={2} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm" />

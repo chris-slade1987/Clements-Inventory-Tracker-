@@ -148,7 +148,11 @@ const CLASSIFICATION: Record<string, Classification> = {
  * case pack size is meaningless); everything else = 12. Metadata only — no
  * conversion math runs on existing movements.
  */
-function packSizeFor(code: string): number | null {
+// Formerly stamped a default case size on every catalog row (4 tubes, else 12).
+// COO/Julie 2026-11-13: never assume a product comes in a case — case packaging is
+// set per product on its profile. Kept only so the one-time clear can recognize
+// the old auto-filled values.
+export function packSizeFor(code: string): number | null {
   const c = code.trim().toUpperCase();
   if (c === "T") return 4;
   if (c === "EA" || c === "RT" || c === "BS") return null;
@@ -350,7 +354,6 @@ export async function seedApprovedProducts(prisma: PrismaClient) {
       row.division ?? cls?.division ?? null,
       row.subdivision ?? cls?.subdivision ?? null
     );
-    const unitsPerCase = packSizeFor(code);
 
     // Compose notes: base note (ADD / non-chemical) + any enrichment note,
     // appended so nothing already there is clobbered. (No classification-flag
@@ -383,7 +386,6 @@ export async function seedApprovedProducts(prisma: PrismaClient) {
           category: found.category ?? category,
           division,
           subdivision,
-          unitsPerCase,
           targetPest: found.targetPest ?? row.target ?? null,
           applicationMethod: found.applicationMethod ?? row.appMethod ?? null,
           manufacturer: found.manufacturer ?? row.manufacturer ?? null,
@@ -405,7 +407,6 @@ export async function seedApprovedProducts(prisma: PrismaClient) {
           category,
           division,
           subdivision,
-          unitsPerCase,
           targetPest: row.target ?? null,
           applicationMethod: row.appMethod ?? null,
           manufacturer: row.manufacturer ?? null,

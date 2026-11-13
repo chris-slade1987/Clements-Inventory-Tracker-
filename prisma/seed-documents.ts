@@ -45,7 +45,8 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 56 · Last updated November 11, 2026",
+    effective: "Version 57 · Last updated November 13, 2026",
+    // v57: Check-In case items (product Packaging setting); four product merges. (Label only.)
     // v56: Catalog — Julie's final product names; Miscellaneous categories retired. (Label only.)
     // v55: Vehicle inspections — service advisors' vehicles graded without the
     // technician-only items (out of 9). (Label only — no acknowledgment step.)
@@ -260,7 +261,7 @@ const DOCS: DocSeed[] = [
     // (Assign/Courses/Certifications/Reports tabs), automatic credit, the
     // Field-Core prerequisite guard, one-module-per-month pacing, advancement
     // stepping, and certification award gating on the approved field sign-off.
-    version: 56,
+    version: 57,
     // v11: expanded the Sales Team section to document the per-advisor visual
     // funnel (Leads → Proposals → Closed $ with per-stage goals, pace markers,
     // and plain-English leak diagnosis), the director leaderboard / most-improved
