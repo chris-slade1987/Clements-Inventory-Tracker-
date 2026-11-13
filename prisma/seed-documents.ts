@@ -45,7 +45,9 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 57 · Last updated November 13, 2026",
+    effective: "Version 58 · Last updated November 13, 2026",
+    // v58: Check-Out — technician list shows every active technician with their PestPac
+    // tech #; route-number holders auto-added (Brian Lasneski fix). (Label only.)
     // v57: Check-In case items (product Packaging setting); four product merges. (Label only.)
     // v56: Catalog — Julie's final product names; Miscellaneous categories retired. (Label only.)
     // v55: Vehicle inspections — service advisors' vehicles graded without the

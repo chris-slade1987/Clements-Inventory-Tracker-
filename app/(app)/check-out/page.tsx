@@ -8,6 +8,8 @@ import { prisma } from "@/lib/prisma";
 import { onHandMatrix } from "@/lib/inventory";
 import { isCountReason } from "@/lib/stock-count";
 import { uomCode } from "@/lib/uom";
+import { ensureTechnicianRoster } from "@/lib/technician-roster-ensure";
+import { routeNumberFor } from "@/lib/route-numbers";
 import ScanCheckoutClient from "./ScanCheckoutClient";
 
 export const dynamic = "force-dynamic";
@@ -23,6 +25,7 @@ export default async function CheckOutPage({
 }) {
   const user = await requireUser();
   await ensureCatalogCleanup(); // catalog cleanup lands before we read products
+  await ensureTechnicianRoster(); // every route-number holder is on the roster before we read it
   if (isBoardObserver(user)) redirect("/management/board");
   // Technicians (role employee) cannot check out; managers/admins can.
   if (user.role !== "admin" && user.role !== "manager") redirect("/me");
@@ -30,13 +33,30 @@ export default async function CheckOutPage({
   const sp = await searchParams;
   const isAdmin = user.role === "admin";
 
-  const [warehouses, technicians, products, matrix, adjustments] = await Promise.all([
+  const [warehouses, technicians, products, matrix, adjustments, employees] = await Promise.all([
     prisma.warehouse.findMany({ where: { active: true }, orderBy: { name: "asc" } }),
     prisma.technician.findMany({ where: { active: true }, orderBy: { name: "asc" } }),
     prisma.product.findMany({ where: { active: true }, orderBy: [{ approved: "desc" }, { name: "asc" }] }),
     onHandMatrix(),
     prisma.stockMovement.findMany({ where: { type: "adjustment" }, select: { productId: true, warehouseId: true, reason: true } }),
+    prisma.employee.findMany({ where: { status: "active" }, select: { name: true, nickname: true, routeNumber: true } }),
   ]);
+
+  // PestPac tech/route # beside each name ("Brian Lasneski · 28") so managers can
+  // find people the way PestPac lists them ("28 BRIAN L"). Profile route # wins,
+  // then the phone list (lib/route-numbers), then a short numeric PestPac card #.
+  const nk = (s: string | null | undefined) => (s ?? "").trim().toLowerCase().replace(/\s+/g, " ");
+  const routeByName = new Map<string, string>();
+  for (const e of employees) {
+    if (!e.routeNumber?.trim()) continue;
+    routeByName.set(nk(e.name), e.routeNumber.trim());
+    if (e.nickname) routeByName.set(nk(e.nickname), e.routeNumber.trim());
+  }
+  const whName = new Map(warehouses.map((w) => [w.id, w.name]));
+  const routeFor = (t: { name: string; homeWarehouseId: string; employeeIdCard: string | null }): string | null =>
+    routeByName.get(nk(t.name)) ??
+    routeNumberFor({ name: t.name, branch: whName.get(t.homeWarehouseId) ?? null }) ??
+    (/^\d{1,3}$/.test(t.employeeIdCard?.trim() ?? "") ? t.employeeIdCard!.trim() : null);
 
   // Default branch: the user's own warehouse, else their BRANCH's warehouse (matched
   // by name — Warehouse has no branch column — so the Vero manager lands on Vero
@@ -76,7 +96,7 @@ export default async function CheckOutPage({
         branchLocked={false}
         defaultWarehouseId={defaultWarehouseId}
         warehouses={warehouses.map((w) => ({ id: w.id, name: w.name }))}
-        technicians={technicians.map((t) => ({ id: t.id, name: t.name, homeWarehouseId: t.homeWarehouseId }))}
+        technicians={technicians.map((t) => ({ id: t.id, name: t.name, homeWarehouseId: t.homeWarehouseId, routeNumber: routeFor(t) }))}
         products={products.map((p) => ({
           id: p.id,
           name: p.name,

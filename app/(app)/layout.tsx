@@ -24,6 +24,7 @@ import { ensureRoutingAppointments } from "@/lib/routing-appointments-ensure";
 import { ensureGraceInspectionsRefiled, ensureInspectionTechnicianNames } from "@/lib/inspection-grace";
 import { ensureNovemberRoutingCredits } from "@/lib/routing-credit-ensure";
 import { ensureInspectionsRescored, ensureAdvisorInspectionsRescored } from "@/lib/inspection-rescore";
+import { ensureTechnicianRoster } from "@/lib/technician-roster-ensure";
 
 // Layout for all authenticated app screens. Redirects to /login when there is
 // no valid manager session, and provides the persistent nav shell.
@@ -121,6 +122,13 @@ export default async function AppGroupLayout({
   // items (toolbox, truck bed, PPE, pesticides, signage, sprayers) — COO 2026-11-11.
   // Self-heal (throttled, writes only wrong rows), non-fatal, no emails. See lib/inspection-rescore.ts.
   await ensureAdvisorInspectionsRescored();
+
+  // Put every PestPac route-number holder (phone list + active profiles) on the
+  // Check-Out technician roster at their branch warehouse — COO 2026-11-13: Brian
+  // Lasneski (28, Vero) was missing for Jason. Fills/reactivates only (never deletes,
+  // renames or moves), skips terminated employees; once (Setting marker), non-fatal.
+  // See lib/technician-roster-ensure.ts.
+  await ensureTechnicianRoster();
 
   // Forced default-password change. The pathname arrives as a request header set
   // by proxy.ts (the layout can't otherwise see the URL). Once a user who is still

@@ -12,7 +12,9 @@ const BarcodeScanner = dynamic(() => import("@/components/BarcodeScanner"), { ss
 const NOT_COUNTED_CAP = 40;
 
 type Warehouse = { id: string; name: string };
-type Technician = { id: string; name: string; homeWarehouseId: string };
+type Technician = { id: string; name: string; homeWarehouseId: string; routeNumber?: string | null };
+// Picker label: name plus the PestPac tech/route # ("Brian Lasneski · 28").
+const techLabel = (t: Technician) => (t.routeNumber ? `${t.name} · ${t.routeNumber}` : t.name);
 type Product = {
   id: string;
   name: string;
@@ -548,12 +550,12 @@ export default function ScanCheckoutClient({
             <option value="">Select technician…</option>
             <optgroup label="This warehouse">
               {technicians.filter((t) => t.homeWarehouseId === warehouseId).map((t) => (
-                <option key={t.id} value={t.id}>{t.name}</option>
+                <option key={t.id} value={t.id}>{techLabel(t)}</option>
               ))}
             </optgroup>
             <optgroup label="Other warehouses">
               {technicians.filter((t) => t.homeWarehouseId !== warehouseId).map((t) => (
-                <option key={t.id} value={t.id}>{t.name}</option>
+                <option key={t.id} value={t.id}>{techLabel(t)}</option>
               ))}
             </optgroup>
           </select>

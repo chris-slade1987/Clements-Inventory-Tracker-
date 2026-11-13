@@ -6,7 +6,7 @@ import { saveUpload } from "@/lib/storage";
 import { isHrDirector } from "@/lib/personnel";
 import { sendEmail } from "@/lib/email";
 import { appUrl } from "@/lib/app-url";
-import { type SeparationDoc, syncTechnicianActiveForEmployee } from "@/lib/separation";
+import { type SeparationDoc, syncTechnicianActiveForEmployee, provisionTechnicianForEmployee } from "@/lib/separation";
 
 export const runtime = "nodejs";
 export const maxDuration = 20;
@@ -58,6 +58,17 @@ export async function POST(req: Request) {
           status: "active",
         },
       });
+      // A field person added straight here (not via a pre-hire conversion) also goes
+      // on the Check-Out technician roster at their branch warehouse, so a manager can
+      // issue product to them right away (the gap that left Brian Lasneski off the
+      // list). Name-matched, reactivates/creates only; never blocks the add.
+      if (/technician|specialist|wildlife|termite|lawn|l&o|bees|advisor/i.test(`${emp.role ?? ""} ${emp.title ?? ""}`)) {
+        try {
+          await provisionTechnicianForEmployee({ name: emp.name, nickname: emp.nickname, branch: emp.branch });
+        } catch {
+          // Non-fatal: the profile exists either way; ensureTechnicianRoster / Inventory Administration → Technicians can reconcile.
+        }
+      }
       return NextResponse.json({ ok: true, id: emp.id });
     }
 
