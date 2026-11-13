@@ -15,8 +15,15 @@ import novSeed from "@/prisma/data/seed-production-2026-11.json";
 //
 // Months carried:
 //   2026-10 — full six-report ingest (real completion data).
-//   2026-11 — baseline plan from the PestPac Appointment List (forward-looking; completion
-//             0 until the live production reports are uploaded during/after November).
+//   2026-11 — revision 4: month-to-date as of Fri 11/13 from three PestPac reports run
+//             11/13 ~4:22 PM — Appointment List (11/01–11/30, still-open appointments),
+//             Uncommitted Orders (11/01–11/13) and the Technician Production Report
+//             (11/01–11/13, per-tech summary). Completed = committed production per route
+//             owner (tech # = route #) + today's jobs done in the field but not yet
+//             committed; LEFT BEHIND = anything dated before 11/13 still uncommitted or
+//             open (flagged, like October); remaining = open appointments 11/13–11/30.
+//             Same engine as the live upload (computeRouteProduction). Earlier revisions
+//             (1–3) were the forward plan from the 10/30 Appointment List.
 //
 // REVISIONED PER MONTH. Each seed carries a `revision`; the Setting
 // `production_seed_rev:<periodKey>` records the revision last applied. On boot:
