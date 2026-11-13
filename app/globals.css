@@ -107,6 +107,12 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="r
   border-color: #d7e0da !important;
 }
 select option { color: #0e1b15; background-color: #ffffff; }
+/* The page is color-scheme: dark, which made the browser's open-dropdown highlight
+   render white text on a light row (unreadable). Form controls are light, so give
+   them the light scheme; hovered/selected options keep dark text. */
+select { color-scheme: light; }
+select option:hover,
+select option:checked { color: #0e1b15; background-color: #e6f2ea; }
 input::placeholder,
 textarea::placeholder { color: #94a3b8 !important; }
 

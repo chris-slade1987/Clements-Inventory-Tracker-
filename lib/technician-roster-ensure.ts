@@ -252,8 +252,34 @@ let _run: Promise<void> | null = null;
 
 /** Runtime entry point (app layout + Check-Out page). Once per DB; non-fatal. */
 export function ensureTechnicianRoster(): Promise<void> {
-  if (!_run) _run = run().catch((e) => { console.error("ensureTechnicianRoster failed (non-fatal, will retry):", e); _run = null; });
+  if (!_run) _run = retireDemoTechnicians().then(run).catch((e) => { console.error("ensureTechnicianRoster failed (non-fatal, will retry):", e); _run = null; });
   return _run;
+}
+
+// The original sample-data seed (prisma/seed-core.ts) created eight FAKE technicians
+// (e.g. "Danny Cooper", card FL-1002) that still showed on the Check-Out list (COO
+// 2026-11-13: "not a real employee — remove that"). None is a Clements employee.
+// Deactivated, never deleted (any checkout history stays). Matched on BOTH the demo
+// name and its demo card number, so a real person with the same name is untouched.
+const DEMO_TECHNICIANS: [string, string][] = [
+  ["Mike Alvarez", "FL-1001"], ["Danny Cooper", "FL-1002"], ["Luis Ramirez", "FL-2001"], ["Sarah Bishop", "FL-2002"],
+  ["Tyrone Woods", "FL-3001"], ["Kayla Nguyen", "FL-3002"], ["Marco Ferreira", "FL-4001"], ["Ashley Reed", "FL-4002"],
+];
+const DEMO_MARKER = "demo_technicians_retired_v1";
+
+async function retireDemoTechnicians(): Promise<void> {
+  if (await prisma.setting.findUnique({ where: { key: DEMO_MARKER } })) return;
+  const retired: string[] = [];
+  for (const [name, card] of DEMO_TECHNICIANS) {
+    const r = await prisma.technician.updateMany({
+      where: { name, employeeIdCard: card, active: true },
+      data: { active: false },
+    });
+    if (r.count) retired.push(name);
+  }
+  const value = JSON.stringify({ at: new Date().toISOString(), retired });
+  await prisma.setting.upsert({ where: { key: DEMO_MARKER }, update: { value }, create: { key: DEMO_MARKER, value } });
+  if (retired.length) console.log(`ensureTechnicianRoster: retired demo technicians — ${retired.join(", ")}.`);
 }
 
 async function run(): Promise<void> {

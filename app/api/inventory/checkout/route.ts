@@ -40,10 +40,10 @@ export async function POST(req: Request) {
   const technicianId: string = String(body?.technicianId ?? "");
   const rawLines: LineIn[] = Array.isArray(body?.lines) ? body.lines : [];
 
-  // Branch scoping: a non-admin manager may only check out from their own branch.
-  if (user.role !== "admin" && warehouseId && warehouseId !== user.warehouseId) {
-    return NextResponse.json({ error: "You can only check out from your own branch." }, { status: 403 });
-  }
+  // No branch lock (COO 2026-11-13): managers sometimes check out from another
+  // branch's warehouse or to a technician/person from another branch (coverage),
+  // so any manager or admin may pick any warehouse and any technician. The
+  // movement records the warehouse, technician and who did it, so it stays auditable.
 
   const lines = rawLines
     .map((l) => {

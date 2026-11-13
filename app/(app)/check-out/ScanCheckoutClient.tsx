@@ -542,23 +542,12 @@ export default function ScanCheckoutClient({
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">Technician</label>
-          <select
+          <TechnicianPicker
+            technicians={technicians}
+            warehouseId={warehouseId}
             value={technicianId}
-            onChange={(e) => setTechnicianId(e.target.value)}
-            className="w-full rounded-lg border border-line px-3 py-2.5 text-sm bg-surface"
-          >
-            <option value="">Select technician…</option>
-            <optgroup label="This warehouse">
-              {technicians.filter((t) => t.homeWarehouseId === warehouseId).map((t) => (
-                <option key={t.id} value={t.id}>{techLabel(t)}</option>
-              ))}
-            </optgroup>
-            <optgroup label="Other warehouses">
-              {technicians.filter((t) => t.homeWarehouseId !== warehouseId).map((t) => (
-                <option key={t.id} value={t.id}>{techLabel(t)}</option>
-              ))}
-            </optgroup>
-          </select>
+            onChange={setTechnicianId}
+          />
         </div>
       </Card>
 
@@ -1145,6 +1134,83 @@ function ReviewStep({
         <button className={btn.secondary} onClick={onBack} disabled={busy}>Back</button>
         <button className={btn.primary} onClick={doSubmit} disabled={busy}>{busy ? "Submitting…" : "Submit checkout"}</button>
       </div>
+    </div>
+  );
+}
+
+// Technician picker — a custom list instead of the browser's native dropdown, whose
+// hover highlight rendered white text that was hard to read (COO 2026-11-13). Dark
+// text on a light-green hover, a search box, and both groups: this warehouse first,
+// then everyone else (managers may check out to anyone — coverage happens).
+function TechnicianPicker({
+  technicians,
+  warehouseId,
+  value,
+  onChange,
+}: {
+  technicians: Technician[];
+  warehouseId: string;
+  value: string;
+  onChange: (id: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [q, setQ] = useState("");
+  const selected = technicians.find((t) => t.id === value) ?? null;
+  const needle = q.trim().toLowerCase();
+  const match = (t: Technician) => !needle || techLabel(t).toLowerCase().includes(needle);
+  const groups = [
+    { label: "This warehouse", rows: technicians.filter((t) => t.homeWarehouseId === warehouseId && match(t)) },
+    { label: "Other warehouses", rows: technicians.filter((t) => t.homeWarehouseId !== warehouseId && match(t)) },
+  ];
+  const pick = (id: string) => { onChange(id); setOpen(false); setQ(""); };
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        className="flex w-full items-center justify-between rounded-lg border border-[#d7e0da] bg-white px-3 py-2.5 text-left text-sm text-[#0e1b15]"
+      >
+        <span className={selected ? "" : "text-slate-500"}>{selected ? techLabel(selected) : "Select technician…"}</span>
+        <svg viewBox="0 0 24 24" className="h-4 w-4 text-slate-500" fill="none" stroke="currentColor" strokeWidth={1.6}><path d="m6 9 6 6 6-6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+      </button>
+      {open ? (
+        <>
+          <div className="fixed inset-0 z-30" onClick={() => setOpen(false)} aria-hidden />
+          <div className="absolute z-40 mt-1 w-full overflow-hidden rounded-lg border border-[#d7e0da] bg-white shadow-lg">
+            <input
+              autoFocus
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search name or route #"
+              className="w-full border-0 border-b border-[#d7e0da] px-3 py-2 text-sm"
+            />
+            <div role="listbox" className="max-h-72 overflow-y-auto py-1">
+              {groups.map((g) =>
+                g.rows.length ? (
+                  <div key={g.label}>
+                    <div className="px-3 pb-1 pt-2 text-[11px] font-medium uppercase tracking-wide text-slate-500">{g.label}</div>
+                    {g.rows.map((t) => (
+                      <button
+                        key={t.id}
+                        type="button"
+                        role="option"
+                        aria-selected={t.id === value}
+                        onClick={() => pick(t.id)}
+                        className={`block w-full px-3 py-2.5 text-left text-sm text-[#0e1b15] hover:bg-[#e6f2ea] focus:bg-[#e6f2ea] focus:outline-none ${t.id === value ? "bg-[#eef5f0] font-medium" : ""}`}
+                      >
+                        {techLabel(t)}
+                      </button>
+                    ))}
+                  </div>
+                ) : null,
+              )}
+              {groups.every((g) => g.rows.length === 0) ? <div className="px-3 py-3 text-sm text-slate-500">No match.</div> : null}
+            </div>
+          </div>
+        </>
+      ) : null}
     </div>
   );
 }

@@ -45,7 +45,8 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 58 · Last updated November 13, 2026",
+    effective: "Version 59 · Last updated November 13, 2026",
+    // v59: Check-Out — any manager may check out from any warehouse to anyone; searchable technician picker; sample technicians removed. (Label only.)
     // v58: Check-Out — technician list shows every active technician with their PestPac
     // tech #; route-number holders auto-added (Brian Lasneski fix). (Label only.)
     // v57: Check-In case items (product Packaging setting); four product merges. (Label only.)
@@ -263,7 +264,7 @@ const DOCS: DocSeed[] = [
     // (Assign/Courses/Certifications/Reports tabs), automatic credit, the
     // Field-Core prerequisite guard, one-module-per-month pacing, advancement
     // stepping, and certification award gating on the approved field sign-off.
-    version: 57,
+    version: 59,
     // v11: expanded the Sales Team section to document the per-advisor visual
     // funnel (Leads → Proposals → Closed $ with per-stage goals, pace markers,
     // and plain-English leak diagnosis), the director leaderboard / most-improved
