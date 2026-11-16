@@ -12,6 +12,15 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AccountTable, type AccountRow } from "./CancelCharts";
 import { GroupedBars } from "@/components/charts";
+import { DIVISION_LABELS } from "@/lib/constants";
+import { DIVISION_COLORS } from "./CancelCharts";
+import { Panel, ColumnChart, DonutChart, type Column, type Slice } from "./Viz";
+
+const DIV_CODE: Record<string, string> = Object.fromEntries(Object.entries(DIVISION_LABELS).map(([code, label]) => [label, code]));
+const DIV_ORDER = ["GHP", "LO", "TERMITE", "MOSQUITO", "RODENT", "OTHER"];
+// Reason colors follow the reason (fixed by its month-wide rank), never its rank in the current view.
+const REASON_COLORS = ["#2a78d6", "#1baf7a", "#eda100", "#4a3aa7", "#e34948", "#008300"];
+const OTHER_COLOR = "#8a968f";
 
 export type YearPoint = { label: string; actual: number; budget: number | null; partial: boolean; fromUpload: boolean };
 export type Extra = { branch: string; account: string; customer: string; serviceCode: string; chargeType: string; techCode: string; reason: string; total: number };
@@ -269,17 +278,63 @@ export function CancellationDashboard({
     branch: branchLabel(r.branch), route: r.route, tech: r.tech, serviceCode: r.serviceCode, division: r.division, lossCount: r.lossCount, lossValue: r.lossValue,
   }));
 
+  // ---- Dashboard panels (each applies every filter except its own dimension) ----
+  const sumBy = (rs: DashRow[], key: (r: DashRow) => string) => {
+    const m = new Map<string, Agg>();
+    for (const r of rs) { const k = key(r); const a = m.get(k) ?? agg(); add(a, r); m.set(k, a); }
+    return m;
+  };
+  // A. Lost value by branch (or by route inside a branch), stacked by division.
+  const stackBase = rows.filter((r) => match(r, rowMode === "branch" ? ["branch", "route"] : ["route"]));
+  const stackKeys = rowMode === "branch"
+    ? branches.map((b) => b.key).filter((k) => k !== "all" && stackBase.some((r) => r.branch === k))
+    : [...sumBy(stackBase, (r) => r.route)].sort((a, b) => b[1].value - a[1].value).slice(0, 12).map(([k]) => k);
+  const divsPresent = DIV_ORDER.filter((code) => stackBase.some((r) => (DIV_CODE[r.division] ?? "OTHER") === code));
+  const stackCols: Column[] = stackKeys.map((k) => {
+    const rs = stackBase.filter((r) => (rowMode === "branch" ? r.branch === k : r.route === k));
+    const byDiv = sumBy(rs, (r) => DIV_CODE[r.division] ?? "OTHER");
+    return {
+      key: k,
+      label: rowMode === "branch" ? branchLabel(k) : k,
+      sub: rowMode === "route" ? (techOf.get(`${f.branch}|${k}`) ?? "").split(" ")[0] : undefined,
+      active: rowMode === "branch" ? f.branch === k : f.route === k,
+      segments: divsPresent.filter((d) => byDiv.has(d)).map((d) => ({ key: d, label: DIVISION_LABELS[d as keyof typeof DIVISION_LABELS], value: byDiv.get(d)!.value, count: byDiv.get(d)!.count, color: DIVISION_COLORS[d] ?? OTHER_COLOR })),
+    };
+  });
+  const divLegend = divsPresent.map((d) => ({ key: d, label: DIVISION_LABELS[d as keyof typeof DIVISION_LABELS], color: DIVISION_COLORS[d] ?? OTHER_COLOR }));
+
+  // B. Cancel reasons donut (top 6 + Other).
+  const reasonRank = [...sumBy(rows, (r) => r.reason || "(none)")].sort((a, b) => b[1].value - a[1].value).map(([k]) => k);
+  const reasonColor = (k: string) => { const i = reasonRank.filter((x) => x !== "(none)").indexOf(k); return i >= 0 && i < REASON_COLORS.length ? REASON_COLORS[i] : OTHER_COLOR; };
+  const reasonAgg = [...sumBy(rows.filter((r) => match(r, ["reason"])), (r) => r.reason || "(none)")].sort((a, b) => b[1].value - a[1].value);
+  const topReasons = reasonAgg.filter(([k]) => reasonColor(k) !== OTHER_COLOR);
+  const restReasons = reasonAgg.filter(([k]) => reasonColor(k) === OTHER_COLOR);
+  const reasonSlices: Slice[] = [
+    ...topReasons.map(([k, a]) => ({ key: k, label: k, value: a.value, count: a.count, color: reasonColor(k), active: f.reason === k })),
+    ...(restReasons.length ? [{ key: "__other", label: `Other (${restReasons.length})`, value: restReasons.reduce((s, [, a]) => s + a.value, 0), count: restReasons.reduce((s, [, a]) => s + a.count, 0), color: OTHER_COLOR }] : []),
+  ];
+
+  // C. Single-dimension column panels.
+  const single = (dimKey: keyof Filters, key: (r: DashRow) => string, order: { key: string; label: string }[] | null, limit = 8): Column[] => {
+    const m = sumBy(rows.filter((r) => match(r, [dimKey])), key);
+    const keys = order ? order.map((o) => o.key).filter((k) => m.has(k)) : [...m].sort((a, b) => b[1].value - a[1].value).slice(0, limit).map(([k]) => k);
+    return keys.map((k) => ({ key: k, label: order?.find((o) => o.key === k)?.label ?? k, active: f[dimKey] === k, segments: [{ key: k, label: k, value: m.get(k)!.value, count: m.get(k)!.count, color: "#2e6f47" }] }));
+  };
+  const serviceCols = single("service", (r) => r.serviceCode, null, 6);
+  const tenureCols = reasonsLoaded ? single("tenure", (r) => r.tenure || "?", [{ key: "lt1", label: "<1 yr" }, { key: "1-2", label: "1–2 yrs" }, { key: "2-5", label: "2–5 yrs" }, { key: "5+", label: "5+ yrs" }]) : [];
+  const valueCols = single("value", (r) => r.value, [{ key: "lt300", label: "<$300" }, { key: "300", label: "$300–599" }, { key: "600", label: "$600–999" }, { key: "1000", label: "$1K+" }]);
+  const scopeName = f.branch ? branchLabel(f.branch) : "all branches";
+
   const seg = (on: boolean) =>
     `min-h-[40px] rounded-lg px-3 text-sm transition-colors ${on ? "bg-forest text-white shadow-sm" : "text-ink hover:bg-brand-50"}`;
 
   return (
-    <div className="space-y-4">
+    <div className="@container space-y-4">
       {/* Branch strip — the primary lens */}
       <section aria-label="Branches" className={lockedBranch ? "grid grid-cols-1 gap-3 sm:grid-cols-2" : "-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1 lg:mx-0 lg:grid lg:grid-cols-5 lg:overflow-visible lg:px-0"}>
         {strip.filter((b) => !lockedBranch || b.key === lockedBranch).map((b) => {
           const on = (b.key === "all" && !f.branch) || f.branch === b.key;
           const over = b.toDate != null ? b.value - b.toDate : null;
-          const scale = Math.max(b.value, b.budget ?? 0, 1);
           return (
             <button
               key={b.key}
@@ -295,17 +350,16 @@ export function CancellationDashboard({
               </div>
               <div className="mt-1 text-2xl font-light tabular-nums text-ink">{money0(b.value)}</div>
               <div className="whitespace-nowrap text-xs text-muted">{b.count} svcs · {b.accountsN} accts</div>
-              {b.budget != null ? (
-                <div className="mt-3">
-                  <div className="relative h-2 rounded-full bg-[#eef1ef]">
-                    <div className={`absolute inset-y-0 left-0 rounded-full ${over != null && over > 0 ? "bg-[#c0392b]" : "bg-brand-600"}`} style={{ width: `${Math.min(100, (b.value / scale) * 100)}%` }} />
-                    {b.toDate != null ? <div className="absolute -top-1 h-4 w-0.5 bg-ink" style={{ left: `${Math.min(100, (b.toDate / scale) * 100)}%` }} title={`Budget to date ${money0(b.toDate)}`} /> : null}
+              {b.budget != null && b.toDate != null ? (
+                <>
+                  <div className="mt-3 flex items-center gap-2.5">
+                    <PaceRing pct={b.value / Math.max(1, b.toDate)} />
+                    <div className={`text-sm leading-tight ${over != null && over > 0 ? "text-red-700" : "text-brand-700"}`}>
+                      {over == null ? "" : over > 0 ? <>+{money0(over)}<br /><span className="text-xs">over {isMtd ? "pace" : "budget"}</span></> : <>{money0(-over)}<br /><span className="text-xs">under {isMtd ? "pace" : "budget"}</span></>}
+                    </div>
                   </div>
-                  <div className={`mt-1.5 text-xs ${over != null && over > 0 ? "text-red-700" : "text-brand-700"}`}>
-                    {over == null ? "" : over > 0 ? `+${money0(over)} over ${isMtd ? "pace" : "budget"}` : `${money0(-over)} under ${isMtd ? "pace" : "budget"}`}
-                  </div>
-                  <div className="text-[11px] text-muted">Budget {money0(b.budget)}{isMtd && b.toDate != null ? ` · pace ${money0(b.toDate)} by ${throughLabel}` : ""}</div>
-                </div>
+                  <div className="mt-2 text-[11px] leading-snug text-muted">Budget {money0(b.budget)}{isMtd ? ` · pace ${money0(b.toDate)} by ${throughLabel}` : ""}</div>
+                </>
               ) : null}
             </button>
           );
@@ -336,6 +390,20 @@ export function CancellationDashboard({
           </div>
         </section>
       ) : null}
+
+      {/* Dashboard panels — vertical charts in a uniform grid; click any mark to drill */}
+      <div className="grid gap-4 @3xl:grid-cols-3">
+        <Panel className="@3xl:col-span-2"
+          title={rowMode === "branch" ? "Lost value by branch" : `Lost value by route · ${branchLabel(f.branch)}`}
+          subtitle={rowMode === "branch" ? "Stacked by service division. Click a branch to see its routes; click a color to filter that division." : "Top routes, stacked by division. Click a route or a color to filter."}>
+          <ColumnChart columns={stackCols} legend={divLegend} height={300}
+            onColumn={(k) => clickCell(k, null)}
+            onSegment={(k, d) => update(rowMode === "branch" ? { ...(lockedBranch ? {} : { branch: k }), division: DIVISION_LABELS[d as keyof typeof DIVISION_LABELS] } : { route: k, division: DIVISION_LABELS[d as keyof typeof DIVISION_LABELS] })} />
+        </Panel>
+        <Panel title="Cancel reasons" subtitle={reasonsLoaded ? `Share of lost value · ${scopeName}` : "Upload the Service Setup List to see reasons"}>
+          {reasonsLoaded ? <DonutChart slices={reasonSlices} onSlice={(k) => { if (k !== "__other") toggle("reason", k); }} /> : <p className="py-10 text-center text-sm text-muted">No reasons loaded for this month.</p>}
+        </Panel>
+      </div>
 
       {/* Explorer heat map */}
       <section aria-label="Explore" className="rounded-xl border border-line bg-white">
@@ -437,6 +505,18 @@ export function CancellationDashboard({
         </div>
       </section>
 
+      <div className="grid gap-4 @3xl:grid-cols-3">
+        <Panel title="Top service types" subtitle="Lost value, top 6. Click to filter.">
+          <ColumnChart columns={serviceCols} height={210} onColumn={(k) => toggle("service", k)} />
+        </Panel>
+        <Panel title="Customer tenure" subtitle="How long the service had run. Click to filter.">
+          {reasonsLoaded ? <ColumnChart columns={tenureCols} height={210} onColumn={(k) => toggle("tenure", k)} /> : <p className="py-10 text-center text-sm text-muted">Comes from the Service Setup List.</p>}
+        </Panel>
+        <Panel title="Account value" subtitle="Lost value by size of the service. Click to filter.">
+          <ColumnChart columns={valueCols} height={210} onColumn={(k) => toggle("value", k)} />
+        </Panel>
+      </div>
+
       {/* Accounts in view */}
       <section aria-label="Accounts" className="rounded-xl border border-line bg-white">
         <div className="flex flex-wrap items-center gap-2 border-b border-line px-4 py-3">
@@ -457,8 +537,8 @@ export function CancellationDashboard({
       </section>
 
       {/* Secondary: budget by month · MBR check */}
-      <div className="grid gap-4">
-        <section aria-label="Budget by month" className="rounded-xl border border-line bg-white">
+      <div className="grid gap-4 @3xl:grid-cols-3">
+        <section aria-label="Budget by month" className="rounded-xl border border-line bg-white @3xl:col-span-2">
           <div className="border-b border-line px-4 py-3">
             <h2 className="text-sm font-medium text-ink">{year} cancellations vs budget · {f.branch ? branchLabel(f.branch) : "Company"}</h2>
             <p className="text-xs text-muted">Budget = the 2026 branch cancellation targets the quarterly scorecards use. Lower is better.</p>
@@ -537,6 +617,23 @@ export function CancellationDashboard({
         <button type="button" className="underline-offset-2 hover:underline" onClick={() => router.refresh()}>Refresh data</button>
       </p>
     </div>
+  );
+}
+
+/** Ring gauge: actual as a share of budget-to-date. Past 100% the ring turns red
+ *  and a second lap shows how far over. Text beside it carries the status. */
+function PaceRing({ pct }: { pct: number }) {
+  const R = 20, C = 2 * Math.PI * R;
+  const over = pct > 1;
+  const first = Math.min(pct, 1), second = over ? Math.min(pct - 1, 1) : 0;
+  return (
+    <svg viewBox="0 0 52 52" width="52" height="52" className="shrink-0" role="img" aria-label={`${Math.round(pct * 100)}% of budget pace`}>
+      <circle cx="26" cy="26" r={R} fill="none" stroke="#eef1ef" strokeWidth="5" />
+      <circle cx="26" cy="26" r={R} fill="none" stroke={over ? "#e8a9a3" : "#2e6f47"} strokeWidth="5" strokeLinecap="round"
+        strokeDasharray={`${first * C} ${C}`} transform="rotate(-90 26 26)" />
+      {second > 0 ? <circle cx="26" cy="26" r={R} fill="none" stroke="#c0392b" strokeWidth="5" strokeLinecap="round" strokeDasharray={`${second * C} ${C}`} transform="rotate(-90 26 26)" /> : null}
+      <text x="26" y="30" textAnchor="middle" fontSize="11" fill="#1d2a23">{Math.round(pct * 100)}%</text>
+    </svg>
   );
 }
 
