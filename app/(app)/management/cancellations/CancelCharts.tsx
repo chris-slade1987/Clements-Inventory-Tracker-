@@ -1,77 +1,17 @@
 "use client";
 
-// Cancellation Center — client pieces: ranked bar lists (click a bar to filter),
-// the division donut (fixed color per division, never by rank), the filter row,
-// the account table with CSV export, and the admin upload card.
+// Cancellation Center — client pieces: division colors, the account table with
+// CSV export, and the admin upload card. Charts live in Viz.tsx; the dashboard
+// itself in Dashboard.tsx.
 
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useMemo, useRef, useState } from "react";
 import { btn } from "@/components/ui";
 
-const INK = "#1d2a23";
-const MUTED = "#5c6b62";
-const TRACK = "#eef1ef";
-const BAR = "#2e6f47"; // brand-600 — single-hue magnitude
-const BAR_ACTIVE = "#0b3d20";
-
 const money0 = (n: number) => `$${Math.round(n).toLocaleString("en-US")}`;
 
-// ---- Ranked bar list -------------------------------------------------------
-export type BarRow = { key: string; label: string; sub?: string; value: number; count: number; href?: string; active?: boolean };
-
-export function BarList({ rows, total, emptyText = "Nothing to show.", max = 12 }: { rows: BarRow[]; total: number; emptyText?: string; max?: number }) {
-  const [hover, setHover] = useState<string | null>(null);
-  const [all, setAll] = useState(false);
-  if (rows.length === 0) return <p className="py-6 text-center text-sm text-muted">{emptyText}</p>;
-  const shown = all ? rows : rows.slice(0, max);
-  const top = Math.max(...rows.map((r) => r.value), 1);
-  return (
-    <div>
-      <ul className="space-y-1.5">
-        {shown.map((r) => {
-          const pct = total > 0 ? Math.round((r.value / total) * 100) : 0;
-          const inner = (
-            <div
-              className={`relative rounded-lg px-2 py-1.5 transition-colors ${r.href ? "hover:bg-brand-50" : ""} ${r.active ? "bg-brand-50 ring-1 ring-brand-300" : ""}`}
-              onMouseEnter={() => setHover(r.key)}
-              onMouseLeave={() => setHover(null)}
-            >
-              <div className="flex items-baseline justify-between gap-3 text-sm">
-                <span className="min-w-0 truncate text-ink">
-                  {r.label}
-                  {r.sub ? <span className="ml-1.5 text-xs text-muted">{r.sub}</span> : null}
-                </span>
-                <span className="shrink-0 tabular-nums text-ink">
-                  {money0(r.value)} <span className="text-xs text-muted">· {r.count}</span>
-                </span>
-              </div>
-              <div className="mt-1 h-2 rounded-full" style={{ background: TRACK }}>
-                <div className="h-2 rounded-full" style={{ width: `${Math.max(2, (r.value / top) * 100)}%`, background: r.active || hover === r.key ? BAR_ACTIVE : BAR }} />
-              </div>
-              {hover === r.key ? (
-                <div role="tooltip" className="pointer-events-none absolute right-2 top-full z-10 mt-1 rounded-md border border-line bg-white px-2.5 py-1.5 text-xs text-ink shadow-md">
-                  <div className="font-medium">{r.label}</div>
-                  <div className="tabular-nums">{money0(r.value)} lost · {r.count} cancelled service{r.count === 1 ? "" : "s"}</div>
-                  <div className="tabular-nums text-muted">{pct}% of the $ in view{r.href ? " · click to filter" : ""}</div>
-                </div>
-              ) : null}
-            </div>
-          );
-          return <li key={r.key}>{r.href ? <Link href={r.href} scroll={false} aria-label={`Filter to ${r.label}`}>{inner}</Link> : inner}</li>;
-        })}
-      </ul>
-      {rows.length > max ? (
-        <button type="button" onClick={() => setAll((v) => !v)} className="mt-2 text-xs text-brand-700 hover:underline">
-          {all ? "Show top " + max : `Show all ${rows.length}`}
-        </button>
-      ) : null}
-    </div>
-  );
-}
-
-// ---- Division donut (fixed color per division) ------------------------------
-// Validated categorical slots (CVD-safe adjacent order) from components/charts SERIES.
+// ---- Division colors (fixed per division, never by rank) -------------------
+// Validated categorical slots (CVD-safe adjacent order).
 export const DIVISION_COLORS: Record<string, string> = {
   GHP: "#2a78d6",
   LO: "#1baf7a",
@@ -80,97 +20,6 @@ export const DIVISION_COLORS: Record<string, string> = {
   RODENT: "#008300",
   OTHER: "#8a968f",
 };
-
-export function DivisionDonut({ slices }: { slices: { key: string; label: string; value: number; count: number; href: string; active: boolean }[] }) {
-  const [hover, setHover] = useState<number | null>(null);
-  const total = slices.reduce((s, x) => s + x.value, 0);
-  if (total <= 0) return <p className="py-6 text-center text-sm text-muted">Nothing to show.</p>;
-  const R = 80, r = 52, cx = 100, cy = 100;
-  const starts = slices.map((_, i) => slices.slice(0, i).reduce((acc, x) => acc + x.value, 0) / total);
-  const arcs = slices.map((s, i) => {
-    const frac = s.value / total;
-    const a0 = -Math.PI / 2 + starts[i] * Math.PI * 2, a1 = a0 + Math.min(frac, 0.9999) * Math.PI * 2;
-    const large = a1 - a0 > Math.PI ? 1 : 0;
-    const p = (rad: number, ang: number) => `${cx + rad * Math.cos(ang)},${cy + rad * Math.sin(ang)}`;
-    const d = `M ${p(R, a0)} A ${R} ${R} 0 ${large} 1 ${p(R, a1)} L ${p(r, a1)} A ${r} ${r} 0 ${large} 0 ${p(r, a0)} Z`;
-    return { d, s, pct: Math.round(frac * 100), color: DIVISION_COLORS[s.key] ?? DIVISION_COLORS.OTHER };
-  });
-  const h = hover != null ? arcs[hover] : null;
-  return (
-    <div className="flex flex-wrap items-center gap-5">
-      <svg viewBox="0 0 200 200" width="170" height="170" role="img" aria-label="Cancellations by service division">
-        {arcs.map((a, i) => (
-          <path key={a.s.key} d={a.d} fill={a.color} stroke="#ffffff" strokeWidth={2}
-            opacity={hover == null || hover === i ? 1 : 0.5}
-            onMouseEnter={() => setHover(i)} onMouseLeave={() => setHover(null)} onTouchStart={() => setHover(i)} />
-        ))}
-        <text x={100} y={h ? 95 : 98} textAnchor="middle" fontSize={h ? 16 : 19} fill={INK}>{h ? money0(h.s.value) : money0(total)}</text>
-        <text x={100} y={h ? 112 : 116} textAnchor="middle" fontSize={10.5} fill={MUTED}>{h ? `${h.s.label} · ${h.pct}%` : "lost value"}</text>
-      </svg>
-      <ul className="min-w-[170px] flex-1 space-y-1">
-        {arcs.map((a, i) => (
-          <li key={a.s.key} onMouseEnter={() => setHover(i)} onMouseLeave={() => setHover(null)}>
-            <Link href={a.s.href} scroll={false} className={`flex items-center gap-2 rounded-md px-1.5 py-1 text-sm hover:bg-brand-50 ${a.s.active ? "bg-brand-50 ring-1 ring-brand-300" : ""}`}>
-              <span className="inline-block h-3 w-3 shrink-0 rounded-sm" style={{ background: a.color }} />
-              <span className="flex-1 truncate text-ink">{a.s.label}</span>
-              <span className="tabular-nums text-ink">{a.pct}%</span>
-              <span className="tabular-nums text-xs text-muted">{money0(a.s.value)} · {a.s.count}</span>
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-// ---- Filter row ---------------------------------------------------------------
-export type FilterOpt = { value: string; label: string };
-
-export function CancelFilters({
-  months, branches, divisions, services, routes, cities, reasons, lockedBranch,
-}: {
-  months: FilterOpt[]; branches: FilterOpt[]; divisions: FilterOpt[]; services: FilterOpt[]; routes: FilterOpt[]; cities: FilterOpt[]; reasons: FilterOpt[];
-  lockedBranch: string | null;
-}) {
-  const router = useRouter();
-  const sp = useSearchParams();
-  const set = (k: string, v: string) => {
-    const q = new URLSearchParams(sp.toString());
-    if (v) q.set(k, v); else q.delete(k);
-    // Changing the branch clears a route/city that may not belong to it.
-    if (k === "branch") { q.delete("route"); q.delete("city"); }
-    router.replace(`?${q.toString()}`, { scroll: false });
-  };
-  const anyFilter = ["branch", "div", "svc", "route", "city", "reason"].some((k) => sp.get(k) && !(k === "branch" && lockedBranch));
-  const sel = "min-h-[44px] rounded-lg border border-line bg-white px-3 text-sm text-ink";
-  const field = (label: string, k: string, opts: FilterOpt[], allLabel: string, disabled = false) => (
-    <label className="flex min-w-[140px] flex-1 flex-col gap-1 text-xs text-muted">
-      {label}
-      <select className={sel} value={sp.get(k) ?? (k === "branch" && lockedBranch ? lockedBranch : "")} disabled={disabled} onChange={(e) => set(k, e.target.value)}>
-        {k !== "m" ? <option value="">{allLabel}</option> : null}
-        {opts.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-      </select>
-    </label>
-  );
-  return (
-    <div className="flex flex-wrap items-end gap-2">
-      {field("Month", "m", months, "")}
-      {field("Branch", "branch", branches, "All branches", !!lockedBranch)}
-      {field("Division", "div", divisions, "All divisions")}
-      {field("Service type", "svc", services, "All services")}
-      {field("Route / tech", "route", routes, "All routes")}
-      {field("City", "city", cities, "All cities")}
-      {reasons.length ? field("Cancel reason", "reason", reasons, "All reasons") : null}
-      {anyFilter ? (
-        <button type="button" className={`${btn.secondary} min-h-[44px]`} onClick={() => {
-          const q = new URLSearchParams();
-          const m = sp.get("m"); if (m) q.set("m", m);
-          router.replace(`?${q.toString()}`, { scroll: false });
-        }}>Clear filters</button>
-      ) : null}
-    </div>
-  );
-}
 
 // ---- Account table + CSV -------------------------------------------------------
 export type AccountRow = {
