@@ -7,7 +7,10 @@ import {
   listCancellationMonths,
   loadCancellations,
   mbrAttritionFor,
+  cancellationBudgetByBranch,
+  cancellationBudgetYear,
 } from "@/lib/cancellations";
+import { GroupedBars } from "@/components/charts";
 import {
   BarList,
   DivisionDonut,
@@ -109,6 +112,26 @@ export default async function CancellationCenterPage({ searchParams }: { searchP
   const techOf = new Map<string, string>();
   for (const r of all) if (r.techName && !techOf.has(`${r.branch}|${r.route}`)) techOf.set(`${r.branch}|${r.route}`, r.techName);
   const routeLabel = (r: { branch: string; route: string }) => techOf.get(`${r.branch}|${r.route}`) ?? "";
+
+  // --- Budget vs actual (branch-level targets; ignores non-branch filters) ---
+  const budgets = await cancellationBudgetByBranch(month.periodKey);
+  const daysInMonth = lastDayOf(month.periodKey);
+  const throughDay = Number(month.endDate.slice(8, 10));
+  const frac = Math.min(1, throughDay / daysInMonth);
+  const budgetAll = branch ? all : await loadCancellations([month.periodKey], null);
+  const budgetRows = (branch ? BRANCHES.filter((b) => b.key === branch) : BRANCHES).map((b) => {
+    const actual = budgetAll.filter((r) => r.branch === b.key).reduce((s, r) => s + r.lossValue, 0);
+    const budget = budgets.get(b.key) ?? null;
+    return { key: b.key as string, label: b.label as string, budget, toDate: budget != null ? budget * frac : null, actual };
+  });
+  if (!branch && budgetRows.length > 1) {
+    const budget = budgetRows.every((r) => r.budget != null) ? budgetRows.reduce((s, r) => s + (r.budget ?? 0), 0) : null;
+    budgetRows.push({ key: "company", label: "Company", budget, toDate: budget != null ? budget * frac : null, actual: budgetRows.reduce((s, r) => s + r.actual, 0) });
+  }
+  const scopeBudget = budgetRows[budgetRows.length - 1];
+  const nonBranchFilter = !!(f.div || f.svc || f.route || f.city);
+  const year = Number(month.periodKey.slice(0, 4));
+  const yearPoints = (await cancellationBudgetYear(branch ?? "company", year)).filter((p) => p.actual != null && p.m <= Number(month.periodKey.slice(5, 7)));
 
   // --- Breakdowns ---------------------------------------------------------
   const branchRows: BarRow[] = locked ? [] : [...group(apply(all), (r) => r.branch)]
@@ -246,7 +269,7 @@ export default async function CancellationCenterPage({ searchParams }: { searchP
       {/* KPI tiles */}
       <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
         {[
-          { label: "Lost value", value: money0(totalValue), note: "Loss Value on the report" },
+          { label: "Lost value", value: money0(totalValue), note: !nonBranchFilter && scopeBudget?.toDate != null ? `budget to date ${money0(scopeBudget.toDate)}` : "Loss Value on the report" },
           { label: "Cancelled services", value: totalCount.toLocaleString("en-US"), note: `${windowLabel.replace(" (month to date)", "")}` },
           { label: "Accounts", value: accounts.toLocaleString("en-US"), note: "distinct locations" },
           { label: "Average per service", value: money0(avg), note: "lost value ÷ services" },
@@ -258,6 +281,60 @@ export default async function CancellationCenterPage({ searchParams }: { searchP
           </Card>
         ))}
       </div>
+
+      {/* Budget vs actual */}
+      <Card className="mt-4">
+        <div className={section}>
+          Budget vs actual{" "}
+          <span className="font-normal text-muted">· 2026 branch cancellation targets (the same targets the quarterly scorecards use){nonBranchFilter ? " · set by branch, so the division / service / route / city filters don't apply here" : ""}</span>
+        </div>
+        <div className="p-4">
+          {budgetRows.some((r) => r.budget != null) ? (
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[620px] text-sm">
+                <thead className="text-xs text-muted">
+                  <tr>
+                    <th scope="col" className="py-1.5 text-left font-medium">Branch</th>
+                    <th scope="col" className="py-1.5 text-right font-medium">{monthLabel(month.periodKey).split(" ")[0]} budget</th>
+                    <th scope="col" className="py-1.5 text-right font-medium">{isMtd ? `Budget to ${mdy(month.endDate).slice(0, -5)}` : "Budget"}</th>
+                    <th scope="col" className="py-1.5 text-right font-medium">Actual</th>
+                    <th scope="col" className="py-1.5 text-right font-medium">Variance</th>
+                    <th scope="col" className="py-1.5 text-right font-medium">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {budgetRows.map((r) => {
+                    const v = r.toDate != null ? r.actual - r.toDate : null;
+                    const over = v != null && v > 0;
+                    return (
+                      <tr key={r.key} className={`border-t border-line ${r.key === "company" ? "font-medium" : ""}`}>
+                        <td className="py-1.5 text-ink">{r.label}</td>
+                        <td className="py-1.5 text-right tabular-nums text-ink">{r.budget != null ? money0(r.budget) : "—"}</td>
+                        <td className="py-1.5 text-right tabular-nums text-ink">{r.toDate != null ? money0(r.toDate) : "—"}</td>
+                        <td className="py-1.5 text-right tabular-nums text-ink">{money0(r.actual)}</td>
+                        <td className="py-1.5 text-right tabular-nums text-ink">{v != null ? `${v >= 0 ? "+" : "−"}${money0(Math.abs(v))}` : "—"}</td>
+                        <td className={`py-1.5 text-right ${v == null ? "text-muted" : over ? "text-red-700" : "text-brand-700"}`}>
+                          {v == null ? "No budget" : over ? (isMtd ? "Over budget pace" : "Over budget") : (isMtd ? "Within budget pace" : "Within budget")}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+              {isMtd ? <p className="mt-2 text-xs text-muted">Month to date: the budget is pro-rated to day {throughDay} of {daysInMonth}. Lower is better — cancellations above the budget line are unfavorable.</p> : <p className="mt-2 text-xs text-muted">Lower is better — cancellations above budget are unfavorable.</p>}
+            </div>
+          ) : (
+            <p className="text-sm text-muted">No cancellation budget is set for {monthLabel(month.periodKey)}.</p>
+          )}
+          {yearPoints.length >= 2 ? (
+            <div className="mt-5">
+              <div className="mb-1 text-sm text-ink">{year} by month · {branch ? branchLabel(branch) : "Company"}</div>
+              <GroupedBars height={220} groups={yearPoints.map((p) => ({ label: p.source === "upload" && p.throughDay != null && p.throughDay < lastDayOf(`${year}-${String(p.m).padStart(2, "0")}`) ? `${p.label}*` : p.label, actual: p.actual ?? 0, budget: p.budget }))} />
+              <p className="mt-1 text-xs text-muted">Actuals come from the Monthly Board Report (Jan–Mar from the KPI workbook) where it exists; otherwise from the report uploaded here.{yearPoints.some((p) => p.source === "upload" && p.throughDay != null && p.throughDay < lastDayOf(`${year}-${String(p.m).padStart(2, "0")}`)) ? " * month to date, against the full month's budget." : ""}</p>
+            </div>
+          ) : null}
+        </div>
+      </Card>
 
       {rows.length === 0 ? (
         <div className="mt-4"><EmptyState title="No cancellations match these filters" hint="Clear a filter to widen the view." /></div>

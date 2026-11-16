@@ -2,6 +2,8 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import techData from "@/prisma/data/tech-numbers.json";
 import nov2026 from "@/prisma/data/cancellations/2026-11.json";
+import { branchKpiMonthly } from "@/lib/branch-kpis";
+import { BRANCHES } from "@/lib/management";
 import { totalsMatch, type ParsedCancellations, type CancellationRow } from "@/lib/cancellations-parse";
 
 // ---------------------------------------------------------------------------
@@ -166,5 +168,45 @@ export async function mbrAttritionFor(periodKey: string): Promise<Map<string, nu
   if (!period) return out;
   const vals = await prisma.kpiValue.findMany({ where: { periodId: period.id, kpiKey: "attrition", basis: "month" }, select: { scope: true, actual: true } });
   for (const v of vals) if (v.actual != null) out.set(v.scope, v.actual);
+  return out;
+}
+
+// --- Budget vs actual ---------------------------------------------------------
+// Budget = the 2026 Branch KPI workbook's monthly "cancellations" targets
+// (BranchKpiTarget) — the same targets the quarterly branch scorecards grade on
+// (lib/branch-kpis.ts). Actuals per month: the official MBR cancellations
+// ("attrition", else the workbook's own Q1 actual) when present, otherwise this
+// Cancellation Center's upload for that month (month-to-date while it's open).
+// Lower is better for cancellations.
+
+export type BudgetMonth = { m: number; label: string; budget: number | null; actual: number | null; source: "mbr" | "upload" | null; throughDay: number | null };
+
+export async function cancellationBudgetYear(scope: string, year: number): Promise<BudgetMonth[]> {
+  const [points, ups] = await Promise.all([
+    branchKpiMonthly(scope, year, "cancellations"),
+    prisma.cancellationUpload.findMany({ where: { active: true, periodKey: { startsWith: `${year}-` } }, select: { id: true, periodKey: true, endDate: true } }),
+  ]);
+  const uploadTotals = new Map<number, { value: number; endDate: string }>();
+  for (const u of ups) {
+    const agg = await prisma.cancellationRecord.aggregate({
+      where: { uploadId: u.id, ...(scope === "company" ? {} : { branch: scope }) },
+      _sum: { lossValue: true },
+    });
+    uploadTotals.set(Number(u.periodKey.slice(5, 7)), { value: agg._sum.lossValue ?? 0, endDate: u.endDate });
+  }
+  return points.map((p) => {
+    const up = uploadTotals.get(p.m);
+    if (p.actual != null) return { m: p.m, label: p.label, budget: p.target, actual: p.actual, source: "mbr" as const, throughDay: null };
+    if (up) return { m: p.m, label: p.label, budget: p.target, actual: Math.round(up.value * 100) / 100, source: "upload" as const, throughDay: Number(up.endDate.slice(8, 10)) };
+    return { m: p.m, label: p.label, budget: p.target, actual: null, source: null, throughDay: null };
+  });
+}
+
+/** Each branch's budget for one month (YYYY-MM). */
+export async function cancellationBudgetByBranch(periodKey: string): Promise<Map<string, number>> {
+  const [y, m] = periodKey.split("-").map(Number);
+  const rows = await prisma.branchKpiTarget.findMany({ where: { year: y, month: m, kpiKey: "cancellations", branch: { in: BRANCHES.map((b) => b.key) } }, select: { branch: true, target: true } });
+  const out = new Map<string, number>();
+  for (const r of rows) if (r.target != null) out.set(r.branch, r.target);
   return out;
 }
