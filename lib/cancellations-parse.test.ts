@@ -71,7 +71,7 @@ test("splitAddress pulls city and zip", () => {
 test("RE-FILL BAIT is rodent", () => {
   assert.equal(divisionForService("RE-FILL BAIT"), "RODENT");
   assert.equal(divisionForService("RODENT RENEWAL"), "RODENT");
-  assert.equal(divisionForService("PC-LAWN"), "LO");
+  assert.equal(divisionForService("PC-LAWN"), "GHP"); // stays under PC (COO 2026-11-16)
   assert.equal(divisionForService("PC-EOM"), "GHP");
 });
 
