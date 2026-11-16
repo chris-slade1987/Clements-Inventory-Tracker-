@@ -94,6 +94,7 @@ export function divisionForService(code: string): Division {
   if (/^R-|RODENT|^RAT\b/.test(c)) return "RODENT";
   if (/^RE-FILL/.test(c)) return "RODENT"; // rodent bait refills (COO 2026-11-16)
   if (/^SEN\b|^SEN-|SENTRICON|^T-|TERMITE|^WDO|BORATE|^TERM/.test(c)) return "TERMITE";
+  if (/^PC-LAWN\b/.test(c)) return "LO"; // pest control on lawns is an L&O service (COO 2026-11-16)
   if (/^PC\b|^PC-|^IPM\b|^IPM-/.test(c)) return "GHP";
   if (/^L\b|^L-|^LW\b|^LW-|^GR\b|^GR-|^A-FIRE|LAWN|SHRUB|TURF|PALM|TREE|WEED/.test(c)) return "LO";
   return "OTHER";

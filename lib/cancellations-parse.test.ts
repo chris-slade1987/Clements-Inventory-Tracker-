@@ -71,6 +71,8 @@ test("splitAddress pulls city and zip", () => {
 test("RE-FILL BAIT is rodent", () => {
   assert.equal(divisionForService("RE-FILL BAIT"), "RODENT");
   assert.equal(divisionForService("RODENT RENEWAL"), "RODENT");
+  assert.equal(divisionForService("PC-LAWN"), "LO");
+  assert.equal(divisionForService("PC-EOM"), "GHP");
 });
 
 test("parses the Service Setup List (cancel reasons) and matches it to Gain & Loss rows", async () => {
