@@ -109,6 +109,7 @@ const RULES: [RegExp, string][] = [
   [/^\/management\/benchmarking(\/|$)/, "benchmarking"],
   [/^\/management\/insights(\/|$)/, "insights"],
   [/^\/management\/sales(\/|$)/, "sales-attrition"],
+  [/^\/management\/cancellations(\/|$)/, "cancellations"],
   [/^\/management\/scorecards\/overview(\/|$)/, "scorecards-overview"],
   [/^\/management\/scorecards\/sales-director(\/|$)/, "sales-director-review"],
   [/^\/management\/scorecards(\/|$)/, "scorecards"],

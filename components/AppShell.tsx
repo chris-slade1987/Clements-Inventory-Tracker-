@@ -264,6 +264,9 @@ export default function AppShell({
           ? "manager"
           : pathname.startsWith("/management/documents")
             ? "manager"
+          // The Cancellation Center lives in the Company center too (COO 2026-11-16).
+          : pathname.startsWith("/management/cancellations")
+            ? "manager"
           // Training Center + Certifications now live in the Company center.
           : (pathname.startsWith("/management/training") || pathname.startsWith("/management/certifications"))
             ? "manager"

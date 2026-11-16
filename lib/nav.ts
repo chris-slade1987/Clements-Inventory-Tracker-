@@ -421,6 +421,15 @@ export const MANAGER_NAV: NavItem[] = [
   // Sales Team lives in this center (My Branch for managers = "Company" for admins):
   // company-wide for admins/super admins, own-branch read-only for branch managers.
   SALES_TEAM_NAV_ITEM,
+  // Cancellation Center — PestPac Gain & Loss breakdowns by branch / division /
+  // service / route / city (COO 2026-11-16: Company center; super admins, admins
+  // and branch managers — managers see their own branch). Grant: `cancellations`.
+  {
+    href: "/management/cancellations",
+    label: "Cancellation Center",
+    shortLabel: "Cancels",
+    icon: "M3 7l6 6 4-4 8 8M21 17v-5m0 5h-5",
+  },
   // Document Center — company licensing / leases / vehicle docs. Lives in the
   // Company center (moved here from Executive). Still grant-gated via the
   // `documents` access key, so branch managers without it don't see the link.

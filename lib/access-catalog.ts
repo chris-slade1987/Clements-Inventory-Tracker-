@@ -43,6 +43,7 @@ export const MODULES: AccessModule[] = [
     { id: "scorecard", name: "My Scorecard", ve: true, note: "Edit = sign" }, { id: "branch-training", name: "Team Training" }, { id: "branch-pto", name: "Branch PTO" },
     { id: "branch-command", name: "Branch Command", ve: true, note: "Weekly branch cockpit — fed scoreboard + AI forced-feedback + attested weekly sign-off. Edit = respond / sign." },
     { id: "routing-approval", name: "Routes", ve: true, note: "Monthly routing review (\"Routes\", `/routing-approval`) — map + per-tech sign-off + scoped optimizer (stop / day order / week / month) with before→after efficiency + PestPac change-set export. Edit = approve / sign. Upload is admin-only." },
+    { id: "cancellations", name: "Cancellation Center", ve: true, note: "`/management/cancellations`, in the Company center nav (COO 2026-11-16: super admins, admins and branch managers). PestPac Gain & Loss Report (one month, sorted by Branch, Route) broken out by branch, division, service type, route/technician, city and account value, with an MBR cancellations variance check. View = dashboard (branch managers pinned to their branch); Edit = upload a month (admin role only; the API also requires role admin)." },
     { id: "checklists", name: "Checklists", ve: true }, { id: "sops", name: "SOP Runner", ve: true, note: "Edit = run / sign" },
     { id: "weather", name: "Weather Ops", note: "Forecast → routing/service impact: current + risk + AI ops briefing + 5-day + radar. Managers see their territory; admins all. Read-only page (config is weather-settings)." } ] },
   { id: "inventory", name: "Inventory", sub: "Stock & movements", items: [
@@ -138,7 +139,7 @@ export const DEFAULT_GRANTS: Record<string, Grants> = {
     scorecard: "edit", "branch-training": true, "branch-pto": true, "branch-command": "edit", "routing-approval": "edit", checklists: "edit", sops: "edit",
     dashboard: true, "check-in": true, "check-out": true, stock: true, "stock-count": true, history: true, reconcile: true, reports: true, "photo-catalog": true, "product-profile": true,
     fleet: true, "fleet-detail": true, "fleet-inspect": true, "fleet-assign": true, "fleet-fuel": true, "fleet-retired": true,
-    management: "view", scorecards: "view", audits: "view", people: "view", "sales-team": "view", weather: true, ...SELF_BASIC,
+    management: "view", cancellations: "view", scorecards: "view", audits: "view", people: "view", "sales-team": "view", weather: true, ...SELF_BASIC,
   },
   senior: {
     board: "view", management: "view", executive: "view", benchmarking: true, insights: true, "sales-attrition": "view", compliance: "view", "system-map": true,

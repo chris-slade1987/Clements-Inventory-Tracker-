@@ -4004,3 +4004,52 @@ model ProductionReportUpload {
   @@index([periodKey, reportType])
   @@map("production_report_uploads")
 }
+
+// Cancellation Center — one upload per calendar month of the PestPac Gain & Loss
+// Report (sorted by Branch, Route). A newer upload for the same month replaces the
+// older one (`active` flips off and its rows are removed); the upload log stays.
+model CancellationUpload {
+  id          String   @id @default(cuid())
+  periodKey   String   @map("period_key") // "YYYY-MM"
+  startDate   String   @map("start_date") // "YYYY-MM-DD" — report Start Date
+  endDate     String   @map("end_date") // "YYYY-MM-DD" — report End Date (month-to-date when before month end)
+  fileName    String   @map("file_name")
+  rowCount    Int      @map("row_count")
+  lossCount   Int      @map("loss_count")
+  lossValue   Float    @map("loss_value")
+  source      String   @default("upload") // "upload" | "seed"
+  active      Boolean  @default(true)
+  uploadedBy  String?  @map("uploaded_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  records CancellationRecord[]
+
+  @@index([periodKey, active])
+  @@map("cancellation_uploads")
+}
+
+// One cancelled service on an account (a "Loss" row of the Gain & Loss Report).
+// lossValue is the report's Loss Value for that service.
+model CancellationRecord {
+  id          String   @id @default(cuid())
+  uploadId    String   @map("upload_id")
+  periodKey   String   @map("period_key")
+  branch      String // vero | stuart | orlando | naples
+  route       String
+  techName    String?  @map("tech_name") // route holder at import time (profile / phone list)
+  account     String
+  customer    String
+  address     String
+  city        String
+  zip         String
+  serviceCode String   @map("service_code")
+  division    String // GHP | LO | MOSQUITO | TERMITE | RODENT | OTHER
+  lossCount   Int      @map("loss_count")
+  lossValue   Float    @map("loss_value")
+
+  upload CancellationUpload @relation(fields: [uploadId], references: [id], onDelete: Cascade)
+
+  @@index([periodKey])
+  @@index([branch])
+  @@map("cancellation_records")
+}

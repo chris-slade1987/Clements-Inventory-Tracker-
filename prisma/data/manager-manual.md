@@ -17,6 +17,7 @@ Clements now runs on the **Clements Command & Control** portal. This manual has 
 - **Attendance / Call-Outs** logging for unplanned absences (separate from PTO — monitoring only), with an automatic medical-note rule for illness over 2 days and a physical-injury → accident-report link. See *Technician Absence Policy*.
 - **Attested checklists** for weekly & monthly manager responsibilities, with a leadership completion rollup. See *Weekly* and *Monthly Responsibilities*.
 - **Branch Hub** for on-site licenses/documents with expiry reminders. See *FDACS On-site Document Management* and *Warehouse Safety*.
+- **Cancellation Center** — upload PestPac's monthly Gain & Loss Report and break cancellations out by branch, division, service type, route/technician and city, with an MBR check. See *Cancellation Center*.
 - **Sales Team** — service advisors plan their month with a built-in **Monthly Goal Sheet**, and the **Sales Director** oversees advisors and goals across all four branches. See *Sales Team*.
 - **Certifications** — a read-only console to browse the internal certification program's structure (certifications, modules, prerequisites, and career pathways). Leadership and HR can SEE the program today; training content and tracking are coming. See *Certifications*.
 - **Org Chart & Directory** — a universal, company-readable reporting chart laid out as a **family tree** that branches across the screen, with search (name, route number, service, branch) and collapsible teams. Each card expands to show the person's **corporate role** (what they do + when to go to them for help), certifications, approved services, scheduling rules, and latest note. **Every staff member except field technicians** can expand a card and edit its details. Open to everyone from the **Org Chart** button in the top bar (`/org`). See *Org Chart & Directory*.
@@ -246,6 +247,16 @@ On the day itself, CanopyOS celebrates automatically (all timed to Eastern Time)
 - The person's **supervisor** (whoever they report to on the org chart) gets a heads-up in **Messages/Inbox** suggesting they take a moment to recognize them.
 
 Each of these fires once per person per year — nothing is duplicated if the daily job runs more than once. All of it runs off the month and day only; the birth year is never used.
+
+## Cancellation Center
+
+**Cancellation Center (`Company → Cancellation Center`; branch managers find it under My Branch).** One place to see which customers cancelled and where the losses cluster. It reads PestPac's **Gain & Loss Report**.
+
+- **Who sees it.** Super admins, admins and branch managers. A branch manager sees **only their own branch**; admins see all four and can switch.
+- **Loading a month (admins).** In PestPac run **Reports → Gain & Loss** for **one calendar month** (month-to-date is fine), **sorted by Branch, Route**, and save it. At the bottom of the Cancellation Center, under **Upload a month**, choose the file. The portal shows the date range, the count and dollars by branch, and whether the rows match the report's own totals. Tap **Save this month**. Uploading the same month again **replaces** it, so you can re-run it as the month fills in. A report that spans more than one month, or is grouped by technician, is refused with instructions to re-run it.
+- **Reading it.** Filter by **month, branch, service division, service type, route / technician and city** — or click any bar to filter to it (click again to clear). The page shows lost value, cancelled services, accounts and the average per service; a **What stands out** list (largest branch share, the route that lost the most, routes with 3+ cancellations, accounts that dropped more than one service, $1,000+ losses, the top city); breakdowns by branch, division, service type, route/tech, city and account value; a **branch × division** grid; and the **account list** (search, sort, **Download CSV**) so you can follow up on specific customers.
+- **Check against the MBR.** When that month's Monthly Board Report is in the portal, the page compares its cancellations line to this report branch by branch and shows the variance. A month-to-date report will read low until the month closes.
+- **What it doesn't have.** The Gain & Loss Report carries no cancellation **reason** or **date**, so neither appears. "Lost value" is the report's Loss Value for the service; "technician" is whoever holds the route.
 
 ## Org Chart & Directory
 
