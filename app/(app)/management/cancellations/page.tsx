@@ -6,6 +6,8 @@ import {
   ensureCancellationsSeeded,
   listCancellationMonths,
   loadCancellations,
+  loadUnmatchedSetups,
+  setupsLoadedFor,
   mbrAttritionFor,
   cancellationBudgetByBranch,
   cancellationBudgetYear,
@@ -82,7 +84,9 @@ export default async function CancellationCenterPage({ searchParams }: { searchP
   const month = months.find((m) => m.periodKey === sp.m) ?? months[0];
   const branch = scopedBranch(user, BRANCHES.some((b) => b.key === sp.branch) ? sp.branch! : null);
   const all = await loadCancellations([month.periodKey], branch);
-  const f = { div: sp.div ?? "", svc: sp.svc ?? "", route: sp.route ?? "", city: sp.city ?? "" };
+  const f = { div: sp.div ?? "", svc: sp.svc ?? "", route: sp.route ?? "", city: sp.city ?? "", reason: sp.reason ?? "" };
+  const NO_REASON_KEY = "(none)";
+  const reasonOf = (r: Row) => r.reason ?? NO_REASON_KEY;
 
   // Cross-filtering: each breakdown applies every filter except its own, and
   // highlights the active value; the totals + table apply all of them.
@@ -91,7 +95,8 @@ export default async function CancellationCenterPage({ searchParams }: { searchP
       (skip === "div" || !f.div || r.division === f.div) &&
       (skip === "svc" || !f.svc || r.serviceCode === f.svc) &&
       (skip === "route" || !f.route || r.route === f.route) &&
-      (skip === "city" || !f.city || r.city === f.city));
+      (skip === "city" || !f.city || r.city === f.city) &&
+      (skip === "reason" || !f.reason || reasonOf(r) === f.reason));
   const rows = apply(all);
 
   const href = (k: string, v: string) => {
@@ -129,7 +134,7 @@ export default async function CancellationCenterPage({ searchParams }: { searchP
     budgetRows.push({ key: "company", label: "Company", budget, toDate: budget != null ? budget * frac : null, actual: budgetRows.reduce((s, r) => s + r.actual, 0) });
   }
   const scopeBudget = budgetRows[budgetRows.length - 1];
-  const nonBranchFilter = !!(f.div || f.svc || f.route || f.city);
+  const nonBranchFilter = !!(f.div || f.svc || f.route || f.city || f.reason);
   const year = Number(month.periodKey.slice(0, 4));
   const yearPoints = (await cancellationBudgetYear(branch ?? "company", year)).filter((p) => p.actual != null && p.m <= Number(month.periodKey.slice(5, 7)));
 
@@ -171,6 +176,27 @@ export default async function CancellationCenterPage({ searchParams }: { searchP
     .map(([k, g]) => ({ key: k, label: k, value: g.value, count: g.count, href: href("city", k), active: f.city === k }))
     .sort((a, b) => b.value - a.value);
 
+  // Cancel reason (from the Service Setup List) and customer tenure (service start
+  // date → the report's end date).
+  const reasonsLoaded = await setupsLoadedFor(month.periodKey);
+  const reasonBase = apply(all, "reason");
+  const reasonRows: BarRow[] = [...group(reasonBase, reasonOf)]
+    .map(([k, g]) => ({ key: k, label: k === NO_REASON_KEY ? "No reason on file" : k, value: g.value, count: g.count, href: href("reason", k), active: f.reason === k }))
+    .sort((a, b) => b.value - a.value);
+  const endMs = Date.parse(`${month.endDate}T12:00:00Z`);
+  const tenureYears = (r: Row) => (r.serviceStart ? (endMs - Date.parse(`${r.serviceStart}T12:00:00Z`)) / (365.25 * 86_400_000) : null);
+  const TENURE = [
+    { key: "lt1", label: "Under 1 year", test: (y: number) => y < 1 },
+    { key: "1-2", label: "1–2 years", test: (y: number) => y >= 1 && y < 2 },
+    { key: "2-5", label: "2–5 years", test: (y: number) => y >= 2 && y < 5 },
+    { key: "5+", label: "5 years or more", test: (y: number) => y >= 5 },
+  ];
+  const tenureRows: BarRow[] = TENURE.map((t) => {
+    const rs = rows.filter((r) => { const y = tenureYears(r); return y != null && t.test(y); });
+    return { key: t.key, label: t.label, value: rs.reduce((s, r) => s + r.lossValue, 0), count: rs.reduce((s, r) => s + r.lossCount, 0) };
+  });
+  const unmatchedSetups = (await loadUnmatchedSetups(month.periodKey, branch)).filter((u) => !f.reason || u.reason === f.reason);
+
   const bandRows: BarRow[] = BANDS.map((b) => {
     const rs = rows.filter((r) => b.test(r.lossValue));
     return { key: b.key, label: b.label, value: rs.reduce((s, r) => s + r.lossValue, 0), count: rs.reduce((s, r) => s + r.lossCount, 0) };
@@ -195,6 +221,14 @@ export default async function CancellationCenterPage({ searchParams }: { searchP
       const r = routeRows[0];
       patterns.push(`${r.label}${r.sub ? ` (${r.sub})` : ""} lost the most: ${r.count} services, ${money0(r.value)} — ${Math.round((r.value / Math.max(1, totalValue)) * 100)}% of the total in view.`);
     }
+    if (reasonsLoaded && reasonRows[0] && reasonRows[0].key !== NO_REASON_KEY && !f.reason) {
+      const r = reasonRows[0];
+      patterns.push(`The top cancel reason is ${r.label}: ${r.count} services, ${money0(r.value)} (${Math.round((r.value / Math.max(1, totalValue)) * 100)}% of lost value).`);
+      const moving = rows.filter((x) => (x.reason ?? "").startsWith("MOVING"));
+      if (moving.length && !reasonRows[0].key.startsWith("MOVING")) patterns.push(`Moving (all MOVING codes) accounts for ${moving.length} services, ${money0(moving.reduce((s, x) => s + x.lossValue, 0))}.`);
+    }
+    const young = tenureRows[0];
+    if (reasonsLoaded && young.count > 0) patterns.push(`${young.count} cancelled service${young.count === 1 ? " was" : "s were"} less than a year old (${money0(young.value)}).`);
     const repeatRoutes = routeRows.filter((r) => r.count >= 3);
     if (repeatRoutes.length) patterns.push(`${repeatRoutes.length} route${repeatRoutes.length === 1 ? " has" : "s have"} 3 or more cancellations: ${repeatRoutes.slice(0, 5).map((r) => r.label.replace("Route ", "")).join(", ")}${repeatRoutes.length > 5 ? ` and ${repeatRoutes.length - 5} more` : ""}.`);
     const byAcct = group(rows, (r) => r.account);
@@ -239,6 +273,7 @@ export default async function CancellationCenterPage({ searchParams }: { searchP
     .sort((a, b) => a.rt.localeCompare(b.rt, undefined, { numeric: true }));
 
   const accountRows = rows.map((r) => ({
+    reason: r.reason ?? "", since: r.serviceStart ? mdy(r.serviceStart) : "",
     account: r.account, customer: r.customer, city: r.city, zip: r.zip, branch: branchLabel(r.branch), route: r.route, tech: routeLabel(r),
     serviceCode: r.serviceCode, division: DIVISION_LABELS[r.division as Division] ?? r.division, lossCount: r.lossCount, lossValue: r.lossValue,
   }));
@@ -262,6 +297,7 @@ export default async function CancellationCenterPage({ searchParams }: { searchP
           services={opts(uniq(all.map((r) => r.serviceCode)).sort().map((s) => [s, s]))}
           routes={routesForOpts.map(({ b, rt }) => ({ value: rt, label: `${rt}${techOf.get(`${b}|${rt}`) ? ` · ${techOf.get(`${b}|${rt}`)}` : ""}` }))}
           cities={opts(uniq(all.map((r) => r.city).filter(Boolean)).sort().map((c) => [c, c]))}
+          reasons={reasonsLoaded ? [...new Set(all.map(reasonOf))].sort().map((x) => ({ value: x, label: x === NO_REASON_KEY ? "No reason on file" : x })) : []}
           lockedBranch={locked}
         />
       </Card>
@@ -377,6 +413,18 @@ export default async function CancellationCenterPage({ searchParams }: { searchP
               <div className={section}>By account value</div>
               <div className="p-3"><BarList rows={bandRows} total={totalValue} max={4} /></div>
             </Card>
+            <Card>
+              <div className={section}>By cancellation reason <span className="font-normal text-muted">· PestPac cancel reason code</span></div>
+              <div className="p-3">
+                {reasonsLoaded ? <BarList rows={reasonRows} total={reasonRows.reduce((s, r) => s + r.value, 0)} max={12} /> : <p className="text-sm text-muted">No Service Setup List loaded for this month yet, so there are no reasons. Upload it below.</p>}
+              </div>
+            </Card>
+            <Card>
+              <div className={section}>By customer tenure <span className="font-normal text-muted">· how long the service had run</span></div>
+              <div className="p-3">
+                {reasonsLoaded ? <BarList rows={tenureRows} total={tenureRows.reduce((s, r) => s + r.value, 0)} max={4} /> : <p className="text-sm text-muted">Comes from the Service Setup List&apos;s start dates. Upload it below.</p>}
+              </div>
+            </Card>
           </div>
 
           {matrixBranches.length > 1 && matrixDivs.length > 1 ? (
@@ -465,8 +513,40 @@ export default async function CancellationCenterPage({ searchParams }: { searchP
         </div>
       </Card>
 
+      {unmatchedSetups.length ? (
+        <Card className="mt-4">
+          <div className={section}>Also cancelled, not on the Gain &amp; Loss Report <span className="font-normal text-muted">· {unmatchedSetups.length} setup{unmatchedSetups.length === 1 ? "" : "s"} from the Service Setup List (invoices, yearly renewals) — not counted in lost value</span></div>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[640px] text-sm">
+              <thead className="bg-[#f4f6f5] text-xs text-muted">
+                <tr>
+                  <th scope="col" className="px-3 py-2 text-left font-medium">Account</th>
+                  <th scope="col" className="px-3 py-2 text-left font-medium">Customer</th>
+                  <th scope="col" className="px-3 py-2 text-left font-medium">Branch</th>
+                  <th scope="col" className="px-3 py-2 text-left font-medium">Service</th>
+                  <th scope="col" className="px-3 py-2 text-left font-medium">Reason</th>
+                  <th scope="col" className="px-3 py-2 text-right font-medium">Setup total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {unmatchedSetups.map((u, i) => (
+                  <tr key={`${u.account}-${u.serviceCode}-${i}`} className="border-t border-line">
+                    <td className="px-3 py-2 tabular-nums text-muted">{u.account}</td>
+                    <td className="px-3 py-2 text-ink">{u.customer}</td>
+                    <td className="px-3 py-2 text-ink">{branchLabel(u.branch)}</td>
+                    <td className="px-3 py-2 text-ink">{u.serviceCode}<span className="text-muted"> · {u.chargeType || u.techCode}</span></td>
+                    <td className="px-3 py-2 text-ink">{u.reason}</td>
+                    <td className="px-3 py-2 text-right tabular-nums text-ink">{money0(u.total)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      ) : null}
+
       <p className="mt-4 text-xs text-muted">
-        Not in this report: the cancellation reason and the date each one happened — PestPac&apos;s Gain &amp; Loss Report doesn&apos;t include them. Lost value is the report&apos;s Loss Value for the service. Technician is the route holder when the report was loaded.
+        {reasonsLoaded ? `Cancel reasons and tenure come from the Service Setup List (cancel dates through ${mdy(reasonsLoaded.endDate)}), matched to the Gain & Loss rows by account and service. ` : "Cancel reasons come from a second report, the Service Setup List — none loaded for this month yet. "}The date of each cancellation isn&apos;t in either report. Lost value is the report&apos;s Loss Value for the service. Technician is the route holder when the report was loaded.
         {" "}Loaded {month.createdAt.toLocaleDateString("en-US", { timeZone: "America/New_York" })}{month.uploadedBy ? ` by ${month.uploadedBy}` : ""} · {month.fileName}.
       </p>
 

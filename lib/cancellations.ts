@@ -2,9 +2,18 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import techData from "@/prisma/data/tech-numbers.json";
 import nov2026 from "@/prisma/data/cancellations/2026-11.json";
+import nov2026Setups from "@/prisma/data/cancellations/2026-11-setups.json";
 import { branchKpiMonthly } from "@/lib/branch-kpis";
 import { BRANCHES } from "@/lib/management";
-import { totalsMatch, type ParsedCancellations, type CancellationRow } from "@/lib/cancellations-parse";
+import {
+  totalsMatch,
+  setupTotalsMatch,
+  divisionForService,
+  matchSetups,
+  type ParsedCancellations,
+  type ParsedSetups,
+  type CancellationRow,
+} from "@/lib/cancellations-parse";
 
 // ---------------------------------------------------------------------------
 // Cancellation Center — storage + reads.
@@ -16,9 +25,15 @@ import { totalsMatch, type ParsedCancellations, type CancellationRow } from "@/l
 // November 2026 (11/1–11/16, the COO's 11/16 run) ships as committed JSON and is
 // loaded at runtime by ensureCancellationsSeeded() — production only accepts
 // runtime writes.
+//
+// Cancel REASONS come from a second report, the PestPac Service Setup List
+// filtered by Cancel Date (kind "setups"), joined to the Gain & Loss rows on
+// account + service code when read. Each report kind replaces only its own month.
+// Division is re-derived from the service code on read, so a mapping change
+// (e.g. RE-FILL BAIT → Rodent, COO 2026-11-16) applies to rows already loaded.
 // ---------------------------------------------------------------------------
 
-export type CancellationRecordRow = CancellationRow & { techName: string | null };
+export type CancellationRecordRow = CancellationRow & { techName: string | null; reason: string | null; serviceStart: string | null };
 
 const norm = (s: string) => s.replace(/^0+(?=\d)/, "").trim();
 
@@ -53,7 +68,7 @@ export async function importCancellations(opts: {
   const lossValue = Math.round(parsed.rows.reduce((s, r) => s + r.lossValue, 0) * 100) / 100;
 
   return prisma.$transaction(async (tx) => {
-    const prior = await tx.cancellationUpload.findMany({ where: { periodKey: parsed.periodKey, active: true }, select: { id: true } });
+    const prior = await tx.cancellationUpload.findMany({ where: { periodKey: parsed.periodKey, active: true, kind: "gainloss" }, select: { id: true } });
     if (prior.length) {
       await tx.cancellationRecord.deleteMany({ where: { uploadId: { in: prior.map((p) => p.id) } } });
       await tx.cancellationUpload.updateMany({ where: { id: { in: prior.map((p) => p.id) } }, data: { active: false } });
@@ -68,6 +83,7 @@ export async function importCancellations(opts: {
         lossCount,
         lossValue,
         source: opts.source,
+        kind: "gainloss",
         uploadedBy: opts.uploadedBy,
       },
     });
@@ -95,19 +111,59 @@ export async function importCancellations(opts: {
   });
 }
 
+/** Save a parsed Service Setup List (cancel reasons), replacing that month's earlier one. */
+export async function importSetups(opts: {
+  parsed: ParsedSetups;
+  fileName: string;
+  source: "upload" | "seed";
+  uploadedBy: string | null;
+}): Promise<{ uploadId: string; rows: number; replaced: number }> {
+  const { parsed } = opts;
+  const total = Math.round(parsed.rows.reduce((s, r) => s + r.total, 0) * 100) / 100;
+  return prisma.$transaction(async (tx) => {
+    const prior = await tx.cancellationUpload.findMany({ where: { periodKey: parsed.periodKey, active: true, kind: "setups" }, select: { id: true } });
+    if (prior.length) {
+      await tx.cancellationSetup.deleteMany({ where: { uploadId: { in: prior.map((p) => p.id) } } });
+      await tx.cancellationUpload.updateMany({ where: { id: { in: prior.map((p) => p.id) } }, data: { active: false } });
+    }
+    const up = await tx.cancellationUpload.create({
+      data: {
+        periodKey: parsed.periodKey,
+        startDate: parsed.startDate,
+        endDate: parsed.endDate,
+        fileName: opts.fileName,
+        rowCount: parsed.rows.length,
+        lossCount: parsed.rows.length,
+        lossValue: total,
+        source: opts.source,
+        kind: "setups",
+        uploadedBy: opts.uploadedBy,
+      },
+    });
+    if (parsed.rows.length) {
+      await tx.cancellationSetup.createMany({
+        data: parsed.rows.map((r) => ({ uploadId: up.id, periodKey: parsed.periodKey, ...r })),
+      });
+    }
+    return { uploadId: up.id, rows: parsed.rows.length, replaced: prior.length };
+  });
+}
+
 // --- November 2026 seed (runtime, once) ------------------------------------
 const SEED_MARKER = "cancellations_seed_2026_11_v1";
+const SETUPS_SEED_MARKER = "cancellations_setups_seed_2026_11_v1";
 let seeding: Promise<void> | null = null;
 
 export function ensureCancellationsSeeded(): Promise<void> {
   if (!seeding) {
     seeding = (async () => {
       try {
+        await seedSetupsOnce();
         const done = await prisma.setting.findUnique({ where: { key: SEED_MARKER } });
         if (done) return;
         const parsed = nov2026 as unknown as ParsedCancellations & { fileName: string };
         // A real upload for the month always wins over the seed.
-        const existing = await prisma.cancellationUpload.count({ where: { periodKey: parsed.periodKey, active: true } });
+        const existing = await prisma.cancellationUpload.count({ where: { periodKey: parsed.periodKey, active: true, kind: "gainloss" } });
         if (!existing && totalsMatch(parsed) !== false) {
           await importCancellations({ parsed, fileName: parsed.fileName, source: "seed", uploadedBy: "Chris Slade (11/16 report)" });
         }
@@ -125,38 +181,97 @@ export function ensureCancellationsSeeded(): Promise<void> {
   return seeding;
 }
 
+// November 2026 cancel reasons (COO's 11/16 Service Setup List run).
+async function seedSetupsOnce(): Promise<void> {
+  const done = await prisma.setting.findUnique({ where: { key: SETUPS_SEED_MARKER } });
+  if (done) return;
+  const parsed = nov2026Setups as unknown as ParsedSetups & { fileName: string };
+  const existing = await prisma.cancellationUpload.count({ where: { periodKey: parsed.periodKey, active: true, kind: "setups" } });
+  if (!existing && setupTotalsMatch(parsed) !== false) {
+    await importSetups({ parsed, fileName: parsed.fileName, source: "seed", uploadedBy: "Chris Slade (11/16 report)" });
+  }
+  await prisma.setting.upsert({
+    where: { key: SETUPS_SEED_MARKER },
+    create: { key: SETUPS_SEED_MARKER, value: new Date().toISOString() },
+    update: { value: new Date().toISOString() },
+  });
+}
+
 // --- Reads ------------------------------------------------------------------
 export type CancellationMonth = { periodKey: string; startDate: string; endDate: string; fileName: string; uploadedBy: string | null; createdAt: Date; rowCount: number };
 
 export async function listCancellationMonths(): Promise<CancellationMonth[]> {
   const ups = await prisma.cancellationUpload.findMany({
-    where: { active: true },
+    where: { active: true, kind: "gainloss" },
     orderBy: { periodKey: "desc" },
     select: { periodKey: true, startDate: true, endDate: true, fileName: true, uploadedBy: true, createdAt: true, rowCount: true },
   });
   return ups;
 }
 
-export async function loadCancellations(periodKeys: string[], branch: string | null): Promise<(CancellationRecordRow & { periodKey: string })[]> {
-  const rows = await prisma.cancellationRecord.findMany({
+export type UnmatchedSetup = { periodKey: string; branch: string; account: string; customer: string; serviceCode: string; chargeType: string; techCode: string; reason: string; total: number; serviceStart: string };
+
+async function loadSetups(periodKeys: string[], branch: string | null) {
+  return prisma.cancellationSetup.findMany({
     where: { periodKey: { in: periodKeys }, ...(branch ? { branch } : {}), upload: { active: true } },
-    orderBy: [{ lossValue: "desc" }],
+    orderBy: [{ account: "asc" }],
   });
-  return rows.map((r) => ({
-    periodKey: r.periodKey,
-    branch: r.branch,
-    route: r.route,
-    techName: r.techName,
-    account: r.account,
-    customer: r.customer,
-    address: r.address,
-    city: r.city,
-    zip: r.zip,
-    serviceCode: r.serviceCode,
-    division: r.division as CancellationRow["division"],
-    lossCount: r.lossCount,
-    lossValue: r.lossValue,
-  }));
+}
+
+export async function loadCancellations(periodKeys: string[], branch: string | null): Promise<(CancellationRecordRow & { periodKey: string })[]> {
+  const [rows, setups] = await Promise.all([
+    prisma.cancellationRecord.findMany({
+      where: { periodKey: { in: periodKeys }, ...(branch ? { branch } : {}), upload: { active: true } },
+      orderBy: [{ lossValue: "desc" }],
+    }),
+    loadSetups(periodKeys, branch),
+  ]);
+  const out: (CancellationRecordRow & { periodKey: string })[] = [];
+  for (const pk of periodKeys) {
+    const recs = rows.filter((r) => r.periodKey === pk);
+    const sets = setups.filter((s) => s.periodKey === pk);
+    const { match } = matchSetups(recs, sets);
+    recs.forEach((r, i) => {
+      const s = match[i] >= 0 ? sets[match[i]] : null;
+      out.push({
+        periodKey: r.periodKey,
+        branch: r.branch,
+        route: r.route,
+        techName: r.techName,
+        account: r.account,
+        customer: r.customer,
+        address: r.address,
+        city: r.city,
+        zip: r.zip,
+        serviceCode: r.serviceCode,
+        division: divisionForService(r.serviceCode),
+        lossCount: r.lossCount,
+        lossValue: r.lossValue,
+        reason: s?.reason ?? null,
+        serviceStart: s?.serviceStart || null,
+      });
+    });
+  }
+  return out.sort((a, b) => b.lossValue - a.lossValue);
+}
+
+/** Cancelled setups on the Service Setup List with no Gain & Loss row (invoices,
+ *  yearly renewals …) — shown separately, never added to lost value. */
+export async function loadUnmatchedSetups(periodKey: string, branch: string | null): Promise<UnmatchedSetup[]> {
+  const [recs, sets] = await Promise.all([
+    prisma.cancellationRecord.findMany({ where: { periodKey, ...(branch ? { branch } : {}), upload: { active: true } }, select: { account: true, serviceCode: true } }),
+    loadSetups([periodKey], branch),
+  ]);
+  const { unmatched } = matchSetups(recs, sets);
+  return unmatched.map((i) => {
+    const s = sets[i];
+    return { periodKey: s.periodKey, branch: s.branch, account: s.account, customer: s.customer, serviceCode: s.serviceCode, chargeType: s.chargeType, techCode: s.techCode, reason: s.reason, total: s.total, serviceStart: s.serviceStart };
+  });
+}
+
+/** Whether a reasons list (Service Setup List) is loaded for the month. */
+export async function setupsLoadedFor(periodKey: string): Promise<{ endDate: string; fileName: string } | null> {
+  return prisma.cancellationUpload.findFirst({ where: { periodKey, active: true, kind: "setups" }, select: { endDate: true, fileName: true } });
 }
 
 /** MBR "attrition" (cancellations $) month actuals for a YYYY-MM, by scope. Empty
@@ -184,7 +299,7 @@ export type BudgetMonth = { m: number; label: string; budget: number | null; act
 export async function cancellationBudgetYear(scope: string, year: number): Promise<BudgetMonth[]> {
   const [points, ups] = await Promise.all([
     branchKpiMonthly(scope, year, "cancellations"),
-    prisma.cancellationUpload.findMany({ where: { active: true, periodKey: { startsWith: `${year}-` } }, select: { id: true, periodKey: true, endDate: true } }),
+    prisma.cancellationUpload.findMany({ where: { active: true, kind: "gainloss", periodKey: { startsWith: `${year}-` } }, select: { id: true, periodKey: true, endDate: true } }),
   ]);
   const uploadTotals = new Map<number, { value: number; endDate: string }>();
   for (const u of ups) {

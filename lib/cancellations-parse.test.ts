@@ -67,3 +67,33 @@ test("splitAddress pulls city and zip", () => {
   assert.deepEqual(splitAddress("28502 Highgate Drive, Bonita Springs, FL 34135"), { city: "Bonita Springs", zip: "34135" });
   assert.deepEqual(splitAddress("5 A St, ST. CLOUD, FL 34769-1234"), { city: "St Cloud", zip: "34769" });
 });
+
+test("RE-FILL BAIT is rodent", () => {
+  assert.equal(divisionForService("RE-FILL BAIT"), "RODENT");
+  assert.equal(divisionForService("RODENT RENEWAL"), "RODENT");
+});
+
+test("parses the Service Setup List (cancel reasons) and matches it to Gain & Loss rows", async () => {
+  const { parseSetupList, setupTotalsMatch, matchSetups, isSetupList } = await import("./cancellations-parse");
+  const text = T([
+    ["Date: ", "2026/11/16 12:01 PM"],
+    ["Service Setup List"],
+    ["Branch:", "[All]", "Start Last Gen. Date:", "[All]", "Start Cancel Date:", "2026/11/01"],
+    ["Division:", "[All]", "End Last Gen. Date:", "[All]", "End Cancel Date:", "2026/11/16"],
+    ["Branch: Naples - Branch 4"],
+    ["Location", "Company", "Name", "Branch", "Service", "Charge Type", "Tech 1", "Start Date", "Cancel Reason", "Total"],
+    ["120611", "", "Czaban, John", "Naples - Branch 4", "PC-EOM", "Service Order", "403 JASON", "2021/12/21", "MOVING-ROA", "70.00"],
+    ["128722", "1020 at Winter Springs", "", "Orlando - Branch 3", "I-INVOICE", "Invoice", "36 YEARLY", "2025/11/01", "NEW VENDOR", "3,000.00"],
+    ["Totals Branch: Naples - Branch 4  Setups: 2"],
+    ["Report Totals  Setups: 2"],
+    ["", "", "", "", "", "", "", "", "", "3,070.00"],
+  ]);
+  assert.equal(isSetupList(text), true);
+  const p = parseSetupList(text);
+  assert.equal(p.periodKey, "2026-11");
+  assert.equal(p.rows.length, 2);
+  assert.deepEqual(p.rows[1], { branch: "orlando", account: "128722", customer: "1020 at Winter Springs", serviceCode: "I-INVOICE", chargeType: "Invoice", techCode: "36 YEARLY", serviceStart: "2025-11-01", reason: "NEW VENDOR", total: 3000 });
+  assert.equal(setupTotalsMatch(p), true);
+  const m = matchSetups([{ account: "120611", serviceCode: "PC-EOM" }, { account: "999", serviceCode: "PC-EOM" }], p.rows);
+  assert.deepEqual(m, { match: [0, -1], unmatched: [1] });
+});

@@ -4018,11 +4018,13 @@ model CancellationUpload {
   lossCount   Int      @map("loss_count")
   lossValue   Float    @map("loss_value")
   source      String   @default("upload") // "upload" | "seed"
+  kind        String   @default("gainloss") // "gainloss" (Gain & Loss Report) | "setups" (Service Setup List — cancel reasons)
   active      Boolean  @default(true)
   uploadedBy  String?  @map("uploaded_by")
   createdAt   DateTime @default(now()) @map("created_at")
 
   records CancellationRecord[]
+  setups  CancellationSetup[]
 
   @@index([periodKey, active])
   @@map("cancellation_uploads")
@@ -4052,4 +4054,28 @@ model CancellationRecord {
   @@index([periodKey])
   @@index([branch])
   @@map("cancellation_records")
+}
+
+// One cancelled service setup from the PestPac Service Setup List (filtered by
+// Cancel Date) — carries the CANCEL REASON and the service start date. Joined to
+// CancellationRecord on account + service code at read time; setups with no
+// Gain & Loss row (invoices, yearly renewals) are shown separately.
+model CancellationSetup {
+  id           String  @id @default(cuid())
+  uploadId     String  @map("upload_id")
+  periodKey    String  @map("period_key")
+  branch       String
+  account      String
+  customer     String
+  serviceCode  String  @map("service_code")
+  chargeType   String  @map("charge_type")
+  techCode     String  @map("tech_code")
+  serviceStart String  @map("service_start") // "YYYY-MM-DD" or ""
+  reason       String // PestPac cancel reason code
+  total        Float
+
+  upload CancellationUpload @relation(fields: [uploadId], references: [id], onDelete: Cascade)
+
+  @@index([periodKey])
+  @@map("cancellation_setups")
 }

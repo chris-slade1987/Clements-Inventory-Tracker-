@@ -127,9 +127,9 @@ export function DivisionDonut({ slices }: { slices: { key: string; label: string
 export type FilterOpt = { value: string; label: string };
 
 export function CancelFilters({
-  months, branches, divisions, services, routes, cities, lockedBranch,
+  months, branches, divisions, services, routes, cities, reasons, lockedBranch,
 }: {
-  months: FilterOpt[]; branches: FilterOpt[]; divisions: FilterOpt[]; services: FilterOpt[]; routes: FilterOpt[]; cities: FilterOpt[];
+  months: FilterOpt[]; branches: FilterOpt[]; divisions: FilterOpt[]; services: FilterOpt[]; routes: FilterOpt[]; cities: FilterOpt[]; reasons: FilterOpt[];
   lockedBranch: string | null;
 }) {
   const router = useRouter();
@@ -141,7 +141,7 @@ export function CancelFilters({
     if (k === "branch") { q.delete("route"); q.delete("city"); }
     router.replace(`?${q.toString()}`, { scroll: false });
   };
-  const anyFilter = ["branch", "div", "svc", "route", "city"].some((k) => sp.get(k) && !(k === "branch" && lockedBranch));
+  const anyFilter = ["branch", "div", "svc", "route", "city", "reason"].some((k) => sp.get(k) && !(k === "branch" && lockedBranch));
   const sel = "min-h-[44px] rounded-lg border border-line bg-white px-3 text-sm text-ink";
   const field = (label: string, k: string, opts: FilterOpt[], allLabel: string, disabled = false) => (
     <label className="flex min-w-[140px] flex-1 flex-col gap-1 text-xs text-muted">
@@ -160,6 +160,7 @@ export function CancelFilters({
       {field("Service type", "svc", services, "All services")}
       {field("Route / tech", "route", routes, "All routes")}
       {field("City", "city", cities, "All cities")}
+      {reasons.length ? field("Cancel reason", "reason", reasons, "All reasons") : null}
       {anyFilter ? (
         <button type="button" className={`${btn.secondary} min-h-[44px]`} onClick={() => {
           const q = new URLSearchParams();
@@ -173,6 +174,7 @@ export function CancelFilters({
 
 // ---- Account table + CSV -------------------------------------------------------
 export type AccountRow = {
+  reason: string; since: string;
   account: string; customer: string; city: string; zip: string; branch: string; route: string; tech: string;
   serviceCode: string; division: string; lossCount: number; lossValue: number;
 };
@@ -190,9 +192,9 @@ export function AccountTable({ rows, fileLabel }: { rows: AccountRow[]; fileLabe
   }, [rows, q, sort]);
 
   const csv = () => {
-    const head = ["Account", "Customer", "City", "Zip", "Branch", "Route", "Technician", "Service", "Division", "Cancelled services", "Lost value"];
+    const head = ["Account", "Customer", "City", "Zip", "Branch", "Route", "Technician", "Service", "Division", "Cancel reason", "Service since", "Cancelled services", "Lost value"];
     const esc = (v: string | number) => { const s = String(v); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
-    const body = shown.map((r) => [r.account, r.customer, r.city, r.zip, r.branch, r.route, r.tech, r.serviceCode, r.division, r.lossCount, r.lossValue.toFixed(2)].map(esc).join(","));
+    const body = shown.map((r) => [r.account, r.customer, r.city, r.zip, r.branch, r.route, r.tech, r.serviceCode, r.division, r.reason, r.since, r.lossCount, r.lossValue.toFixed(2)].map(esc).join(","));
     const blob = new Blob([[head.join(","), ...body].join("\n")], { type: "text/csv" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
@@ -219,7 +221,7 @@ export function AccountTable({ rows, fileLabel }: { rows: AccountRow[]; fileLabe
         <table className="w-full min-w-[760px] text-sm">
           <thead className="sticky top-0 bg-[#f4f6f5] text-xs text-muted">
             <tr>
-              {th("Account", "account")}{th("Customer", "customer")}{th("Lost value", "lossValue", true)}{th("Service", "serviceCode")}{th("Route", "route")}{th("City", "city")}{th("Services", "lossCount", true)}
+              {th("Account", "account")}{th("Customer", "customer")}{th("Lost value", "lossValue", true)}{th("Service", "serviceCode")}{th("Reason", "reason")}{th("Route", "route")}{th("City", "city")}{th("Services", "lossCount", true)}
             </tr>
           </thead>
           <tbody>
@@ -228,13 +230,14 @@ export function AccountTable({ rows, fileLabel }: { rows: AccountRow[]; fileLabe
                 <td className="px-3 py-2 tabular-nums text-muted">{r.account}</td>
                 <td className="px-3 py-2 text-ink">{r.customer}</td>
                 <td className="px-3 py-2 text-right tabular-nums text-ink">{money0(r.lossValue)}</td>
-                <td className="whitespace-nowrap px-3 py-2 text-ink">{r.serviceCode}</td>
+                <td className="whitespace-nowrap px-3 py-2 text-ink">{r.serviceCode}{r.since ? <div className="text-xs text-muted">since {r.since}</div> : null}</td>
+                <td className="whitespace-nowrap px-3 py-2 text-ink">{r.reason || <span className="text-muted">—</span>}</td>
                 <td className="px-3 py-2 text-ink">{r.route}{r.tech ? <span className="text-muted"> · {r.tech}</span> : null}</td>
                 <td className="px-3 py-2 text-ink">{r.city}</td>
                 <td className="px-3 py-2 text-right tabular-nums text-ink">{r.lossCount}</td>
               </tr>
             ))}
-            {shown.length === 0 ? <tr><td colSpan={7} className="px-3 py-6 text-center text-muted">No matching accounts.</td></tr> : null}
+            {shown.length === 0 ? <tr><td colSpan={8} className="px-3 py-6 text-center text-muted">No matching accounts.</td></tr> : null}
           </tbody>
         </table>
       </div>
@@ -244,6 +247,7 @@ export function AccountTable({ rows, fileLabel }: { rows: AccountRow[]; fileLabe
 
 // ---- Upload (admins) --------------------------------------------------------
 type Summary = {
+  kind: "gainloss" | "setups"; reasons?: { reason: string; count: number }[];
   periodKey: string; startDate: string; endDate: string; rows: number; lossCount: number; lossValue: number; totalsChecked: boolean;
   byBranch: Record<string, { count: number; value: number }>; replaces: { endDate: string; fileName: string } | null;
 };
@@ -268,7 +272,9 @@ export function UploadCard() {
       if (!r.ok) { setErr(j.error ?? "Upload failed."); setSummary(null); return; }
       if (action === "preview") setSummary(j.summary);
       else {
-        setDone(`Saved ${j.summary.rows} cancellations for ${fmtDate(j.summary.startDate)}–${fmtDate(j.summary.endDate)}.`);
+        setDone(j.summary.kind === "setups"
+          ? `Saved ${j.summary.rows} cancel reasons for ${fmtDate(j.summary.startDate)}–${fmtDate(j.summary.endDate)}.`
+          : `Saved ${j.summary.rows} cancellations for ${fmtDate(j.summary.startDate)}–${fmtDate(j.summary.endDate)}.`);
         setSummary(null); setFile(null);
         if (input.current) input.current.value = "";
         router.replace(`?m=${j.summary.periodKey}`, { scroll: false });
@@ -280,7 +286,7 @@ export function UploadCard() {
   return (
     <div className="p-4">
       <p className="text-sm text-muted">
-        In PestPac run <span className="text-ink">Reports → Gain &amp; Loss</span> for one month (month-to-date is fine), <span className="text-ink">sorted by Branch, Route</span>, and save it. Uploading a month again replaces that month.
+        Two PestPac reports, each for one month (month-to-date is fine), <span className="text-ink">sorted by Branch, Route</span>: the <span className="text-ink">Gain &amp; Loss Report</span> (the cancellations and their value) and the <span className="text-ink">Service Setup List</span> with <span className="text-ink">Start / End Cancel Date</span> set to the same dates (the cancel reasons). Upload either one here; the portal recognizes which it is. Uploading a month again replaces that month&apos;s copy of that report.
       </p>
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <input ref={input} type="file" accept=".xls,.txt,.tsv,.csv" className="text-sm"
@@ -299,12 +305,14 @@ export function UploadCard() {
       {summary && file ? (
         <div className="mt-3 rounded-lg border border-line bg-white p-3 text-sm">
           <div className="text-ink">
-            {fmtDate(summary.startDate)}–{fmtDate(summary.endDate)} · {summary.lossCount} cancelled services · {money0(summary.lossValue)}
+            {summary.kind === "setups" ? "Service Setup List (cancel reasons) · " : "Gain & Loss Report · "}
+            {fmtDate(summary.startDate)}–{fmtDate(summary.endDate)} · {summary.kind === "setups" ? `${summary.rows} cancelled setups` : `${summary.lossCount} cancelled services · ${money0(summary.lossValue)}`}
             {summary.totalsChecked ? <span className="ml-2 text-xs text-brand-700">matches the report totals</span> : null}
           </div>
           <ul className="mt-1 text-xs text-muted">
-            {Object.entries(summary.byBranch).map(([b, v]) => <li key={b}>{BRANCH_NAMES[b] ?? b}: {v.count} · {money0(v.value)}</li>)}
+            {Object.entries(summary.byBranch).map(([b, v]) => <li key={b}>{BRANCH_NAMES[b] ?? b}: {v.count}{summary.kind === "setups" ? "" : ` · ${money0(v.value)}`}</li>)}
           </ul>
+          {summary.reasons?.length ? <p className="mt-1 text-xs text-muted">Reasons: {summary.reasons.map((r) => `${r.reason} ${r.count}`).join(" · ")}</p> : null}
           {summary.replaces ? <p className="mt-2 text-xs text-muted">This replaces the upload through {fmtDate(summary.replaces.endDate)} ({summary.replaces.fileName}).</p> : null}
           <button type="button" className={`${btn.primary} mt-3`} disabled={busy} onClick={() => post("apply", file)}>Save this month</button>
         </div>
