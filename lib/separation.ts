@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { keepTechnicianNames } from "@/lib/technician-keep";
 
 // Employee offboarding — separation reasons, supporting docs, and the
 // HR-conducted exit interview. Terminated employees move to the "former
@@ -110,6 +111,19 @@ export async function separationForEmployee(employeeId: string) {
 // termination must also flip the matching technician's `active` flag, or a
 // former employee keeps showing up as a dispersement recipient.
 
+/** Names (normalized) that must never be auto-deactivated: every active employee's
+ *  name / nickname, plus the protected list in lib/technician-keep.ts. */
+async function protectedTechnicianNames(): Promise<Set<string>> {
+  const out = new Set<string>();
+  for (const n of keepTechnicianNames()) out.add(normName(n));
+  const active = await prisma.employee.findMany({ where: { status: "active" }, select: { name: true, nickname: true } });
+  for (const e of active) {
+    out.add(normName(e.name));
+    if (e.nickname) out.add(normName(e.nickname));
+  }
+  return out;
+}
+
 /** Normalize a person's name for cross-table (Employee ↔ Technician) matching. */
 function normName(n: string): string {
   return n.trim().toLowerCase().replace(/\s+/g, " ");
@@ -128,6 +142,13 @@ export async function syncTechnicianActiveForEmployee(employeeName: string, acti
   // Pull the employee's nickname (if any) so a roster entry under it also flips.
   const emp = await prisma.employee.findFirst({ where: { name: employeeName }, select: { nickname: true } });
   if (emp?.nickname) targets.add(normName(emp.nickname));
+  if (!active) {
+    // Never switch off a name that still belongs to an ACTIVE employee (a duplicate
+    // or old former-employee profile with the same name) or a protected roster
+    // person (lib/technician-keep.ts).
+    for (const n of await protectedTechnicianNames()) targets.delete(n);
+    if (targets.size === 0) return 0;
+  }
   const techs = await prisma.technician.findMany({ select: { id: true, name: true, active: true } });
   const ids = techs.filter((t) => targets.has(normName(t.name)) && t.active !== active).map((t) => t.id);
   if (ids.length === 0) return 0;
@@ -184,6 +205,12 @@ export async function reconcileTerminatedTechnicians(): Promise<number> {
     names.add(normName(e.name));
     if (e.nickname) names.add(normName(e.nickname));
   }
+  // A former-employee profile can share a name with someone still working (COO
+  // 2026-11-17: this switched Brian Lasneski off the Check-Out list on every
+  // deploy). Skip any name that belongs to an active employee or a protected
+  // roster person.
+  for (const n of await protectedTechnicianNames()) names.delete(n);
+  if (names.size === 0) return 0;
   const techs = await prisma.technician.findMany({ where: { active: true }, select: { id: true, name: true } });
   const ids = techs.filter((t) => names.has(normName(t.name))).map((t) => t.id);
   if (ids.length === 0) return 0;

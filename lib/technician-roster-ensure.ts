@@ -1,6 +1,7 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
 import techData from "@/prisma/data/tech-numbers.json";
+import { KEEP_TECHNICIANS } from "@/lib/technician-keep";
 
 // ---------------------------------------------------------------------------
 // Check-Out technician roster healer (runtime).
@@ -37,9 +38,8 @@ const MARKER = "technician_roster_ensure_v1";
 // Explicit COO directives: people who must be on the roster even if an inactive
 // employee profile shares their name. Applied only when BOTH the name and the
 // tech number match a phone-list row, so it can never land on the wrong person.
-const DIRECTIVES: Array<{ name: string; techNumber: string; branch: string; note: string }> = [
-  { name: "Brian Lasneski", techNumber: "28", branch: "vero", note: "COO 2026-11-13: Jason (Vero) must be able to check product out to 28 BRIAN L" },
-];
+// The list lives in lib/technician-keep.ts (shared with the deploy reconcile).
+const DIRECTIVES = KEEP_TECHNICIANS;
 
 type PhoneRow = { name: string; techNumber: string | null; role: string; branch: string };
 
@@ -250,10 +250,51 @@ export async function reconcileTechnicianRoster(opts: { apply: boolean }): Promi
 
 let _run: Promise<void> | null = null;
 
-/** Runtime entry point (app layout + Check-Out page). Once per DB; non-fatal. */
+/** Runtime entry point (app layout + Check-Out page). The full reconcile runs once
+ *  per DB (marker); the protected-people check runs once per server instance — so
+ *  after every deploy — and puts back anyone something switched off. Non-fatal. */
 export function ensureTechnicianRoster(): Promise<void> {
-  if (!_run) _run = retireDemoTechnicians().then(run).catch((e) => { console.error("ensureTechnicianRoster failed (non-fatal, will retry):", e); _run = null; });
+  if (!_run) _run = retireDemoTechnicians().then(assertKeepTechnicians).then(run).catch((e) => { console.error("ensureTechnicianRoster failed (non-fatal, will retry):", e); _run = null; });
   return _run;
+}
+
+/**
+ * Protected people (lib/technician-keep.ts) must always have an ACTIVE roster row
+ * at their branch warehouse. Not marker-gated: re-checked on every server start
+ * (COO 2026-11-17 — Brian Lasneski kept being switched off by the deploy-time
+ * terminated-employee reconcile). Matching, in order: exact name (any warehouse),
+ * PestPac card # = route # at the branch warehouse, then "BRIAN L"-style surname /
+ * last initial at the branch warehouse. Reactivates the best match; creates a row
+ * only when none exists. Never deletes, renames or moves a row. Logs to a Setting.
+ */
+export async function assertKeepTechnicians(): Promise<void> {
+  const warehouses = await prisma.warehouse.findMany({ where: { active: true }, select: { id: true, name: true } });
+  if (!warehouses.length) return;
+  const techs: Tech[] = await prisma.technician.findMany({ select: { id: true, name: true, homeWarehouseId: true, employeeIdCard: true, active: true } });
+  const log: string[] = [];
+  for (const k of KEEP_TECHNICIANS) {
+    const whId = warehouses.find((w) => branchKey(w.name) === k.branch)?.id;
+    const person: Person = { name: k.name, aliases: new Set([norm(k.name)]), routeNumber: k.techNumber, branch: k.branch, role: "Technician", forced: true };
+    const byName = techs.filter((t) => norm(t.name) === norm(k.name));
+    const byCard = techs.filter((t) => t.homeWarehouseId === whId && t.employeeIdCard && routeKey(t.employeeIdCard) === routeKey(k.techNumber));
+    const byLoose = techs.filter((t) => t.homeWarehouseId === whId && looseNameMatch(person, t.name));
+    const cands = [...byName, ...byCard, ...byLoose];
+    if (cands.some((t) => t.active)) { log.push(`${k.name}: on the list`); continue; }
+    const best = [...cands].sort((a, b) => Number(b.homeWarehouseId === whId) - Number(a.homeWarehouseId === whId))[0];
+    if (best) {
+      await prisma.technician.update({ where: { id: best.id }, data: { active: true } });
+      log.push(`${k.name}: reactivated "${best.name}"`);
+      console.log(`assertKeepTechnicians: reactivated "${best.name}" (${k.note}).`);
+    } else if (whId) {
+      await prisma.technician.create({ data: { name: k.name, homeWarehouseId: whId, role: "Technician", active: true } });
+      log.push(`${k.name}: created at ${k.branch}`);
+      console.log(`assertKeepTechnicians: created "${k.name}" at ${k.branch} (${k.note}).`);
+    } else {
+      log.push(`${k.name}: no ${k.branch} warehouse`);
+    }
+  }
+  const value = JSON.stringify({ at: new Date().toISOString(), log });
+  await prisma.setting.upsert({ where: { key: "technician_keep_last" }, update: { value }, create: { key: "technician_keep_last", value } }).catch(() => {});
 }
 
 // The original sample-data seed (prisma/seed-core.ts) created eight FAKE technicians
