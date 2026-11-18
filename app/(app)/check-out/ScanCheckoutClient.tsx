@@ -759,7 +759,7 @@ export default function ScanCheckoutClient({
       {/* Hard-stop overlays */}
       {blocked ? (
         <Overlay onClose={() => (escalating ? undefined : setBlocked(null))} title="Over-dispense blocked">
-          <p className="text-sm text-muted mb-2">These lines exceed on-hand at {branchName}. Recount the shelf or reconcile before dispensing — no override.</p>
+          <p className="text-sm text-muted mb-2">These lines exceed what the portal shows on hand at {branchName} (the limit is the same for every technician). If the shelf really has more, the count is off — <a href="/inventory/stock-count" className="font-medium text-brand-700 underline">recount it on Stock Count</a> and submit again, or message senior management to reconcile. No override.</p>
           <ul className="divide-y divide-line text-sm">
             {blocked.map((o, i) => (
               <li key={o.productId ?? i} className="flex justify-between py-2">
@@ -1007,6 +1007,12 @@ function ConfirmCard({
           </div>
         )}
         {!pending.counted ? <p className="mt-1 text-xs text-muted">Capped at {NOT_COUNTED_CAP} until this product is counted at {branchName}.</p> : null}
+        {pending.counted && cap > 0 && pending.quantity >= cap ? (
+          <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900">
+            That&apos;s everything the portal shows on hand at {branchName} ({cap} {uomLabel(pending.unit).toLowerCase()}). If the shelf has more, the count is off —{" "}
+            <a href="/inventory/stock-count" className="font-medium underline">recount it on Stock Count</a>, then come back. This limit is the same for every technician.
+          </p>
+        ) : null}
       </div>
       <div className="mt-4 grid grid-cols-2 gap-2">
         <button className={btn.secondary} onClick={onCancel}>Cancel</button>
