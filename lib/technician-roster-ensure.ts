@@ -293,6 +293,39 @@ export async function assertKeepTechnicians(): Promise<void> {
       log.push(`${k.name}: no ${k.branch} warehouse`);
     }
   }
+  // Their org-chart profile should say what they are (COO 2026-11-18: Brian L showed
+  // with no technician role). Find the ONE active profile that is them — exact name /
+  // nickname, or route # at their branch, or first name + last initial at their
+  // branch ("Brian L") — and fill in role / title / route / branch only where they
+  // don't already say technician. Ambiguous (0 or 2+ matches) → left alone, logged.
+  const emps = await prisma.employee.findMany({
+    where: { status: "active" },
+    select: { id: true, name: true, nickname: true, branch: true, routeNumber: true, role: true, title: true },
+  });
+  for (const k of KEEP_TECHNICIANS) {
+    const kTok = tokens(k.name);
+    const isThem = (e: (typeof emps)[number]) => {
+      if ([e.name, e.nickname].some((n) => n && norm(n) === norm(k.name))) return true;
+      const sameBranch = branchKey(e.branch) === k.branch;
+      if (sameBranch && e.routeNumber && routeKey(e.routeNumber) === routeKey(k.techNumber)) return true;
+      const t = tokens(e.name);
+      return sameBranch && t.length >= 2 && t[0] === kTok[0] && kTok[kTok.length - 1].startsWith(t[t.length - 1].replace(/\W/g, "")) && t[t.length - 1].length >= 1;
+    };
+    const mine = emps.filter(isThem);
+    if (mine.length !== 1) { log.push(`${k.name}: profile ${mine.length ? "ambiguous (" + mine.map((e) => e.name).join(", ") + ")" : "not found"} — left as-is`); continue; }
+    const e = mine[0];
+    const data: { role?: string; title?: string; routeNumber?: string; branch?: string } = {};
+    if (!/technician/i.test(e.role ?? "")) data.role = "Technician";
+    if (!/technician/i.test(e.title ?? "")) data.title = "Pest Control Technician";
+    if (!e.routeNumber?.trim()) data.routeNumber = k.techNumber;
+    if (!e.branch) data.branch = k.branch;
+    if (Object.keys(data).length) {
+      await prisma.employee.update({ where: { id: e.id }, data });
+      log.push(`${k.name}: profile "${e.name}" updated (${Object.keys(data).join(", ")})`);
+      console.log(`assertKeepTechnicians: profile "${e.name}" set ${JSON.stringify(data)} (${k.note}).`);
+    } else log.push(`${k.name}: profile "${e.name}" already a technician`);
+  }
+
   const value = JSON.stringify({ at: new Date().toISOString(), log });
   await prisma.setting.upsert({ where: { key: "technician_keep_last" }, update: { value }, create: { key: "technician_keep_last", value } }).catch(() => {});
 }

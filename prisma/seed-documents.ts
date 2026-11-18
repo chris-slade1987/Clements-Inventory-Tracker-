@@ -45,7 +45,8 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 62 · Last updated November 16, 2026",
+    effective: "Version 63 · Last updated November 18, 2026",
+    // v63: Check-Out — the technician list also offers everyone active on the org chart; picking one adds them to the technician list. (Label only.)
     // v62: Cancellation Center redesign — branch cards, insight cards, clickable charts, heat map. (Label only.)
     // v61: Cancellation Center — cancel reasons from the Service Setup List; RE-FILL BAIT counted as Rodent. (Label only.)
     // v60: Cancellation Center (Company center) — PestPac Gain & Loss uploads + breakdowns. (Label only.)

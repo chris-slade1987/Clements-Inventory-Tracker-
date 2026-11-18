@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { resolveRecipientTechnicianId } from "@/lib/checkout-recipient";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser, isBoardObserver } from "@/lib/auth";
 import { onHandByWarehouse } from "@/lib/inventory";
@@ -37,7 +38,7 @@ export async function POST(req: Request) {
 
   const body = await req.json().catch(() => null);
   const warehouseId: string = String(body?.warehouseId ?? "");
-  const technicianId: string = String(body?.technicianId ?? "");
+  const pickedId: string = String(body?.technicianId ?? "");
   const rawLines: LineIn[] = Array.isArray(body?.lines) ? body.lines : [];
 
   // No branch lock (COO 2026-11-13): managers sometimes check out from another
@@ -64,8 +65,15 @@ export async function POST(req: Request) {
     .filter((l) => l.productId && Number.isFinite(l.quantity) && l.quantity > 0);
 
   if (!warehouseId) return NextResponse.json({ error: "Select a warehouse." }, { status: 400 });
-  if (!technicianId) return NextResponse.json({ error: "Select a technician." }, { status: 400 });
+  if (!pickedId) return NextResponse.json({ error: "Select a technician." }, { status: 400 });
   if (lines.length === 0) return NextResponse.json({ error: "Add at least one product." }, { status: 400 });
+
+  // The picker also offers anyone active on the org chart who isn't on the
+  // technician list yet ("emp:<employeeId>") — turn that into their technician
+  // row (reuse / reactivate / create). See lib/checkout-recipient.ts.
+  const resolved = await resolveRecipientTechnicianId(pickedId, warehouseId);
+  if ("error" in resolved) return NextResponse.json({ error: resolved.error }, { status: 400 });
+  const technicianId = resolved.id;
 
   const [warehouse, technician, products] = await Promise.all([
     prisma.warehouse.findUnique({ where: { id: warehouseId } }),

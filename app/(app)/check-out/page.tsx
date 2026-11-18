@@ -10,6 +10,7 @@ import { isCountReason } from "@/lib/stock-count";
 import { uomCode } from "@/lib/uom";
 import { ensureTechnicianRoster } from "@/lib/technician-roster-ensure";
 import { routeNumberFor } from "@/lib/route-numbers";
+import { employeeRecipientOptions } from "@/lib/checkout-recipient";
 import ScanCheckoutClient from "./ScanCheckoutClient";
 
 export const dynamic = "force-dynamic";
@@ -71,6 +72,14 @@ export default async function CheckOutPage({
   const defaultWarehouseId =
     warehouses.find((w) => w.id === requested)?.id || homeWarehouseId || warehouses[0]?.id || "";
 
+  // Anyone active on the org chart who isn't on the technician list yet — so a
+  // person is never missing just because the two lists drifted (COO 2026-11-18,
+  // Brian Lasneski). Picking one creates their technician row on submit.
+  const profileRecipients = await employeeRecipientOptions(
+    technicians.map((t) => ({ name: t.name, homeWarehouseId: t.homeWarehouseId, routeNumber: routeFor(t) })),
+    warehouses,
+  );
+
   // on-hand matrix → plain object.
   const onHand: Record<string, Record<string, number>> = {};
   for (const [wid, m] of matrix) onHand[wid] = Object.fromEntries(m);
@@ -96,7 +105,10 @@ export default async function CheckOutPage({
         branchLocked={false}
         defaultWarehouseId={defaultWarehouseId}
         warehouses={warehouses.map((w) => ({ id: w.id, name: w.name }))}
-        technicians={technicians.map((t) => ({ id: t.id, name: t.name, homeWarehouseId: t.homeWarehouseId, routeNumber: routeFor(t) }))}
+        technicians={[
+          ...technicians.map((t) => ({ id: t.id, name: t.name, homeWarehouseId: t.homeWarehouseId, routeNumber: routeFor(t) })),
+          ...profileRecipients,
+        ]}
         products={products.map((p) => ({
           id: p.id,
           name: p.name,
