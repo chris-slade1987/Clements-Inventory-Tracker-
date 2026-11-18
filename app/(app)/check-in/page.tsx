@@ -2,6 +2,7 @@ import { PageHeader } from "@/components/ui";
 import { redirect } from "next/navigation";
 import { requireUser, isBoardObserver } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { ensurePackUnits } from "@/lib/pack-units-ensure";
 import { invoiceReaderMode } from "@/lib/invoice/parse";
 import type { ParsedLine } from "@/lib/invoice/types";
 import CheckInClient, { type InitialDraft } from "./CheckInClient";
@@ -14,6 +15,7 @@ export default async function CheckInPage({
   searchParams: Promise<{ draft?: string }>;
 }) {
   const user = await requireUser();
+  await ensurePackUnits(); // pack sizes are set before the product list is read
   if (isBoardObserver(user)) redirect("/management/board");
   const [warehouses, products] = await Promise.all([
     prisma.warehouse.findMany({ where: { active: true }, orderBy: { name: "asc" } }),

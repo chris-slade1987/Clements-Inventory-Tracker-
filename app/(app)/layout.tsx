@@ -17,6 +17,7 @@ import { ensureApprovedCatalog } from "@/lib/approved-catalog-ensure";
 import { ensureOnHandBaseline } from "@/lib/onhand-baseline";
 import { ensureReceiptsLoaded } from "@/lib/receipts-ensure";
 import { ensureCatalogCleanup } from "@/lib/catalog-cleanup";
+import { ensurePackUnits } from "@/lib/pack-units-ensure";
 import { ensureFleetMaster } from "@/lib/fleet-master-ensure";
 import { ensureHolidayCloseTimes } from "@/lib/holiday-hours-ensure";
 import { ensureStaleRegistrationNudgesCleared } from "@/lib/registration-nudge-sweep";
@@ -81,6 +82,10 @@ export default async function AppGroupLayout({
   // approval). Runs AFTER the baseline + receipts so they land on the kept rows.
   // Never changes on-hand; once (Setting marker); non-fatal. lib/catalog-cleanup.ts
   await ensureCatalogCleanup();
+  // Pack-sold products (gel-bait 4-packs, 5-pk spikes) are stocked/issued as single
+  // units — one-time on-hand conversion, value unchanged (COO 2026-11-18). See
+  // lib/pack-units.ts / lib/pack-units-ensure.ts. Non-fatal.
+  await ensurePackUnits();
 
   // Force-sync the Fleet registry from the reconciled master sheet (fixes the fields
   // a bad in-app upload scrambled, and adds units 43–48). Revisioned, once, non-fatal.

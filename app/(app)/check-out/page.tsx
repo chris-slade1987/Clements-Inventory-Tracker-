@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { ensureCatalogCleanup } from "@/lib/catalog-cleanup";
+import { ensurePackUnits } from "@/lib/pack-units-ensure";
 import { PageHeader } from "@/components/ui";
 import InventorySubnav from "@/components/InventorySubnav";
 import RequestProductButton from "@/components/RequestProductButton";
@@ -26,6 +27,7 @@ export default async function CheckOutPage({
 }) {
   const user = await requireUser();
   await ensureCatalogCleanup(); // catalog cleanup lands before we read products
+  await ensurePackUnits(); // pack-sold items are issued as single tubes/units
   await ensureTechnicianRoster(); // every route-number holder is on the roster before we read it
   if (isBoardObserver(user)) redirect("/management/board");
   // Technicians (role employee) cannot check out; managers/admins can.

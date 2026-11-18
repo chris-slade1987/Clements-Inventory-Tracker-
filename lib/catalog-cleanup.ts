@@ -1,4 +1,5 @@
 import "server-only";
+import { packProductFor } from "@/lib/pack-units";
 import { prisma } from "@/lib/prisma";
 import { normalizeProductName, PRODUCT_ALIASES } from "@/lib/product-aliases";
 import { SITEONE_ALIASES } from "@/lib/invoice/siteone-aliases";
@@ -374,6 +375,7 @@ export async function applyCatalogDecisions(): Promise<CatalogDecisionsReport> {
   let cleared = 0;
   for (const p of products) {
     if (gone.has(p.id) || p.unitsPerCase == null) continue;
+    if (packProductFor(p.name)) continue; // pack-sold → single units on purpose (lib/pack-units.ts)
     if (p.unitsPerCase === packSizeFor(p.unitOfMeasure) || p.unitsPerCase === 12 || p.unitsPerCase === 4) {
       await prisma.product.update({ where: { id: p.id }, data: { unitsPerCase: null } });
       cleared++;

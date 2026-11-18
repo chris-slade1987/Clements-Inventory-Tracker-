@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Card, btn, UnitSelect } from "@/components/ui";
 import DateInput from "@/components/DateInput";
 import { uomCode, uomLabel } from "@/lib/uom";
+import { packWord } from "@/lib/pack-units";
 import { money } from "@/lib/format";
 import { matchProduct } from "@/lib/invoice/match";
 import type { ParsedLine } from "@/lib/invoice/types";
@@ -623,10 +624,13 @@ export default function CheckInClient({
                   const prod = products.find((p) => p.id === l.productId);
                   const per = prod?.unitsPerCase && prod.unitsPerCase >= 2 ? prod.unitsPerCase : null;
                   const q = Number(l.quantity) || 0;
+                  // Pack-sold items (gel-bait 4-packs etc.) say "pack"; everything else "case".
+                  const word = packWord(prod?.name);
+                  const Word = word === "pack" ? "Pack" : "Case";
                   return (
                     <div className="mt-2 grid grid-cols-3 gap-2">
                       <label className="text-xs text-muted">
-                        {per ? "Cases received" : "Qty"}
+                        {per ? `${Word}s received` : "Qty"}
                         <input
                           type="number"
                           inputMode="decimal"
@@ -638,14 +642,14 @@ export default function CheckInClient({
                         />
                         {per ? (
                           <span className="mt-0.5 block text-[10px] text-muted">
-                            {q} case{q === 1 ? "" : "s"} × {per} = {q * per} {uomLabel(prod?.unit).toLowerCase()} to on-hand
+                            {q} {word}{q === 1 ? "" : "s"} × {per} = {q * per} {uomLabel(prod?.unit).toLowerCase()} to on-hand
                           </span>
                         ) : null}
                       </label>
                       {per ? (
                         <div className="text-xs text-muted">
                           Unit
-                          <div className="mt-0.5 rounded-lg border border-line bg-black/[0.02] px-2 py-1.5 text-sm text-ink">Case of {per}</div>
+                          <div className="mt-0.5 rounded-lg border border-line bg-black/[0.02] px-2 py-1.5 text-sm text-ink">{Word} of {per}</div>
                           <span className="mt-0.5 block text-[10px] text-muted/80">set on the product profile</span>
                         </div>
                       ) : (
@@ -660,7 +664,7 @@ export default function CheckInClient({
                         </label>
                       )}
                       <label className="text-xs text-muted">
-                    {per ? "Price per case" : "Unit price"}
+                    {per ? `Price per ${word}` : "Unit price"}
                     <input
                       type="number"
                       inputMode="decimal"

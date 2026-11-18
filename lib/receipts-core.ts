@@ -52,7 +52,7 @@ export async function applyReceiptFile(prisma: PrismaClient, f: ReceiptFile, opt
 
   const wh = await prisma.warehouse.findFirst({ where: { name: f.warehouse }, select: { id: true } });
   if (!wh) return res;
-  const products = await prisma.product.findMany({ select: { id: true, name: true, approved: true, unitOfMeasure: true } });
+  const products = await prisma.product.findMany({ select: { id: true, name: true, approved: true, unitOfMeasure: true, unitsPerCase: true } });
   if (products.length === 0) return res;
   res.ready = true;
 
@@ -124,14 +124,19 @@ export async function applyReceiptFile(prisma: PrismaClient, f: ReceiptFile, opt
       res.alreadyReceived.push(`${r.l.material} ×${r.l.quantity} (already on invoice ${dup.invoice.invoiceNumber})`);
       continue;
     }
-    const unitPrice = r.l.quantity ? Math.round((r.l.cost / r.l.quantity) * 1000) / 1000 : null;
+    // Pack / case items (Product.unitsPerCase, e.g. a 4-pack of gel-bait tubes —
+    // COO 2026-11-18): the invoice quantity is packs; on-hand gets single units at
+    // pack price ÷ units per pack. The invoice line keeps the invoiced quantity.
+    const per = prod.unitsPerCase && prod.unitsPerCase >= 2 ? prod.unitsPerCase : null;
+    const units = per ? r.l.quantity * per : r.l.quantity;
+    const unitPrice = units ? Math.round((r.l.cost / units) * 1000) / 1000 : null;
     const unit = prod.unitOfMeasure ?? null;
     if (!(await prisma.invoiceLine.findUnique({ where: { externalRef: r.ref }, select: { id: true } }))) {
       await prisma.invoiceLine
         .create({
           data: {
             invoiceId, productId: prod.id, descriptionRaw: r.l.material, quantity: r.l.quantity, unit: r.l.unitRaw ?? unit,
-            unitPrice, lineTotal: r.l.cost, matched: true, unitCost: unitPrice, externalRef: r.ref, invoiceUnits: r.l.quantity,
+            unitPrice: per && r.l.quantity ? Math.round((r.l.cost / r.l.quantity) * 1000) / 1000 : unitPrice, lineTotal: r.l.cost, matched: true, unitCost: unitPrice, externalRef: r.ref, invoiceUnits: units,
           },
         })
         .catch((e) => { if (!isUniqueViolation(e)) throw e; });
@@ -139,7 +144,7 @@ export async function applyReceiptFile(prisma: PrismaClient, f: ReceiptFile, opt
     try {
       await prisma.stockMovement.create({
         data: {
-          type: "check_in", productId: prod.id, warehouseId: wh.id, quantity: r.l.quantity, unit, unitPrice,
+          type: "check_in", productId: prod.id, warehouseId: wh.id, quantity: units, unit, unitPrice,
           sourceInvoiceId: invoiceId, movementDate: date, externalRef: r.ref, source: "pestpac_transfer",
           reason: `Received from ${f.distributor} ${f.date}${f.transferredBy ? ` (transferred by ${f.transferredBy})` : ""} — PestPac transfer report`,
         },

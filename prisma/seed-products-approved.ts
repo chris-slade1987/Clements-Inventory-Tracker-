@@ -163,7 +163,7 @@ export function packSizeFor(code: string): number | null {
 // sheet's Product Name (a few reconciled so the alias map resolves exactly);
 // `code` is the sheet's approved Unit Of Measure.
 const APPROVED: ApprovedRow[] = [
-  { name: "Lutz Perfect Spike", code: "T", material: "LUTZ PERFECT SPIKE", target: null, appMethod: null },
+  { name: "Lutz Perfect Spike", code: "EA", material: "LUTZ PERFECT SPIKE", target: null, appMethod: null },
   { name: "Acephate 90 Prill", code: "J", material: "ACEPHATE 90 PRILL", target: "SHRUBS", appMethod: "SPRAYER" },
   { name: "Advion Ant Gel", code: "T", material: "ADVION ANT GEL", target: "ANTS", appMethod: "HAND" },
   { name: "Advion cockroach gel bait", code: "T", material: "ADVION COCKROACH GEL BAIT", target: "ROACHES", appMethod: "HAND" },
