@@ -256,7 +256,7 @@ const ADDED: ApprovedRow[] = [
   { name: "Lesco 25-0-10 Granular Fert", code: "FB", material: "LESCO 25-0-10", target: "FERT", appMethod: "SPREADER", manufacturer: "LESCO" },
   { name: "Suspend PolyZone Insecticide", code: "J", material: "SUSPEND POLYZONE", target: "GHP", appMethod: "SPRAYER", manufacturer: "Envu (Bayer)", activeIngredient: "Deltamethrin" },
   { name: "Syngenta Heritage Granular Fungicide", code: "FB", material: "HERITAGE GRANULAR", target: "FUNGUS", appMethod: "SPREADER", manufacturer: "Syngenta", activeIngredient: "Azoxystrobin" },
-  { name: "Victor M9 Pro Rat Trap", code: "EA", material: "VICTOR M9 PRO", target: "RATS", appMethod: "HAND", manufacturer: "Woodstream (Victor)" },
+  { name: "Victor M9 Pro Rat Trap", code: "RT", material: "VICTOR M9 PRO", target: "RATS", appMethod: "HAND", manufacturer: "Woodstream (Victor)" },
   { name: "Miscellaneous Chemical", code: "J", material: "MISC CHEMICAL", target: null, appMethod: null },
   { name: "Miscellaneous Fertilizer", code: "FB", material: "MISC FERTILIZER", target: null, appMethod: null },
   // Phase 2: genuinely-missing products found in the 4-branch transfer histories.
@@ -266,7 +266,7 @@ const ADDED: ApprovedRow[] = [
   { name: "PT PI Pressurized Contact", code: "AC", material: "PT PI PRESSURIZED CONTACT", target: "INSECTS", appMethod: "SPRAYER", manufacturer: "BASF" }, // Orlando
   { name: "Pageant Intrinsic Fungicide", code: "B", material: "PAGEANT INTRINSIC FUNGICIDE", target: "FUNGUS", appMethod: "SPRAYER", manufacturer: "BASF", activeIngredient: "Pyraclostrobin + Boscalid" }, // Stuart
   { name: "Roundup QuikPro Granular Herbicide", code: "J", material: "ROUNDUP QUIKRO  GRAN HERBICIDE", target: "WEEDS", appMethod: "SPRAYER", manufacturer: "Envu (Bayer)", activeIngredient: "Glyphosate + Diquat dibromide" }, // Stuart + Vero
-  { name: "Vector Fruit Fly Trap", code: "C", material: "960 VECTOR FRUIT FLY TRAP", target: "FLIES", appMethod: "HAND" }, // Vero (history UoM = Case)
+  { name: "Vector Fruit Fly Trap", code: "EA", material: "960 VECTOR FRUIT FLY TRAP", target: "FLIES", appMethod: "HAND" }, // Vero (history UoM = Case)
   { name: "Eaton Stick-Em Rat and Mouse", code: "RT", material: "EATON STICK-EM RAT AND MOUSE", target: "RODENTS", appMethod: "HAND", manufacturer: "J.T. Eaton" }, // Vero
   { name: "Lesco 13-3-13 Spar-Tech", code: "FB", material: "LESCO 13-3-13 SPAR-TECH T&O GR", target: "FERT", appMethod: "SPREADER", manufacturer: "LESCO" }, // Vero
   { name: "Lesco 16-0-8 Spar Tech", code: "FB", material: "LESCO 16-0-8 SPAR TECH", target: "FERT", appMethod: "SPREADER", manufacturer: "LESCO" }, // Vero

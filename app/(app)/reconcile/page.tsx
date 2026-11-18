@@ -69,8 +69,30 @@ export default async function ReconcilePage({
       prisma.technician.findMany({ where: { active: true }, orderBy: { name: "asc" }, select: { id: true, name: true } }),
     ]);
 
+  // How many live (un-reversed) check-in lines each invoice on this page has, so
+  // the Edit pop-up can offer "move the whole invoice" to another warehouse.
+  const invoiceIds = [...new Set(movements.map((m) => m.sourceInvoiceId).filter(Boolean))] as string[];
+  const invoiceLineCounts = new Map<string, number>();
+  if (invoiceIds.length) {
+    const live = await prisma.stockMovement.groupBy({
+      by: ["sourceInvoiceId"],
+      where: { sourceInvoiceId: { in: invoiceIds }, type: "check_in", reversalOfId: null, reversedBy: null },
+      _count: true,
+    });
+    for (const g of live) if (g.sourceInvoiceId) invoiceLineCounts.set(g.sourceInvoiceId, g._count);
+  }
+  // Technicians for the Edit pop-up: everyone active, plus anyone already on a row
+  // (so an inactive person's check-out still shows who it went to).
+  const techOptions = [...technicians];
+  for (const m of movements) if (m.technicianId && m.technician && !techOptions.some((t) => t.id === m.technicianId)) techOptions.push({ id: m.technicianId, name: `${m.technician.name} (inactive)` });
+
   const rows = movements.map((m) => ({
     id: m.id,
+    productId: m.productId,
+    warehouseId: m.warehouseId,
+    technicianId: m.technicianId,
+    invoiceId: m.sourceInvoiceId,
+    invoiceLiveLines: m.sourceInvoiceId ? invoiceLineCounts.get(m.sourceInvoiceId) ?? 0 : 0,
     createdAt: m.createdAt.toISOString(),
     type: m.type,
     quantity: m.quantity,
@@ -98,7 +120,7 @@ export default async function ReconcilePage({
         total={total}
         warehouses={warehouses.map((w) => ({ id: w.id, name: w.name }))}
         products={products}
-        technicians={technicians}
+        technicians={techOptions}
         defaultWarehouseId={_obsUser.warehouseId ?? ""}
         initial={sp}
       />

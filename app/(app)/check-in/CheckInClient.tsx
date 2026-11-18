@@ -626,11 +626,11 @@ export default function CheckInClient({
                   const q = Number(l.quantity) || 0;
                   // Pack-sold items (gel-bait 4-packs etc.) say "pack"; everything else "case".
                   const word = packWord(prod?.name);
-                  const Word = word === "pack" ? "Pack" : "Case";
+                  const Word = word.charAt(0).toUpperCase() + word.slice(1);
                   return (
                     <div className="mt-2 grid grid-cols-3 gap-2">
                       <label className="text-xs text-muted">
-                        {per ? `${Word}s received` : "Qty"}
+                        {per ? `${word === "box" ? "Boxes" : `${Word}s`} received` : "Qty"}
                         <input
                           type="number"
                           inputMode="decimal"
@@ -642,7 +642,7 @@ export default function CheckInClient({
                         />
                         {per ? (
                           <span className="mt-0.5 block text-[10px] text-muted">
-                            {q} {word}{q === 1 ? "" : "s"} × {per} = {q * per} {uomLabel(prod?.unit).toLowerCase()} to on-hand
+                            {q} {word}{q === 1 ? "" : word === "box" ? "es" : "s"} × {per} = {q * per} {uomLabel(prod?.unit).toLowerCase()} to on-hand
                           </span>
                         ) : null}
                       </label>

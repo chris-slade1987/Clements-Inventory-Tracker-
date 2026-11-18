@@ -45,7 +45,8 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 64 · Last updated November 18, 2026",
+    effective: "Version 65 · Last updated November 18, 2026",
+    // v65: Reconcile Edit can change warehouse / technician / whole invoice; traps issued singly. (Label only.)
     // v64: Pack items (gel-bait 4-packs, 5-pk spikes) stocked and issued as single units. (Label only.)
     // v63: Check-Out — the technician list also offers everyone active on the org chart; picking one adds them to the technician list. (Label only.)
     // v62: Cancellation Center redesign — branch cards, insight cards, clickable charts, heat map. (Label only.)

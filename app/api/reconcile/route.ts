@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser, isBoardObserver } from "@/lib/auth";
 import { onHand } from "@/lib/inventory";
+import { resolveRecipientTechnicianId } from "@/lib/checkout-recipient";
 
 export const maxDuration = 20;
 
@@ -100,39 +101,109 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true, id: rev.id });
     }
 
-    // correct: reverse original + post corrected replacement in one transaction.
-    const newQty = Number(body?.quantity);
-    if (!Number.isFinite(newQty)) {
-      return NextResponse.json({ error: "Enter a corrected quantity." }, { status: 400 });
+    // correct: reverse the original and post a corrected replacement, in one
+    // transaction. The replacement may change the QUANTITY, the WAREHOUSE (stock
+    // checked into the wrong branch) and — for a check-out — the TECHNICIAN it went
+    // to (COO 2026-11-18). `moveInvoice` moves every live line of the original's
+    // invoice to the new warehouse the same way and re-files the invoice there.
+    const newQty = body?.quantity === undefined || body?.quantity === null || body?.quantity === "" ? original.quantity : Number(body.quantity);
+    if (!Number.isFinite(newQty) || newQty === 0) {
+      return NextResponse.json({ error: "Enter a non-zero corrected quantity." }, { status: 400 });
     }
-    const [, corrected] = await prisma.$transaction([
-      prisma.stockMovement.create({
-        data: {
-          type: "adjustment",
-          productId: original.productId,
-          warehouseId: original.warehouseId,
-          technicianId: original.technicianId,
-          quantity: -original.quantity,
-          reason: `Correction (reversal): ${reason}`,
-          reversalOfId: original.id,
-          userId: user.id,
-        },
-      }),
-      prisma.stockMovement.create({
-        data: {
-          type: original.type,
-          productId: original.productId,
-          warehouseId: original.warehouseId,
-          technicianId: original.technicianId,
-          quantity: newQty,
-          unitPrice: original.unitPrice,
-          sourceInvoiceId: original.sourceInvoiceId,
-          reason: `Corrected from ${original.quantity} to ${newQty}: ${reason}`,
-          userId: user.id,
-        },
-      }),
+    const targetWarehouseId: string = typeof body?.warehouseId === "string" && body.warehouseId ? body.warehouseId : original.warehouseId;
+    const wantTech: string | null = typeof body?.technicianId === "string" && body.technicianId ? body.technicianId : null;
+    if (wantTech && original.type !== "check_out") {
+      return NextResponse.json({ error: "Only a check-out has a technician to change." }, { status: 400 });
+    }
+    const moveInvoice = body?.moveInvoice === true;
+
+    const [fromWh, toWh] = await Promise.all([
+      prisma.warehouse.findUnique({ where: { id: original.warehouseId }, select: { name: true } }),
+      prisma.warehouse.findUnique({ where: { id: targetWarehouseId }, select: { id: true, name: true, active: true } }),
     ]);
-    return NextResponse.json({ ok: true, id: corrected.id });
+    if (!toWh || !toWh.active) return NextResponse.json({ error: "Pick an active warehouse." }, { status: 400 });
+
+    let targetTechId = original.technicianId;
+    let fromTechName: string | null = null;
+    let toTechName: string | null = null;
+    if (wantTech && wantTech !== original.technicianId) {
+      const resolved = await resolveRecipientTechnicianId(wantTech, targetWarehouseId);
+      if ("error" in resolved) return NextResponse.json({ error: resolved.error }, { status: 400 });
+      targetTechId = resolved.id;
+      const [ft, tt] = await Promise.all([
+        original.technicianId ? prisma.technician.findUnique({ where: { id: original.technicianId }, select: { name: true } }) : null,
+        prisma.technician.findUnique({ where: { id: targetTechId }, select: { name: true } }),
+      ]);
+      fromTechName = ft?.name ?? "no one";
+      toTechName = tt?.name ?? "?";
+    }
+
+    const whChanged = targetWarehouseId !== original.warehouseId;
+    const techChanged = targetTechId !== original.technicianId;
+    const qtyChanged = newQty !== original.quantity;
+    if (!whChanged && !techChanged && !qtyChanged) {
+      return NextResponse.json({ error: "Nothing changed — edit the quantity, warehouse or technician." }, { status: 400 });
+    }
+    if (moveInvoice && (!whChanged || !original.sourceInvoiceId || original.type !== "check_in")) {
+      return NextResponse.json({ error: "Moving a whole invoice needs a check-in from an invoice and a different warehouse." }, { status: 400 });
+    }
+
+    const changes = [
+      qtyChanged ? `qty ${original.quantity} → ${newQty}` : null,
+      whChanged ? `warehouse ${fromWh?.name ?? "?"} → ${toWh.name}` : null,
+      techChanged ? `technician ${fromTechName} → ${toTechName}` : null,
+    ].filter(Boolean).join("; ");
+
+    // The lines to re-post: just this one, or every live check-in line on the invoice.
+    const lines = moveInvoice
+      ? await prisma.stockMovement.findMany({
+          where: { sourceInvoiceId: original.sourceInvoiceId, type: "check_in", reversalOfId: null, reversedBy: null, warehouseId: { not: targetWarehouseId } },
+        })
+      : [original];
+
+    const created = await prisma.$transaction(async (tx) => {
+      let replacementId = "";
+      for (const mv of lines) {
+        const isEdited = mv.id === original.id;
+        const qtyFor = isEdited ? newQty : mv.quantity;
+        const lineNote = isEdited ? changes : `warehouse ${fromWh?.name ?? "?"} → ${toWh.name} (whole invoice moved)`;
+        await tx.stockMovement.create({
+          data: {
+            type: "adjustment",
+            productId: mv.productId,
+            warehouseId: mv.warehouseId,
+            technicianId: mv.technicianId,
+            quantity: -mv.quantity,
+            unit: mv.unit,
+            unitPrice: mv.unitPrice,
+            reason: `Correction (reversal): ${lineNote}: ${reason}`,
+            reversalOfId: mv.id,
+            userId: user.id,
+          },
+        });
+        const rep = await tx.stockMovement.create({
+          data: {
+            type: mv.type,
+            productId: mv.productId,
+            warehouseId: targetWarehouseId,
+            technicianId: isEdited ? targetTechId : mv.technicianId,
+            quantity: qtyFor,
+            unit: mv.unit,
+            unitPrice: mv.unitPrice,
+            sourceInvoiceId: mv.sourceInvoiceId,
+            movementDate: mv.movementDate,
+            reason: `Corrected (${lineNote}): ${reason}`,
+            userId: user.id,
+          },
+        });
+        if (isEdited) replacementId = rep.id;
+      }
+      if (moveInvoice && original.sourceInvoiceId) {
+        await tx.invoice.update({ where: { id: original.sourceInvoiceId }, data: { warehouseId: targetWarehouseId } });
+      }
+      return replacementId;
+    });
+    return NextResponse.json({ ok: true, id: created, moved: lines.length });
   }
 
   return NextResponse.json({ error: "Unknown action." }, { status: 400 });

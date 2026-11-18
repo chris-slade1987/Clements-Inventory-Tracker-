@@ -53,8 +53,14 @@ async function convert(): Promise<void> {
         p.lastUnitCost ??
         (await prisma.stockMovement.findFirst({ where: { productId: p.id, unitPrice: { not: null } }, orderBy: { createdAt: "desc" }, select: { unitPrice: true } }))?.unitPrice ??
         null;
-      const unitPrice = packPrice != null ? Math.round((packPrice / rule.per) * 1000) / 1000 : null;
-      const reason = `Unit change (COO 2026-11-18): now issued as single ${rule.single}s — 1 pack = ${rule.per} ${rule.single}s, so on-hand ×${rule.per} and cost ÷${rule.per} (value unchanged)`;
+      // Is existing on-hand counted in outer units (packs/boxes/cases)? "auto" decides
+      // by price: a recorded price above singleMaxPrice is a case price.
+      const inOuter = rule.onHandIn === "outer" || (packPrice != null && rule.singleMaxPrice != null && packPrice > rule.singleMaxPrice);
+      const factor = inOuter ? rule.per : 1;
+      const unitPrice = packPrice != null ? Math.round((packPrice / factor) * 1000) / 1000 : null;
+      const reason = inOuter
+        ? `Unit change (COO 2026-11-18): now issued as single ${rule.single}s — 1 ${rule.outer} = ${rule.per} ${rule.single}s, so on-hand ×${rule.per} and cost ÷${rule.per} (value unchanged)`
+        : `Unit change (COO 2026-11-18): now issued as single ${rule.single}s; on-hand was already in single ${rule.single}s, so unchanged — check-ins now take ${rule.outer}s of ${rule.per}`;
 
       // All-or-nothing per product, so a retry can never convert the same stock twice.
       const byWh = await prisma.$transaction(async (tx) => {
@@ -62,7 +68,7 @@ async function convert(): Promise<void> {
         let posted = 0;
         for (const w of rows) {
           const onHand = w._sum.quantity ?? 0;
-          if (Math.abs(onHand) < 1e-9) continue;
+          if (!inOuter || Math.abs(onHand) < 1e-9) continue;
           await tx.stockMovement.create({
             data: { type: "adjustment", productId: p.id, warehouseId: w.warehouseId, quantity: onHand * (rule.per - 1), unit: rule.unit, unitPrice, reason },
           });
@@ -78,7 +84,7 @@ async function convert(): Promise<void> {
         });
         return rows;
       });
-      const line = `${p.name}: ${byWh.map((w) => `${w._sum.quantity ?? 0}→${(w._sum.quantity ?? 0) * rule.per}`).join(", ") || "no stock"}; $${packPrice ?? "?"}/pack → $${unitPrice ?? "?"}/${rule.single}`;
+      const line = `${p.name}: ${byWh.map((w) => `${w._sum.quantity ?? 0}→${(w._sum.quantity ?? 0) * factor}`).join(", ") || "no stock"}; $${packPrice ?? "?"}/${inOuter ? rule.outer : rule.single} → $${unitPrice ?? "?"}/${rule.single}`;
       log.push(line);
       await prisma.setting.update({ where: { key: `${MARKER_PREFIX}${p.id}` }, data: { value: JSON.stringify({ at: new Date().toISOString(), line }) } });
     } catch (e) {
@@ -114,7 +120,7 @@ async function correctPastCheckouts(): Promise<void> {
   const products = await prisma.product.findMany({ where: { active: true }, select: { id: true, name: true } });
   for (const p of products) {
     const rule = packProductFor(p.name);
-    if (!rule) continue;
+    if (!rule || !rule.correctPast) continue;
     const conv = await prisma.setting.findUnique({ where: { key: `${MARKER_PREFIX}${p.id}` } });
     if (!conv || conv.value.includes('"status":"running"')) continue; // not converted yet
     try {

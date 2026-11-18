@@ -124,7 +124,7 @@ async function gatherStats(): Promise<ProductStat[]> {
   // Trailing check-out volume, per product.
   const checkouts = await prisma.stockMovement.groupBy({
     by: ["productId"],
-    where: { type: "check_out", createdAt: { gte: since } },
+    where: { type: "check_out", reversedBy: null, createdAt: { gte: since } },
     _sum: { quantity: true },
   });
   const usage = new Map<string, number>();

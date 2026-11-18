@@ -186,7 +186,7 @@ export async function runAnomalyChecks(): Promise<AnomalySummary> {
 
   // ---- quantity_spike --------------------------------------------------
   const checkouts = await prisma.stockMovement.findMany({
-    where: { type: "check_out" },
+    where: { type: "check_out", reversedBy: null },
     select: {
       id: true,
       productId: true,

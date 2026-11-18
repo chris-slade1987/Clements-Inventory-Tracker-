@@ -9,6 +9,11 @@ import { qty, money } from "@/lib/format";
 type Option = { id: string; name: string };
 type Row = {
   id: string;
+  productId: string;
+  warehouseId: string;
+  technicianId: string | null;
+  invoiceId: string | null;
+  invoiceLiveLines: number;
   createdAt: string;
   type: string;
   quantity: number;
@@ -218,6 +223,7 @@ export default function ReconcileClient({
           modal={modal}
           products={products}
           warehouses={warehouses}
+          technicians={technicians}
           defaultWarehouseId={defaultWarehouseId}
           onClose={() => setModal(null)}
           onDone={() => {
@@ -244,6 +250,7 @@ function ReconcileModal({
   modal,
   products,
   warehouses,
+  technicians,
   defaultWarehouseId,
   onClose,
   onDone,
@@ -254,6 +261,7 @@ function ReconcileModal({
     | { kind: "correct"; row: Row };
   products: Option[];
   warehouses: Option[];
+  technicians: Option[];
   defaultWarehouseId: string;
   onClose: () => void;
   onDone: () => void;
@@ -261,10 +269,8 @@ function ReconcileModal({
   // For reverse/correct the product+warehouse come from the row being acted on;
   // for a new adjustment default the warehouse to the user's own branch so
   // corrections don't silently post to the wrong warehouse.
-  const rowProductId =
-    modal.kind === "adjust" ? null : products.find((p) => p.name === modal.row.productName)?.id ?? null;
-  const rowWarehouseId =
-    modal.kind === "adjust" ? null : warehouses.find((w) => w.name === modal.row.warehouseName)?.id ?? null;
+  const rowProductId = modal.kind === "adjust" ? null : modal.row.productId;
+  const rowWarehouseId = modal.kind === "adjust" ? null : modal.row.warehouseId;
   const initialWarehouse =
     rowWarehouseId ??
     (defaultWarehouseId && warehouses.some((w) => w.id === defaultWarehouseId)
@@ -276,6 +282,23 @@ function ReconcileModal({
     modal.kind === "correct" ? modal.row.quantity : 0
   );
   const [reason, setReason] = useState("");
+  // Edit (correct): who it went to (check-outs) and whether to move the whole invoice.
+  const [technicianId, setTechnicianId] = useState(modal.kind === "correct" ? modal.row.technicianId ?? "" : "");
+  const [moveInvoice, setMoveInvoice] = useState(false);
+  const isCorrect = modal.kind === "correct";
+  const movingWarehouse = isCorrect && rowWarehouseId != null && warehouseId !== rowWarehouseId;
+  const canMoveInvoice = isCorrect && modal.row.type === "check_in" && !!modal.row.invoiceId && modal.row.invoiceLiveLines > 1;
+  // On-hand at the ORIGINAL warehouse too, when the edit moves stock between warehouses.
+  const [originOnHand, setOriginOnHand] = useState<number | null>(null);
+  useEffect(() => {
+    if (!isCorrect || !rowProductId || !rowWarehouseId) return;
+    let cancelled = false;
+    fetch(`/api/reconcile?productId=${encodeURIComponent(rowProductId)}&warehouseId=${encodeURIComponent(rowWarehouseId)}`)
+      .then((r) => r.json())
+      .then((d) => { if (!cancelled) setOriginOnHand(typeof d.onHand === "number" ? d.onHand : null); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [isCorrect, rowProductId, rowWarehouseId]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -302,9 +325,12 @@ function ReconcileModal({
     if (liveOnHand == null) return null;
     if (modal.kind === "adjust") return liveOnHand + (Number.isFinite(quantity) ? quantity : 0);
     if (modal.kind === "reverse") return liveOnHand - modal.row.quantity;
-    // correct: reverse the original then re-post the corrected quantity.
+    // correct: reverse the original then re-post the corrected quantity
+    // (at the target warehouse — which may differ from the original's).
+    if (movingWarehouse) return liveOnHand + (Number.isFinite(quantity) ? quantity : 0);
     return liveOnHand - modal.row.quantity + (Number.isFinite(quantity) ? quantity : 0);
   })();
+  const originAfter = movingWarehouse && originOnHand != null && modal.kind === "correct" ? originOnHand - modal.row.quantity : null;
 
   async function submit() {
     setBusy(true);
@@ -315,7 +341,12 @@ function ReconcileModal({
     } else if (modal.kind === "reverse") {
       payload = { action: "reverse", movementId: modal.row.id, reason };
     } else {
-      payload = { action: "correct", movementId: modal.row.id, quantity, reason };
+      payload = {
+        action: "correct", movementId: modal.row.id, quantity, reason,
+        warehouseId,
+        ...(modal.row.type === "check_out" && technicianId ? { technicianId } : {}),
+        ...(movingWarehouse && moveInvoice ? { moveInvoice: true } : {}),
+      };
     }
     try {
       const res = await fetch("/api/reconcile", {
@@ -372,6 +403,33 @@ function ReconcileModal({
           </>
         ) : null}
 
+        {modal.kind === "correct" ? (
+          <>
+            <label className="block text-sm font-medium">Warehouse
+              <select value={warehouseId} onChange={(e) => { setWarehouseId(e.target.value); setMoveInvoice(false); }} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm bg-surface">
+                {warehouses.map((w) => <option key={w.id} value={w.id}>{w.name}{w.id === rowWarehouseId ? " (current)" : ""}</option>)}
+              </select>
+            </label>
+            {modal.row.type === "check_out" ? (
+              <label className="block text-sm font-medium">Technician (who it went to)
+                <select value={technicianId} onChange={(e) => setTechnicianId(e.target.value)} className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm bg-surface">
+                  {!modal.row.technicianId ? <option value="">— none recorded —</option> : null}
+                  {technicians.map((t) => <option key={t.id} value={t.id}>{t.name}{t.id === modal.row.technicianId ? " (current)" : ""}</option>)}
+                </select>
+              </label>
+            ) : null}
+            {movingWarehouse && canMoveInvoice ? (
+              <label className="flex items-start gap-2 rounded-lg border border-line bg-surface p-3 text-sm">
+                <input type="checkbox" checked={moveInvoice} onChange={(e) => setMoveInvoice(e.target.checked)} className="mt-0.5" />
+                <span>
+                  Move the <span className="font-medium">whole invoice</span>{modal.row.invoiceNumber ? ` #${modal.row.invoiceNumber}` : ""} — all {modal.row.invoiceLiveLines} lines — to {warehouses.find((w) => w.id === warehouseId)?.name ?? "this warehouse"}
+                  <span className="block text-xs text-muted">Each line is reversed at {modal.row.warehouseName} and re-posted at the new warehouse; the invoice is re-filed there. Nothing is deleted.</span>
+                </span>
+              </label>
+            ) : null}
+          </>
+        ) : null}
+
         {modal.kind !== "reverse" ? (
           <label className="block text-sm font-medium">
             {modal.kind === "correct" ? "Corrected quantity" : "Quantity (+ in / − out)"}
@@ -399,6 +457,15 @@ function ReconcileModal({
               {resultingOnHand == null ? "—" : qty(resultingOnHand)}
             </span>
           </div>
+          {movingWarehouse ? (
+            <div className="mt-2 border-t border-line pt-2 text-xs text-muted">
+              {moveInvoice ? (
+                <>Every line of this invoice moves from {modal.kind === "correct" ? modal.row.warehouseName : ""} to {warehouses.find((w) => w.id === warehouseId)?.name}. The figures above are for this product.</>
+              ) : (
+                <>Above: {warehouses.find((w) => w.id === warehouseId)?.name} (gets the corrected line). {modal.kind === "correct" ? modal.row.warehouseName : ""} goes from {originOnHand == null ? "—" : qty(originOnHand)} to <span className={`font-semibold ${originAfter != null && originAfter < 0 ? "text-red-600" : "text-ink"}`}>{originAfter == null ? "—" : qty(originAfter)}</span>.</>
+              )}
+            </div>
+          ) : null}
           {resultingOnHand != null && resultingOnHand < 0 ? (
             <p className="mt-1 text-xs text-red-600">This would drive on-hand negative — double-check the figures.</p>
           ) : null}

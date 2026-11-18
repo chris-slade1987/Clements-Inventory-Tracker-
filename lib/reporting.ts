@@ -84,7 +84,7 @@ export async function warehouseMetrics(
   const outs = await prisma.stockMovement.groupBy({
     by: ["warehouseId"],
     where: {
-      type: "check_out",
+      type: "check_out", reversedBy: null,
       productId: f.productId ?? undefined,
       product: productFilter(f),
       warehouseId: f.warehouseId ?? undefined,
@@ -163,7 +163,7 @@ export async function warehouseProductBreakdown(
   // DISPERSED — check_out movements (stored negative).
   const outs = await prisma.stockMovement.groupBy({
     by: ["warehouseId", "productId"],
-    where: { type: "check_out", productId: f.productId ?? undefined, product: productFilter(f), warehouseId: f.warehouseId ?? undefined, ...(df ? { createdAt: df } : {}) },
+    where: { type: "check_out", reversedBy: null, productId: f.productId ?? undefined, product: productFilter(f), warehouseId: f.warehouseId ?? undefined, ...(df ? { createdAt: df } : {}) },
     _sum: { quantity: true },
   });
   for (const o of outs) {
@@ -374,7 +374,7 @@ export async function productLedgerByDivision(
     // DISPERSED — check_out quantity within the window (stored negative).
     prisma.stockMovement.groupBy({
       by: ["productId"],
-      where: { type: "check_out", warehouseId: warehouseId ?? undefined, createdAt: { gte: from, lte: to } },
+      where: { type: "check_out", reversedBy: null, warehouseId: warehouseId ?? undefined, createdAt: { gte: from, lte: to } },
       _sum: { quantity: true },
     }),
   ]);
@@ -585,7 +585,7 @@ export async function dispersedByEmployeeByWarehouse(
 ): Promise<Map<string, EmployeeDispersal[]>> {
   const rows = await prisma.stockMovement.groupBy({
     by: ["warehouseId", "technicianId"],
-    where: { type: "check_out", createdAt: { gte: from, ...(to ? { lte: to } : {}) } },
+    where: { type: "check_out", reversedBy: null, createdAt: { gte: from, ...(to ? { lte: to } : {}) } },
     _sum: { quantity: true },
     _count: true,
   });
@@ -697,7 +697,7 @@ export async function topTechniciansByUsage(
 ): Promise<TechUsage[]> {
   const movements = await prisma.stockMovement.findMany({
     where: {
-      type: "check_out",
+      type: "check_out", reversedBy: null,
       technicianId: { not: null },
       warehouseId: warehouseId ?? undefined,
       createdAt: { gte: from, ...(to ? { lte: to } : {}) },
@@ -742,7 +742,7 @@ export async function dispersedValueByWarehouse(
 ): Promise<Map<string, number>> {
   const rows = await prisma.stockMovement.groupBy({
     by: ["warehouseId", "productId"],
-    where: { type: "check_out", createdAt: { gte: from, ...(to ? { lte: to } : {}) } },
+    where: { type: "check_out", reversedBy: null, createdAt: { gte: from, ...(to ? { lte: to } : {}) } },
     _sum: { quantity: true },
   });
   const m = new Map<string, number>();
@@ -1033,7 +1033,7 @@ export async function dispersalsDetail(
   const df = dateWhere(f);
   const movements = await prisma.stockMovement.findMany({
     where: {
-      type: "check_out",
+      type: "check_out", reversedBy: null,
       productId: f.productId ?? undefined,
       product: productFilter(f),
       warehouseId: f.warehouseId ?? undefined,

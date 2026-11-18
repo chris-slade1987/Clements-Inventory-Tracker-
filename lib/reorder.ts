@@ -90,7 +90,7 @@ export async function computeReorderFindings(): Promise<ReorderFinding[]> {
     // Usage (check-out) volume in the trailing window.
     prisma.stockMovement.groupBy({
       by: ["productId", "warehouseId"],
-      where: { type: "check_out", createdAt: { gte: since } },
+      where: { type: "check_out", reversedBy: null, createdAt: { gte: since } },
       _sum: { quantity: true },
     }),
     // Every check-in (receiving) event — for cadence + typical reorder size.
