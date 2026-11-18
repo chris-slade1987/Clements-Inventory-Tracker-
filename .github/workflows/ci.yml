@@ -30,6 +30,10 @@ jobs:
       # Typecheck is the hard gate — it is green today and catches the largest
       # class of regressions.
       - name: Typecheck
+        # The project outgrew Node's ~2 GB default heap (tsc hit "JavaScript heap
+        # out of memory" on 2026-11-18); give the type checker room.
+        env:
+          NODE_OPTIONS: --max-old-space-size=6144
         run: npx --no-install tsc --noEmit
 
       # Lint is informational for now: the repo has pre-existing lint errors
