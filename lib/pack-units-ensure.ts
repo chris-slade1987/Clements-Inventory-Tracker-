@@ -1,6 +1,7 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
 import { packProductFor } from "@/lib/pack-units";
+import { isCountReason } from "@/lib/stock-count";
 
 // ---------------------------------------------------------------------------
 // One-time conversion of pack-sold products to single units (COO 2026-11-18).
@@ -24,7 +25,7 @@ const MARKER_PREFIX = "pack_units_v1:";
 let _run: Promise<void> | null = null;
 
 export function ensurePackUnits(): Promise<void> {
-  if (!_run) _run = convert().catch((e) => { console.error("ensurePackUnits failed (non-fatal, will retry):", e); _run = null; });
+  if (!_run) _run = convert().then(correctPastCheckouts).then(applyCountDirectives).catch((e) => { console.error("ensurePackUnits failed (non-fatal, will retry):", e); _run = null; });
   return _run;
 }
 
@@ -87,3 +88,131 @@ async function convert(): Promise<void> {
   }
   if (log.length) console.log(`ensurePackUnits: converted ${log.length} pack product(s) — ${log.join(" | ")}`);
 }
+
+// ---------------------------------------------------------------------------
+// Past check-outs of pack items were single TUBES handed out, but on-hand was kept
+// in packs, so each one took a whole pack (COO 2026-11-18: "if it should have just
+// been a tube rather than a whole case, update the check out records"). After the
+// ×per conversion above, each such check-out has taken `per` single units instead
+// of 1, so per warehouse we add back (per − 1) × the units issued — as ONE positive
+// `adjustment` (never editing or deleting the original check-out, whose quantity
+// now reads correctly in single units). Only check-outs that on-hand still reflects
+// are corrected: those AFTER the warehouse's last stock count before the switch
+// (a count already reset on-hand) and BEFORE the switch; voided ones (reversed)
+// and Aug–Sep import rows the log recorded as whole boxes ("TB") are left alone.
+// Once per product (Setting marker), transactional.
+// ---------------------------------------------------------------------------
+
+/** Aug–Sep 2026 import rows logged as whole boxes ("TB") — genuinely a pack, not a tube. */
+const BOX_LOGGED_REFS = new Set([
+  "Vero Beach#row869", "Vero Beach#row843", "Vero Beach#row844", "Vero Beach#row825",
+  "Vero Beach#row829", "Vero Beach#row856", "Vero Beach#row885",
+]);
+const FIX_PREFIX = "pack_checkout_fix_v1:";
+
+async function correctPastCheckouts(): Promise<void> {
+  const products = await prisma.product.findMany({ where: { active: true }, select: { id: true, name: true } });
+  for (const p of products) {
+    const rule = packProductFor(p.name);
+    if (!rule) continue;
+    const conv = await prisma.setting.findUnique({ where: { key: `${MARKER_PREFIX}${p.id}` } });
+    if (!conv || conv.value.includes('"status":"running"')) continue; // not converted yet
+    try {
+      await prisma.setting.create({ data: { key: `${FIX_PREFIX}${p.id}`, value: JSON.stringify({ status: "running", at: new Date().toISOString() }) } });
+    } catch {
+      continue; // done (or another instance is on it)
+    }
+    try {
+      const cutoff = conv.updatedAt;
+      const summary = await prisma.$transaction(async (tx) => {
+        const moves = await tx.stockMovement.findMany({
+          where: { productId: p.id, createdAt: { lte: cutoff } },
+          select: { id: true, type: true, warehouseId: true, quantity: true, reason: true, externalRef: true, reversalOfId: true, movementDate: true, createdAt: true, unitPrice: true },
+        });
+        const reversed = new Set(moves.map((m) => m.reversalOfId).filter(Boolean) as string[]);
+        const when = (m: { movementDate: Date | null; createdAt: Date }) => (m.movementDate ?? m.createdAt).getTime();
+        const unitPrice = (await tx.product.findUnique({ where: { id: p.id }, select: { lastUnitCost: true } }))?.lastUnitCost ?? null;
+        const out: string[] = [];
+        for (const wh of new Set(moves.map((m) => m.warehouseId))) {
+          const here = moves.filter((m) => m.warehouseId === wh);
+          const lastCount = Math.max(0, ...here.filter((m) => m.type === "adjustment" && isCountReason(m.reason)).map(when));
+          const tubes = here.filter(
+            (m) => m.type === "check_out" && m.quantity < 0 && when(m) > lastCount && !reversed.has(m.id) && !(m.externalRef && BOX_LOGGED_REFS.has(m.externalRef)),
+          );
+          const issued = tubes.reduce((s, m) => s + Math.abs(m.quantity), 0);
+          if (issued <= 0) continue;
+          const addBack = issued * (rule.per - 1);
+          await tx.stockMovement.create({
+            data: {
+              type: "adjustment", productId: p.id, warehouseId: wh, quantity: addBack, unit: rule.unit, unitPrice,
+              reason: `Check-out correction (COO 2026-11-18): ${tubes.length} earlier check-out${tubes.length === 1 ? "" : "s"} here (${issued} ${rule.single}${issued === 1 ? "" : "s"}) were single ${rule.single}s, not whole packs — adds back ${rule.per - 1} ${rule.single}s each (+${addBack})`,
+            },
+          });
+          out.push(`${wh}: +${addBack} (${tubes.length} check-outs)`);
+        }
+        return out;
+      });
+      await prisma.setting.update({ where: { key: `${FIX_PREFIX}${p.id}` }, data: { value: JSON.stringify({ at: new Date().toISOString(), summary }) } });
+      if (summary.length) console.log(`correctPastCheckouts: ${p.name} — ${summary.join("; ")}`);
+    } catch (e) {
+      await prisma.setting.delete({ where: { key: `${FIX_PREFIX}${p.id}` } }).catch(() => {});
+      throw e;
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Physical counts reported to the COO, applied as a stock-count adjustment (the
+// reason contains "count", so the product shows as counted there). Each sets
+// on-hand to exactly `onHand` and records what the portal showed before. Once each.
+// ---------------------------------------------------------------------------
+// `asOf` = when the count was reported: check-outs made AFTER it still come off the
+// counted number, so the result is right whichever lands first (e.g. Jason issues
+// the 3 tubes to Brian before this deploy reaches production → 0, not 3).
+const COUNT_DIRECTIVES: { key: string; product: string; branch: string; onHand: number; asOf: string; by: string }[] = [
+  { key: "vero-advion-evolution-2026-11-18", product: "Advion Evolution Cockroach Gel Bait 4x30g (4 pack)", branch: "vero", onHand: 3, asOf: "2026-11-18T19:15:00Z", by: "Jason Colontrelle (reported via the COO, 2026-11-18)" },
+];
+const COUNT_PREFIX = "count_directive_v1:";
+
+async function applyCountDirectives(): Promise<void> {
+  for (const d of COUNT_DIRECTIVES) {
+    const marker = `${COUNT_PREFIX}${d.key}`;
+    if (await prisma.setting.findUnique({ where: { key: marker } })) continue;
+    const rule = packProductFor(d.product);
+    const product = (await prisma.product.findMany({ where: { active: true }, select: { id: true, name: true, lastUnitCost: true } })).find((p) => packProductFor(p.name) === rule);
+    const wh = (await prisma.warehouse.findMany({ where: { active: true }, select: { id: true, name: true } })).find((w) => w.name.toLowerCase().includes(d.branch));
+    if (!product || !wh || !rule) continue;
+    // Only after this product's conversion + correction have landed.
+    if (!(await prisma.setting.findUnique({ where: { key: `${FIX_PREFIX}${product.id}` } }))) continue;
+    try {
+      await prisma.setting.create({ data: { key: marker, value: JSON.stringify({ status: "running", at: new Date().toISOString() }) } });
+    } catch {
+      continue;
+    }
+    try {
+      const before = (await prisma.stockMovement.aggregate({ where: { productId: product.id, warehouseId: wh.id }, _sum: { quantity: true } }))._sum.quantity ?? 0;
+      // Movements since the count was reported (other than this healer's own) still apply.
+      const since = (await prisma.stockMovement.aggregate({
+        where: { productId: product.id, warehouseId: wh.id, createdAt: { gt: new Date(d.asOf) }, NOT: { reason: { startsWith: "Check-out correction" } } },
+        _sum: { quantity: true },
+      }))._sum.quantity ?? 0;
+      const target = d.onHand + since;
+      const delta = target - before;
+      await prisma.stockMovement.create({
+        data: {
+          type: "adjustment", productId: product.id, warehouseId: wh.id, quantity: delta, unit: rule.unit, unitPrice: product.lastUnitCost,
+          reason: `Stock count — ${d.by}: ${d.onHand} ${rule.single}s on hand as of ${d.asOf.slice(0, 16).replace("T", " ")} UTC (portal showed ${before - since} then${since ? `; ${since} since` : ""}; ${delta >= 0 ? "+" : ""}${delta})`,
+        },
+      });
+      await prisma.setting.update({ where: { key: marker }, data: { value: JSON.stringify({ at: new Date().toISOString(), before, since, after: target }) } });
+      console.log(`applyCountDirectives: ${d.product} at ${wh.name} — portal showed ${before}, set to ${target} (${d.onHand} counted, ${since} since).`);
+    } catch (e) {
+      await prisma.setting.delete({ where: { key: marker } }).catch(() => {});
+      throw e;
+    }
+  }
+
+}
+
+/** Individual steps, for tests (production uses ensurePackUnits). */
+export const __packSteps = { convert, correctPastCheckouts, applyCountDirectives };
