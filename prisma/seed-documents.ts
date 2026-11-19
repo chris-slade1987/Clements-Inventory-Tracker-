@@ -45,7 +45,8 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 66 · Last updated November 19, 2026",
+    effective: "Version 67 · Last updated November 19, 2026",
+    // v67: QC ride-behinds start January 2027 (Q1); Nov + Dec 2026 waived. (Label only.)
     // v66: Reports → On-hand: update a branch's on-hand in place (physical count). (Label only.)
     // v65: Reconcile Edit can change warehouse / technician / whole invoice; traps issued singly. (Label only.)
     // v64: Pack items (gel-bait 4-packs, 5-pk spikes) stocked and issued as single units. (Label only.)

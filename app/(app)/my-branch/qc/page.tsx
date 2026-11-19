@@ -1,7 +1,7 @@
 import { PageHeader, EmptyState } from "@/components/ui";
 import { requireUser, scopedBranch, branchLocked } from "@/lib/auth";
 import { BRANCHES, branchLabel } from "@/lib/management";
-import { monthlyQcProgress, listQcInspections, branchTechnicians, monthKey, QC_ITEMS, QC_TYPES } from "@/lib/qc";
+import { monthlyQcProgress, listQcInspections, branchTechnicians, monthKey, QC_ITEMS, QC_TYPES, isQcWaivedMonth, QC_STARTS_LABEL } from "@/lib/qc";
 import QcClient from "./QcClient";
 
 export const dynamic = "force-dynamic";
@@ -32,6 +32,11 @@ export default async function QcPage({
         title="Quality Control"
         subtitle={`${branchLabel(branch)} · field ride-behinds · goal 10 GHP + 10 L&O per month`}
       />
+      {isQcWaivedMonth() ? (
+        <div role="status" className="mb-4 rounded-xl border border-brand-200 bg-brand-50 px-4 py-3 text-sm text-brand-900">
+          <span className="font-medium">Not required this month.</span> Monthly ride-behinds start in {QC_STARTS_LABEL}, so they&apos;re off your to-do list until then and won&apos;t count against your scorecard. You can still log one here if you do it — it&apos;s kept in the archive.
+        </div>
+      ) : null}
       {technicians.length === 0 && canComplete ? (
         <EmptyState title="No technicians on this branch's roster" hint="Add active technicians to this branch in People / HR before completing a QC inspection." />
       ) : (

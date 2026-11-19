@@ -25,7 +25,7 @@ import ComposeThread from "@/components/ComposeThread";
 import ClearReminderButton from "@/components/ClearReminderButton";
 import { openFollowUps } from "@/lib/audit";
 import { warehouseStatus } from "@/lib/warehouse";
-import { monthlyQcProgress } from "@/lib/qc";
+import { monthlyQcProgress, isQcWaivedMonth } from "@/lib/qc";
 import { SCORECARD_METRICS, savedResults, weightedScore } from "@/lib/scorecard";
 import FollowUps from "./FollowUps";
 import MyBranchViewToggle from "./MyBranchViewToggle";
@@ -146,9 +146,12 @@ export default async function MyBranchPage({
   // scorecard; see QC_CREDITED_MONTHS in lib/qc.ts). From the Mon 11/9 flip onward it
   // appears automatically as a REAL tracked monthly to-do for the live month (and is
   // credited/waived for October). No manual step needed next week.
-  const qcProgress = todo.isOctoberGrace
+  // Nov + Dec 2026 are waived too — ride-behinds start in Q1 2027 (COO 2026-11-19);
+  // a waived month hides the to-do and the rhythm item (lib/qc.ts QC_CREDITED_MONTHS).
+  const qcKey = `${year}-${String(month).padStart(2, "0")}`;
+  const qcProgress = todo.isOctoberGrace || isQcWaivedMonth(qcKey)
     ? null
-    : await monthlyQcProgress(scBranch, `${year}-${String(month).padStart(2, "0")}`);
+    : await monthlyQcProgress(scBranch, qcKey);
   const saved = await savedResults(year, quarter, scBranch);
   const metState = Object.fromEntries(SCORECARD_METRICS.map((m) => [m.key, saved[m.key]?.met ?? null]));
   const scScore = weightedScore(metState);

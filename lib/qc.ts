@@ -116,8 +116,22 @@ export async function monthlyQcProgress(branch: string, key: string = monthKey()
  * at the SCORING layer only; we never fabricate QcInspection rows, so the audit
  * trail stays honest (the Branch Hub archive still shows exactly what was done).
  * Remove a month here if/when it is ever backfilled with real inspections.
+ *
+ * November + December 2026 waived too (COO 2026-11-19): "exclude [the ride-alongs]
+ * this month and start it in Q1" — the monthly ride-behind requirement begins
+ * January 2027. Waived months are hidden from the manager to-do list / monthly
+ * rhythm and credited on the Q4 scorecard; managers can still log QC if they want
+ * (real inspections are kept and shown in the archive).
  */
-export const QC_CREDITED_MONTHS = new Set<string>(["2026-10"]);
+export const QC_CREDITED_MONTHS = new Set<string>(["2026-10", "2026-11", "2026-12"]);
+
+/** First month the monthly QC ride-behind requirement applies (label for notices). */
+export const QC_STARTS_LABEL = "January 2027 (Q1)";
+
+/** True when the monthly QC requirement is waived for this "YYYY-MM" (not due, credited). */
+export function isQcWaivedMonth(key: string = monthKey()): boolean {
+  return QC_CREDITED_MONTHS.has(key);
+}
 
 /**
  * Quarterly QC compliance for the scorecard: total inspections done this quarter
