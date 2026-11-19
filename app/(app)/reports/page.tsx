@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Card, PageHeader } from "@/components/ui";
 import { ensureReceiptsLoaded } from "@/lib/receipts-ensure";
-import { requireUser, branchLocked } from "@/lib/auth";
+import { requireUser, branchLocked, isBoardObserver } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import {
   dispersedValueByWarehouse,
@@ -93,6 +93,22 @@ export default async function ReportsPage({
   ]);
   const detailWarehouses =
     scopeDetail && user.warehouseId ? allWarehouses.filter((w) => w.id === user.warehouseId) : allWarehouses;
+
+  // On-Hand: managers / admins can update TODAY's figures in place (COO 2026-11-19)
+  // — admins at any warehouse, a manager at their own branch. Past dates are history.
+  const isToday = !filters.asOf || localIso(filters.asOf) === localIso(now);
+  const canCount = (user.role === "admin" || user.role === "manager") && !isBoardObserver(user);
+  const myBranch = (user.branch ?? "").trim().toLowerCase();
+  const onHandEditable =
+    view === "onhand" && isToday && canCount
+      ? detailWarehouses
+          .filter((w) => user.role === "admin" || w.id === user.warehouseId || (!!myBranch && w.name.toLowerCase().includes(myBranch)))
+          .map((w) => w.id)
+      : [];
+  const editProducts = onHandEditable.length
+    ? (await prisma.product.findMany({ where: { active: true }, orderBy: { name: "asc" }, select: { id: true, name: true, unitOfMeasure: true } }))
+        .map((p) => ({ id: p.id, name: p.name, unit: p.unitOfMeasure }))
+    : [];
 
   const tabBar = (
     <div className="mb-5 flex flex-wrap gap-1.5 border-b border-line">
@@ -310,7 +326,8 @@ export default async function ReportsPage({
       ) : view === "spend" ? (
         <SpendView filters={scopedFilters} />
       ) : (
-        <OnHandView filters={scopedFilters} warehouses={detailWarehouses} cost={cost} />
+        <OnHandView filters={scopedFilters} warehouses={detailWarehouses} cost={cost}
+          editableWarehouseIds={onHandEditable} products={editProducts} />
       )}
     </>
   );

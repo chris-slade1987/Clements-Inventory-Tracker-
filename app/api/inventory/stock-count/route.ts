@@ -29,8 +29,16 @@ export async function POST(req: Request) {
 
   if (!warehouseId) return NextResponse.json({ error: "Select a warehouse." }, { status: 400 });
   if (user.role !== "admin" && warehouseId !== user.warehouseId) {
-    return NextResponse.json({ error: "You can only count your own branch." }, { status: 403 });
+    // A manager's own branch may be linked by branch rather than warehouse id.
+    const wh = await prisma.warehouse.findUnique({ where: { id: warehouseId }, select: { name: true } });
+    const branch = (user.branch ?? "").trim().toLowerCase();
+    if (!branch || !wh || !wh.name.toLowerCase().includes(branch)) {
+      return NextResponse.json({ error: "You can only count your own branch." }, { status: 403 });
+    }
   }
+  // Optional note (e.g. from the On-Hand report's "Update on-hand"), kept on the entry.
+  const note = typeof body?.note === "string" ? body.note.trim().slice(0, 300) : "";
+  const source = body?.source === "onhand-report" ? " (On-Hand report)" : "";
 
   const counts = rawCounts
     .map((c) => ({ productId: String(c.productId), counted: Math.trunc(Number(c.counted)) }))
@@ -49,7 +57,7 @@ export async function POST(req: Request) {
 
   const onHand = await onHandByWarehouse(warehouseId);
   const stamp = new Date().toISOString().slice(0, 10);
-  const reason = `${COUNT_REASON_PREFIX} ${stamp} by ${user.name}`;
+  const reason = `${COUNT_REASON_PREFIX} ${stamp} by ${user.name}${source}${note ? ` — ${note}` : ""}`;
 
   const applicable = counts.filter((c) => validIds.has(c.productId));
   let adjusted = 0;
