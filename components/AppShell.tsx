@@ -225,6 +225,10 @@ export default function AppShell({
   // employees.
   const mode: Mode = pathname.startsWith("/me")
     ? "employee"
+    // Service advisors keep their own (employee) menu on the shared pages they can
+    // reach — the Sales Team hub, the Cancellation Center and Weather.
+    : isServiceAdvisor && (pathname.startsWith("/sales") || pathname.startsWith("/management/cancellations") || pathname.startsWith("/weather"))
+      ? "employee"
     // New-hire review pages live under People/HR (the Management center), so light
     // that section rather than falling through to the admin's Inventory home.
     : pathname.startsWith("/reviews")

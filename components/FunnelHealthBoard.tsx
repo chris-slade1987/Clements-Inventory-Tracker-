@@ -42,7 +42,8 @@ export default function FunnelHealthBoard({
   monthLabel: string;
   day: number;
   daysInMonth: number;
-  basePath?: string;
+  /** Drill-in path for each advisor's goal sheet; null hides the link (advisor viewers). */
+  basePath?: string | null;
 }) {
   const [filter, setFilter] = useState<Filter>("all");
   const [openId, setOpenId] = useState<string | null>(null);
@@ -155,9 +156,9 @@ export default function FunnelHealthBoard({
                     <div className={`mt-3 rounded-lg border px-3 py-2 text-xs ${S[r.diag.key as Status]?.chip ?? "border-line"}`}>
                       <span className="font-semibold">{r.diag.label}:</span> <span className="text-ink/80">{r.diag.msg}</span>
                     </div>
-                    <div className="mt-3">
+                    {basePath ? <div className="mt-3">
                       <Link href={`${basePath}/${r.id}`} className="text-xs font-medium text-brand-700 hover:underline">Open {r.name.split(" ")[0]}&rsquo;s goal sheet →</Link>
-                    </div>
+                    </div> : null}
                   </div>
                 ) : null}
               </div>

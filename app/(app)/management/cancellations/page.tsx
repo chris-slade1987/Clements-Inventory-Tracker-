@@ -1,5 +1,6 @@
 import { Card, PageHeader, EmptyState } from "@/components/ui";
-import { requireUser, branchLocked } from "@/lib/auth";
+import { requireUser, branchLocked, isServiceAdvisor } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { DIVISION_LABELS, type Division } from "@/lib/constants";
 import { BRANCHES } from "@/lib/management";
 import {
@@ -40,13 +41,25 @@ const tenureBand = (start: string | null, endIso: string) => {
   return y < 1 ? "lt1" : y < 2 ? "1-2" : y < 5 ? "2-5" : "5+";
 };
 
+/** "vero" / "Vero Beach" / "VERO BEACH (HQ)" → "vero"; unknown → null. */
+function branchKeyFor(raw: string | null | undefined): string | null {
+  const v = (raw ?? "").trim().toLowerCase();
+  if (!v) return null;
+  return BRANCHES.find((b) => v === b.key || v.includes(b.key) || v.includes(b.label.toLowerCase()))?.key ?? null;
+}
+
 export default async function CancellationCenterPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const user = await requireUser();
   const sp = await searchParams;
   await ensureCancellationsSeeded();
 
   const isAdmin = user.role === "admin";
-  const locked = branchLocked(user) ? user.branch : null;
+  // Service advisors (COO 2026-11-21) see their own branch like a branch manager.
+  // Their login often carries no branch, so fall back to their employee profile's.
+  const advisorBranch = isServiceAdvisor(user) && !user.branch && user.employeeId
+    ? branchKeyFor((await prisma.employee.findUnique({ where: { id: user.employeeId }, select: { branch: true } }))?.branch)
+    : null;
+  const locked = branchLocked(user) ? user.branch : advisorBranch;
   const months = await listCancellationMonths();
 
   if (months.length === 0) {

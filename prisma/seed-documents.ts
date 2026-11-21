@@ -45,7 +45,8 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 68 · Last updated November 21, 2026",
+    effective: "Version 69 · Last updated November 21, 2026",
+    // v69: Service advisors can view the Sales Team hub (whole team) and the Cancellation Center (own branch). (Label only.)
     // v68: Service advisors land on My Sales Goals + Message-the-Sales-Director button; advisor access spelled out. (Label only.)
     // v67: QC ride-behinds start January 2027 (Q1); Nov + Dec 2026 waived. (Label only.)
     // v66: Reports → On-hand: update a branch's on-hand in place (physical count). (Label only.)

@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { PageHeader, Card, EmptyState } from "@/components/ui";
-import { requireUser, canManageSales, canViewSales, branchLocked } from "@/lib/auth";
+import { requireUser, canManageSales, canViewSales, branchLocked, isServiceAdvisor } from "@/lib/auth";
 import { money, qty } from "@/lib/format";
 import { BRANCHES, branchLabel } from "@/lib/management";
 import { prisma } from "@/lib/prisma";
@@ -47,7 +47,18 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
   // Branch managers get a READ-ONLY view scoped to their own branch's advisors;
   // admins / the Sales Director manage everything cross-branch.
   const canManage = canManageSales(user);
-  const locked = branchLocked(user);
+  // Service advisors (COO 2026-11-21): the whole team, every branch, read-only — no
+  // director coaching queue / follow-ups, and no drilling into another advisor's
+  // goal sheet (it carries their private notes to the director). Their own name
+  // links to their own page.
+  const advisorView = isServiceAdvisor(user);
+  const locked = branchLocked(user) && !advisorView;
+  const sheetHref = (id: string): string | null =>
+    advisorView ? (id === user.employeeId ? "/me/sales" : null) : `/sales/${id}`;
+  const AdvisorName = ({ id, name }: { id: string; name: string }) => {
+    const h = sheetHref(id);
+    return h ? <Link href={h} className="text-brand-700 hover:underline">{name}</Link> : <>{name}</>;
+  };
 
   const sp = await searchParams;
   const branch = locked ? user.branch : (BRANCHES.find((b) => b.key === sp.branch)?.key ?? null);
@@ -181,7 +192,7 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
 
       <MyReviewsCard userId={user.id} />
 
-      <RhythmRibbon segments={salesRhythm} />
+      {!advisorView ? <RhythmRibbon segments={salesRhythm} /> : null}
 
       {canManage ? <SalesDirectorTools periodKey={periodKey} hasDemo={demoCount > 0} live={slLive} /> : null}
 
@@ -206,7 +217,7 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
           Leads with the actionable states (C2/C5): goals not set · pending approvals ·
           overdue follow-ups · behind pace, plus the two goal-negotiation states the
           roster used to miss — proposal awaiting the advisor, and set-but-not-agreed. */}
-      {advisorRows.length > 0 ? (
+      {advisorRows.length > 0 && !advisorView ? (
         <div className="mb-5">
           <SectionLabel>Needs your attention</SectionLabel>
           {!hasActions ? (
@@ -238,7 +249,7 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
       ) : null}
 
       {/* ───────── Focus & follow-ups — the director's coaching queue ───────── */}
-      {showFocus ? (
+      {showFocus && !advisorView ? (
         <div className="mb-5 scroll-mt-20" id="focus-followups">
           <SectionLabel>Focus &amp; follow-ups · {pLabel}</SectionLabel>
           <Card className="p-4">
@@ -313,7 +324,7 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
         <ul className="space-y-0.5">
           <li><span className="font-medium text-ink">Closed · this month</span> (Team attainment, All branch sales, leaderboard) = advisor funnel closes for {pLabel}, from the sales feed / manual funnel entry.</li>
           <li><span className="font-medium text-ink">Closed · YTD</span> (above) = year-to-date won revenue from the sales feed ({actuals.connected ? "live" : "awaiting connection"}).</li>
-          <li><span className="font-medium text-ink">New sales</span> on <Link href="/management/sales" className="text-brand-700 hover:underline">Company sales &amp; cancellations</Link> is the MBR-reported figure (month or YTD per that page&rsquo;s toggle) and <span className="font-medium text-ink">Sales Center &ldquo;sold&rdquo;</span> there is WorkWave annualized value — neither equals the advisor closes here.</li>
+          <li><span className="font-medium text-ink">New sales</span> on {advisorView ? "Company sales & cancellations" : <Link href="/management/sales" className="text-brand-700 hover:underline">Company sales &amp; cancellations</Link>} is the MBR-reported figure (month or YTD per that page&rsquo;s toggle) and <span className="font-medium text-ink">Sales Center &ldquo;sold&rdquo;</span> there is WorkWave annualized value — neither equals the advisor closes here.</li>
         </ul>
       </div>
 
@@ -371,7 +382,7 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
               monthLabel={pLabel}
               day={dayOfMonth}
               daysInMonth={daysInMonth}
-              basePath="/sales"
+              basePath={advisorView ? null : "/sales"}
             />
           </div>
 
@@ -397,7 +408,7 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
                   {funnelRows.map((r: AdvisorFunnel) => (
                     <tr key={r.advisor.id} className="border-b border-line last:border-0">
                       <td className="px-4 py-2 font-medium">
-                        <Link href={`/sales/${r.advisor.id}`} className="text-brand-700 hover:underline">{r.advisor.name}</Link>
+                        <AdvisorName id={r.advisor.id} name={r.advisor.name} />
                         {r.advisor.branch ? <span className="ml-2 text-[11px] text-muted">{branchLabel(r.advisor.branch)}</span> : null}
                       </td>
                       <td className="px-3 py-2 text-right tabular-nums">{r.leads || "—"}</td>
@@ -484,7 +495,7 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
                 <tbody>
                   {advisorRows.map((r) => (
                     <tr key={r.advisor.id} className="border-b border-line last:border-0">
-                      <td className="px-4 py-2 font-medium"><Link href={`/sales/${r.advisor.id}`} className="text-brand-700 hover:underline">{r.advisor.name}</Link></td>
+                      <td className="px-4 py-2 font-medium"><AdvisorName id={r.advisor.id} name={r.advisor.name} /></td>
                       <td className="px-3 py-2 text-muted">{r.advisor.branch ? branchLabel(r.advisor.branch) : "—"}</td>
                       <td className="px-3 py-2 text-right font-medium tabular-nums">{r.hasGoal ? money(r.target) : "—"}</td>
                       <td className="px-3 py-2 text-right tabular-nums text-muted">{r.hasGoal ? money(r.salesPerDay) : "—"}</td>
@@ -503,7 +514,7 @@ export default async function SalesTeamPage({ searchParams }: { searchParams: Pr
           </details>
 
           <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-muted">
-            <Link href="/management/sales" className="font-medium text-brand-700 hover:underline">Open Company sales &amp; cancellations →</Link>
+            {!advisorView ? <Link href="/management/sales" className="font-medium text-brand-700 hover:underline">Open Company sales &amp; cancellations →</Link> : null}
             <span>Closed = year-to-date won revenue from the sales feed. Per-branch and per-advisor pipeline detail arrives with the full sales API.</span>
           </div>
         </>

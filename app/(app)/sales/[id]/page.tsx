@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { PageHeader } from "@/components/ui";
-import { requireUser, canManageSales, canViewSales, branchLocked } from "@/lib/auth";
+import { requireUser, canManageSales, canViewSales, branchLocked, isServiceAdvisor } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import GoalPlanner from "@/components/GoalPlanner";
 import SalesFunnelCard from "@/components/SalesFunnelCard";
@@ -18,6 +18,9 @@ export default async function AdvisorGoalPage({ params }: { params: Promise<{ id
   const user = await requireUser();
   if (!canViewSales(user)) redirect("/me");
   const { id } = await params;
+  // Service advisors see the team hub, but never another advisor's goal sheet
+  // (private notes to the director, focus plan). Their own sheet is /me/sales.
+  if (isServiceAdvisor(user)) redirect(id === user.employeeId ? "/me/sales" : "/sales");
 
   const emp = await prisma.employee.findUnique({ where: { id }, select: { id: true, name: true, branch: true } });
   if (!emp) notFound();

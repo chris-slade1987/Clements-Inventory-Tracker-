@@ -31,7 +31,7 @@ export const LEVELS: AccessLevel[] = [
   { key: "senior", name: "Senior Leadership", desc: "Company executive views, compliance, and oversight; no day-to-day inventory or fleet operations." },
   { key: "hr", name: "HR", desc: "The full People/HR area, hiring, onboarding, reviews, PTO, and the certification program." },
   { key: "sales_director", name: "Sales Director", desc: "Admin-level reach for their domain: company + branch metrics, cross-branch sales team oversight and advisor goals, and the service advisors' profiles/logs." },
-  { key: "service_advisor", name: "Service Advisor", desc: "Lands on their own sales dashboard (My Sales Goals: SmarterLaunch funnel, scorecard, lead map, goal planner + Message the Sales Director), plus Weather and self-service. No branch, inventory, fleet, executive or cancellation metrics." },
+  { key: "service_advisor", name: "Service Advisor", desc: "Lands on their own sales dashboard (My Sales Goals: SmarterLaunch funnel, scorecard, lead map, goal planner + Message the Sales Director), plus Weather and self-service. Also views the Sales Team hub (whole team, read-only) and the Cancellation Center (own branch). No branch KPIs, inventory, fleet or executive." },
   { key: "board", name: "Board Observer", desc: "Read-only executive views and the company bulletin. Nothing else." },
   { key: "employee", name: "Employee / Technician", desc: "Self-service only: their work, training, PTO, and the bulletin." },
 ];
@@ -43,7 +43,7 @@ export const MODULES: AccessModule[] = [
     { id: "scorecard", name: "My Scorecard", ve: true, note: "Edit = sign" }, { id: "branch-training", name: "Team Training" }, { id: "branch-pto", name: "Branch PTO" },
     { id: "branch-command", name: "Branch Command", ve: true, note: "Weekly branch cockpit — fed scoreboard + AI forced-feedback + attested weekly sign-off. Edit = respond / sign." },
     { id: "routing-approval", name: "Routes", ve: true, note: "Monthly routing review (\"Routes\", `/routing-approval`) — map + per-tech sign-off + scoped optimizer (stop / day order / week / month) with before→after efficiency + PestPac change-set export. Edit = approve / sign. Upload is admin-only." },
-    { id: "cancellations", name: "Cancellation Center", ve: true, note: "`/management/cancellations`, in the Company center nav (COO 2026-11-16: super admins, admins and branch managers). PestPac Gain & Loss Report (one month, sorted by Branch, Route) broken out by branch, division, service type, route/technician, city and account value, with an MBR cancellations variance check. View = dashboard (branch managers pinned to their branch); Edit = upload a month (admin role only; the API also requires role admin)." },
+    { id: "cancellations", name: "Cancellation Center", ve: true, note: "`/management/cancellations`, in the Company center nav (COO 2026-11-16: super admins, admins and branch managers; 2026-11-21: + service advisors, view, pinned to their branch). PestPac Gain & Loss Report (one month, sorted by Branch, Route) broken out by branch, division, service type, route/technician, city and account value, with an MBR cancellations variance check. View = dashboard (branch managers pinned to their branch); Edit = upload a month (admin role only; the API also requires role admin)." },
     { id: "checklists", name: "Checklists", ve: true }, { id: "sops", name: "SOP Runner", ve: true, note: "Edit = run / sign" },
     { id: "weather", name: "Weather Ops", note: "Forecast → routing/service impact: current + risk + AI ops briefing + 5-day + radar. Managers see their territory; admins all. Read-only page (config is weather-settings)." } ] },
   { id: "inventory", name: "Inventory", sub: "Stock & movements", items: [
@@ -76,7 +76,7 @@ export const MODULES: AccessModule[] = [
     { id: "board", name: "Executive · Financials tab (P&L / balance sheet / cash flow)", ve: true, note: "Financials tab of /executive. Exec-only; self-guarded in-page. `/management/board` redirects here." },
     { id: "insights", name: "Insights (AI) — retired page / redirect", note: "Standalone page retired; the docked Canopy Copilot is the single AI entry point. Kept for the `/management/insights` redirect's guard (admin + senior)." },
     { id: "sales-attrition", name: "Executive · Sales & Attrition tab", ve: true, note: "Sales & Attrition tab of /executive — pipeline + cancellations. Exec OR Sales Director; self-guarded in-page (canManageSales). `/management/sales` redirects here." },
-    { id: "sales-team", name: "Sales Team", ve: true }, { id: "scorecards", name: "Scorecards", ve: true, note: "Edit = score / finalize" },
+    { id: "sales-team", name: "Sales Team", ve: true, note: "`/sales`. Edit = Sales Director / admins (goals, funnel entry, director tools). View = branch managers (own branch) and service advisors (whole team, all branches — no coaching queue, follow-ups or other advisors' goal sheets; `/sales/[id]` redirects advisors)." }, { id: "scorecards", name: "Scorecards", ve: true, note: "Edit = score / finalize" },
     { id: "scorecards-overview", name: "Scorecards · Overview (all quarterly reviews)", note: "Super admins only. `/management/scorecards/overview` — every quarterly review (4 branch-manager scorecards + the Sales Director review) with status, score and bonus; super admins land here from Scorecards. Self-guarded (isSuperAdmin)." },
     { id: "sales-director-review", name: "Scorecards · Sales Director Review", note: "Super admins only. `/management/scorecards/sales-director` — the Quarterly Sales Director Review (moved from Sales Team; `/sales/quarterly-review` redirects here). Release & email → Director e-signs via `/sales-review-sign/[token]`. Self-guarded (isSuperAdmin)." },
     { id: "benchmarking", name: "Branch Benchmarking", note: "Cross-branch league table + pacing — now rendered in the Executive · Branches tab. `/management/benchmarking` redirects there; exec-only (self-guarded)." },
@@ -169,7 +169,10 @@ export const DEFAULT_GRANTS: Record<string, Grants> = {
     "sales-team": "edit", "sales-attrition": "view", management: "view",
     people: "view", "people-profile": "edit", weather: true, ...SELF_BASIC,
   },
-  service_advisor: { "me-sales": "edit", weather: true, ...SELF_BASIC },
+  // COO 2026-11-21: advisors also VIEW the Sales Team hub (whole team, all branches;
+  // no coaching queue, no other advisors' goal sheets) and the Cancellation Center
+  // (pinned to their own branch, like branch managers).
+  service_advisor: { "me-sales": "edit", "sales-team": "view", cancellations: "view", weather: true, ...SELF_BASIC },
   board: { board: "view", management: "view", executive: "view", benchmarking: true, "sales-attrition": "view", compliance: "view", bulletin: true, account: true, groundwork: true, "org-chart": true, "ask-canopy": true },
   employee: { ...SELF_BASIC },
 };

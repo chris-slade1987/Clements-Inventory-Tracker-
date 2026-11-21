@@ -117,7 +117,9 @@ export function canManageSales(user: Pick<SessionUser, "role" | "accessLevel">):
  *  branch manager can see how their sales team is performing (they can't edit
  *  goals/funnel or use the director tools; that stays `canManageSales`). */
 export function canViewSales(user: Pick<SessionUser, "role" | "accessLevel">): boolean {
-  return canManageSales(user) || user.role === "manager";
+  // Service advisors may VIEW the hub too (COO 2026-11-21) — company-wide, read-only,
+  // without the director's coaching queue or anyone else's goal sheet.
+  return canManageSales(user) || user.role === "manager" || isServiceAdvisor(user);
 }
 
 /** Who may reset another person's login password from their employee profile:

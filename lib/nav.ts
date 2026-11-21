@@ -39,6 +39,13 @@ export const SYSTEM_MAP_NAV_ITEM: NavItem = {
 // Sales Team hub — cross-branch service-advisor oversight + monthly goals.
 // Surfaced for admins/super-admins (in the management nav) and the Sales
 // Director (their fixed nav). A target/aim glyph.
+export const CANCELLATIONS_NAV_ITEM: NavItem = {
+  href: "/management/cancellations",
+  label: "Cancellation Center",
+  shortLabel: "Cancels",
+  icon: "M3 7l6 6 4-4 8 8M21 17v-5m0 5h-5",
+};
+
 export const SALES_TEAM_NAV_ITEM: NavItem = {
   href: "/sales",
   label: "Sales Team",
@@ -424,12 +431,7 @@ export const MANAGER_NAV: NavItem[] = [
   // Cancellation Center — PestPac Gain & Loss breakdowns by branch / division /
   // service / route / city (COO 2026-11-16: Company center; super admins, admins
   // and branch managers — managers see their own branch). Grant: `cancellations`.
-  {
-    href: "/management/cancellations",
-    label: "Cancellation Center",
-    shortLabel: "Cancels",
-    icon: "M3 7l6 6 4-4 8 8M21 17v-5m0 5h-5",
-  },
+  CANCELLATIONS_NAV_ITEM,
   // Document Center — company licensing / leases / vehicle docs. Lives in the
   // Company center (moved here from Executive). Still grant-gated via the
   // `documents` access key, so branch managers without it don't see the link.
@@ -730,6 +732,14 @@ export function buildNavForMode(mode: Mode, p: NavPrincipal): NavItem[] {
       const homeIdx = list.findIndex((i) => i.href === "/me");
       const at = homeIdx === -1 ? 0 : homeIdx;
       list = [...list.slice(0, at), MY_SALES_NAV_ITEM, ...list.slice(at)];
+    }
+    // …followed by the Sales Team hub + Cancellation Center (COO 2026-11-21; both
+    // view-only, grant-gated by navAllowed via `sales-team` / `cancellations`).
+    if (p.isServiceAdvisor && mode === "employee") {
+      const extra = [SALES_TEAM_NAV_ITEM, CANCELLATIONS_NAV_ITEM].filter((x) => !list.some((i) => i.href === x.href));
+      const after = list.findIndex((i) => i.href === MY_SALES_NAV_ITEM.href);
+      const at = after === -1 ? list.length : after + 1;
+      list = [...list.slice(0, at), ...extra, ...list.slice(at)];
     }
     // CSRs / service advisors also get Weather Ops in their nav (grant-gated by
     // navAllowed below, so only employees with the `weather` grant actually see it).
