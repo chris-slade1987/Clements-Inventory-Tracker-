@@ -11,6 +11,7 @@ import { advisorGoal, currentPeriodKey, periodLabel, parseInitiatives, recapPref
 import { advisorPaceSignal, priorPeriodKey } from "@/lib/sales-funnel";
 import { listFocusItems } from "@/lib/sales-focus";
 import { prisma } from "@/lib/prisma";
+import ComposeThread from "@/components/ComposeThread";
 
 export const dynamic = "force-dynamic";
 
@@ -45,13 +46,32 @@ export default async function MySalesPage({ searchParams }: { searchParams: Prom
   const focusItems = await listFocusItems(user.employeeId, periodKey);
   const lastMonthFocus = await prisma.salesFocusItem.count({ where: { advisorEmployeeId: user.employeeId, periodKey: priorPeriodKey(periodKey), voided: false } });
 
+  // "Message Howard" — the advisor's line to their Sales Director (COO 2026-11-21).
+  // Opens an Inbox thread with the active Sales Director login(s) pre-selected.
+  const directors = await prisma.user.findMany({
+    where: { active: true, OR: [{ accessLevel: "sales_director" }, { email: process.env.SALES_DIRECTOR_EMAIL || "hcohn@clementspestcontrol.com" }] },
+    select: { id: true, name: true },
+  });
+  const directorFirst = directors.length === 1 ? (directors[0].name ?? "").split(" ")[0] || null : null;
+
   // Your accountability scorecard (Theme 6) — computed from the live sales ledger.
   const scorecard = await buildAdvisorScorecard(user.employeeId, periodKey);
 
   return (
     <>
-      <div className="mb-2"><Link href="/me" className="text-xs font-medium text-brand-700 hover:underline">← My Work</Link></div>
-      <PageHeader title="My Sales Goals" subtitle={`Monthly goal planner — ${periodLabel(periodKey)}`} />
+      <div className="mb-2"><Link href="/me" className="text-xs font-medium text-brand-700 hover:underline">← Employee Hub</Link></div>
+      <PageHeader
+        title="My Sales Goals"
+        subtitle={`Monthly goal planner — ${periodLabel(periodKey)}`}
+        actions={directors.length ? (
+          <ComposeThread
+            variant="primary"
+            label={directorFirst ? `Message ${directorFirst}` : "Message your Sales Director"}
+            presetRecipients={directors.map((d) => `user:${d.id}`)}
+            context={{ type: "sales_goal", label: `${periodLabel(periodKey)} sales goals`, href: "/me/sales", subject: `${periodLabel(periodKey)} sales goals` }}
+          />
+        ) : null}
+      />
 
       <SalesFunnelCard advisorEmployeeId={user.employeeId} periodKey={periodKey} />
 

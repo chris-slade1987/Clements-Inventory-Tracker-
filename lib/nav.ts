@@ -724,10 +724,11 @@ export function buildNavForMode(mode: Mode, p: NavPrincipal): NavItem[] {
       const at = idx === -1 ? list.length : idx;
       list = [...list.slice(0, at), MY_HIRING_NAV_ITEM, ...list.slice(at)];
     }
-    // Service advisors get a "My Sales Goals" link right after their home.
+    // Service advisors get "My Sales Goals" FIRST — it's their home page (they
+    // land on /me/sales at sign-in, COO 2026-11-21), then the Employee Hub.
     if (p.isServiceAdvisor && mode === "employee" && !list.some((i) => i.href === MY_SALES_NAV_ITEM.href)) {
       const homeIdx = list.findIndex((i) => i.href === "/me");
-      const at = homeIdx === -1 ? 0 : homeIdx + 1;
+      const at = homeIdx === -1 ? 0 : homeIdx;
       list = [...list.slice(0, at), MY_SALES_NAV_ITEM, ...list.slice(at)];
     }
     // CSRs / service advisors also get Weather Ops in their nav (grant-gated by

@@ -176,6 +176,9 @@ export function homePath(user: SessionUser): string {
   // Field technicians land on their route/tech home (their route completion, production,
   // callbacks + the accounts they still owe); other employees get the Employee Hub.
   if (isTechnician(user)) return "/me/route";
+  // Service advisors land on their own sales dashboard (COO 2026-11-21): live
+  // funnel + scorecard + lead map + goal planner, with a "Message Howard" button.
+  if (isServiceAdvisor(user)) return "/me/sales";
   if (user.role === "employee") return "/me";
   // Everyone else — admins, senior leadership, and branch managers — lands on the
   // Company → My Dashboard home (`/my-branch`): their branch (or company-wide for a

@@ -31,7 +31,7 @@ export const LEVELS: AccessLevel[] = [
   { key: "senior", name: "Senior Leadership", desc: "Company executive views, compliance, and oversight; no day-to-day inventory or fleet operations." },
   { key: "hr", name: "HR", desc: "The full People/HR area, hiring, onboarding, reviews, PTO, and the certification program." },
   { key: "sales_director", name: "Sales Director", desc: "Admin-level reach for their domain: company + branch metrics, cross-branch sales team oversight and advisor goals, and the service advisors' profiles/logs." },
-  { key: "service_advisor", name: "Service Advisor", desc: "Their own sales goal planner and self-service." },
+  { key: "service_advisor", name: "Service Advisor", desc: "Lands on their own sales dashboard (My Sales Goals: SmarterLaunch funnel, scorecard, lead map, goal planner + Message the Sales Director), plus Weather and self-service. No branch, inventory, fleet, executive or cancellation metrics." },
   { key: "board", name: "Board Observer", desc: "Read-only executive views and the company bulletin. Nothing else." },
   { key: "employee", name: "Employee / Technician", desc: "Self-service only: their work, training, PTO, and the bulletin." },
 ];
@@ -99,7 +99,7 @@ export const MODULES: AccessModule[] = [
     { id: "system-map", name: "System Map", note: "Auto-generated workflow/interconnection map from docs/WORKFLOWS.md; admin + senior leadership. Lives in the Settings & Admin nav footer." },
     { id: "users", name: "Users & Access" }, { id: "email-log", name: "Email Log" }, { id: "sys-settings", name: "System Settings" } ] },
   { id: "self", name: "Self-service", sub: "Available to the signed-in person", items: [
-    { id: "me", name: "Employee Hub" }, { id: "me-profile", name: "My Profile" }, { id: "me-hr", name: "HR & Support" }, { id: "me-training", name: "My Training" }, { id: "me-sales", name: "My Sales Goals" }, { id: "me-pto", name: "My PTO" },
+    { id: "me", name: "Employee Hub" }, { id: "me-profile", name: "My Profile" }, { id: "me-hr", name: "HR & Support" }, { id: "me-training", name: "My Training" }, { id: "me-sales", name: "My Sales Goals", note: "`/me/sales` — the service advisor's home (login lands here). Their own live funnel, scorecard, lead heat map + lead sources (SmarterLaunch feed), monthly goal planner with Sales Director proposals/approval, and a Message-the-Sales-Director button (Inbox thread)." }, { id: "me-pto", name: "My PTO" },
     { id: "me-hiring", name: "My Hiring" }, { id: "account", name: "Account" }, { id: "bulletin", name: "Company Bulletin" }, { id: "inbox", name: "Inbox" }, { id: "help", name: "Help" },
     { id: "groundwork", name: "Groundwork", note: "Universal work home: My Work (To-Dos + follow-ups), Huddles, The Greenhouse, Projects. Assigning to others is role-scoped server-side." },
     { id: "org-chart", name: "Org Chart (company)", note: "Universal company-readable reporting chart + directory search (/org); cards are read-only for field TECHNICIANS, and every other staff member may expand + edit a card's info (route, approved services, corporate role / who-to-go-to, scheduling) company-wide — enforced server-side in updateTileFields. SUPER ADMINS (Chris/Julie/April) additionally get an 'Edit structure' mode to reassign a person's supervisor (POST /api/org/reports-to, gated by canManageAccessRights, cycle-guarded) which updates their profile + team. Distinct from the HR-console Org Chart item." },
