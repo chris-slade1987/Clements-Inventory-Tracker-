@@ -3,7 +3,8 @@ import { resolveRecipientTechnicianId } from "@/lib/checkout-recipient";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser, isBoardObserver } from "@/lib/auth";
 import { onHandByWarehouse } from "@/lib/inventory";
-import { countedProductIds } from "@/lib/stock-count";
+import { countedProductIds, isCountReason } from "@/lib/stock-count";
+import { resolveDisbursedAt } from "@/lib/disbursement-date";
 import { saveUpload } from "@/lib/storage";
 import { uomCode } from "@/lib/uom";
 import { notifyOverDispenseAttempt } from "@/lib/overdispense-alert";
@@ -67,6 +68,11 @@ export async function POST(req: Request) {
   if (!warehouseId) return NextResponse.json({ error: "Select a warehouse." }, { status: 400 });
   if (!pickedId) return NextResponse.json({ error: "Select a technician." }, { status: 400 });
   if (lines.length === 0) return NextResponse.json({ error: "Add at least one product." }, { status: 400 });
+
+  // Date taken (COO 2026-11-23): defaults to today; a manager entering late picks
+  // the day the product actually left (up to 30 days back, never the future).
+  const disbursed = resolveDisbursedAt(body?.disbursedOn);
+  if ("error" in disbursed) return NextResponse.json({ error: disbursed.error }, { status: 400 });
 
   // The picker also offers anyone active on the org chart who isn't on the
   // technician list yet ("emp:<employeeId>") — turn that into their technician
@@ -156,7 +162,11 @@ export async function POST(req: Request) {
     }
   }
 
+  // Backdated entry: the checkout + its movements are dated the day taken
+  // (createdAt / movementDate — what every report reads), while `submittedAt`
+  // stays the real entry time (the 15-minute undo window and the audit trail).
   const now = new Date();
+  const takenAt = disbursed.backdated ? disbursed.at : now;
   const checkout = await prisma.$transaction(async (tx) => {
     const co = await tx.checkout.create({
       data: {
@@ -166,6 +176,7 @@ export async function POST(req: Request) {
         status: "SUBMITTED",
         signatureImageUrl,
         submittedAt: now,
+        createdAt: takenAt,
       },
     });
     for (const l of lines) {
@@ -192,11 +203,24 @@ export async function POST(req: Request) {
           unit,
           userId: user.id,
           checkoutLineId: cl.id,
+          ...(disbursed.backdated ? { createdAt: takenAt, movementDate: takenAt } : {}),
         },
       });
     }
     return co;
   });
+
+  // A shelf count recorded for one of these products AFTER the date taken already
+  // reflects this product leaving — flag it so the manager can check Reconcile
+  // rather than have it come off twice. (Non-blocking.)
+  let countedSince: string[] = [];
+  if (disbursed.backdated) {
+    const later = await prisma.stockMovement.findMany({
+      where: { warehouseId, productId: { in: lines.map((l) => l.productId) }, type: "adjustment", createdAt: { gt: takenAt, lte: now } },
+      select: { productId: true, reason: true },
+    });
+    countedSince = [...new Set(later.filter((m) => isCountReason(m.reason)).map((m) => productById.get(m.productId)?.name ?? "Unknown"))];
+  }
 
   return NextResponse.json({
     ok: true,
@@ -206,6 +230,9 @@ export async function POST(req: Request) {
       technician: technician.name,
       manager: user.name,
       at: checkout.submittedAt ?? now,
+      takenOn: disbursed.dayKey,
+      backdated: disbursed.backdated,
+      countedSince,
       signatureImageUrl,
       lines: lines.map((l) => ({
         name: productById.get(l.productId)?.name ?? "Unknown",

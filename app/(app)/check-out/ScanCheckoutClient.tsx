@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Card, btn } from "@/components/ui";
 import { uomLabel } from "@/lib/uom";
+import { etTodayKey, earliestDisbursementKey, MAX_BACKDATE_DAYS } from "@/lib/disbursement-date";
 
 const BarcodeScanner = dynamic(() => import("@/components/BarcodeScanner"), { ssr: false });
 
@@ -66,9 +67,20 @@ type Receipt = {
   technician: string;
   manager: string;
   at: string;
+  /** Day the product was taken ("YYYY-MM-DD", ET) and whether it was backdated. */
+  takenOn?: string;
+  backdated?: boolean;
+  /** Products with a shelf count recorded after the date taken. */
+  countedSince?: string[];
   totalItems: number;
   lines: { name: string; unit: string; quantity: number; identifiedBy: string }[];
 };
+
+/** "2026-11-21" → "Sat, Nov 21, 2026" (calendar day; no time-zone shift). */
+function fmtDayKey(key: string): string {
+  const [y, m, d] = key.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d, 12)).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
+}
 
 export default function ScanCheckoutClient({
   branchLocked,
@@ -90,6 +102,8 @@ export default function ScanCheckoutClient({
   const router = useRouter();
   const [warehouseId, setWarehouseId] = useState(defaultWarehouseId);
   const [technicianId, setTechnicianId] = useState("");
+  // Date taken (COO 2026-11-23): defaults to today; change it when entering late.
+  const [takenOn, setTakenOn] = useState(() => etTodayKey());
   const [cart, setCart] = useState<CartLine[]>([]);
   const [step, setStep] = useState<"build" | "review">("build");
 
@@ -366,7 +380,7 @@ export default function ScanCheckoutClient({
       const res = await fetch("/api/inventory/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ warehouseId, technicianId, lines: cart, signatureImage }),
+        body: JSON.stringify({ warehouseId, technicianId, lines: cart, signatureImage, disbursedOn: takenOn }),
       });
       const data = await res.json().catch(() => ({}));
       if (res.status === 409 && (data.error === "uncataloged_product" || data.error === "unconfirmed_product")) {
@@ -457,6 +471,7 @@ export default function ScanCheckoutClient({
     setCart([]);
     setStep("build");
     setTechnicianId("");
+    setTakenOn(etTodayKey());
     setError(null);
   }
 
@@ -477,9 +492,25 @@ export default function ScanCheckoutClient({
           <dd className="text-right font-medium">{receipt.technician}</dd>
           <dt className="text-muted">By</dt>
           <dd className="text-right font-medium">{receipt.manager}</dd>
-          <dt className="text-muted">When</dt>
-          <dd className="text-right font-medium">{new Date(receipt.at).toLocaleString()}</dd>
+          {receipt.backdated && receipt.takenOn ? (
+            <>
+              <dt className="text-muted">Date taken</dt>
+              <dd className="text-right font-medium">{fmtDayKey(receipt.takenOn)}</dd>
+              <dt className="text-muted">Entered</dt>
+              <dd className="text-right font-medium">{new Date(receipt.at).toLocaleString()}</dd>
+            </>
+          ) : (
+            <>
+              <dt className="text-muted">When</dt>
+              <dd className="text-right font-medium">{new Date(receipt.at).toLocaleString()}</dd>
+            </>
+          )}
         </dl>
+        {receipt.countedSince && receipt.countedSince.length > 0 ? (
+          <div role="status" className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+            A shelf count was recorded after {receipt.takenOn ? fmtDayKey(receipt.takenOn) : "that date"} for {receipt.countedSince.join(", ")}. If that count already reflected this product leaving, on-hand is now too low by this amount. Check it in <Link href="/reconcile" className="font-medium underline">Reconcile</Link>, or undo this checkout.
+          </div>
+        ) : null}
         <div className="mt-4 divide-y divide-line border-t border-line">
           {receipt.lines.map((l, i) => (
             <div key={i} className="flex justify-between py-2 text-sm">
@@ -511,6 +542,7 @@ export default function ScanCheckoutClient({
         cart={cart}
         branchName={branchName}
         technicianName={technicians.find((t) => t.id === technicianId)?.name ?? ""}
+        takenLabel={takenOn && takenOn !== etTodayKey() ? fmtDayKey(takenOn) : null}
         busy={busy}
         error={error}
         onBack={() => setStep("build")}
@@ -548,6 +580,23 @@ export default function ScanCheckoutClient({
             value={technicianId}
             onChange={setTechnicianId}
           />
+        </div>
+        <div>
+          <label htmlFor="taken-on" className="block text-sm font-medium mb-1">Date taken</label>
+          <input
+            id="taken-on"
+            type="date"
+            value={takenOn}
+            min={earliestDisbursementKey()}
+            max={etTodayKey()}
+            onChange={(e) => setTakenOn(e.target.value || etTodayKey())}
+            className="w-full rounded-lg border border-line px-3 py-2.5 text-sm bg-surface"
+          />
+          <p className="mt-1 text-xs text-muted">
+            {takenOn === etTodayKey()
+              ? `Today. Entering it late? Change this to the day the product was taken (up to ${MAX_BACKDATE_DAYS} days back).`
+              : `Entering a past checkout — it will be dated ${fmtDayKey(takenOn)} in reports.`}
+          </p>
         </div>
       </Card>
 
@@ -1042,6 +1091,7 @@ function ReviewStep({
   cart,
   branchName,
   technicianName,
+  takenLabel,
   busy,
   error,
   onBack,
@@ -1050,6 +1100,7 @@ function ReviewStep({
   cart: CartLine[];
   branchName: string;
   technicianName: string;
+  takenLabel: string | null;
   busy: boolean;
   error: string | null;
   onBack: () => void;
@@ -1104,6 +1155,7 @@ function ReviewStep({
       <Card className="p-4">
         <div className="text-sm text-muted">Issuing to</div>
         <div className="font-medium">{technicianName} · {branchName}</div>
+        {takenLabel ? <div className="mt-1 text-sm text-ink">Date taken: <span className="font-medium">{takenLabel}</span></div> : null}
         <div className="mt-3 divide-y divide-line border-t border-line">
           {cart.map((l) => (
             <div key={l.productId} className="flex justify-between py-2 text-sm">

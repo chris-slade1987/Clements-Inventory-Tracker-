@@ -53,6 +53,8 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
           issuedByUserId: c.issuedByUserId,
           status: c.status,
           submittedAt: (c.submittedAt ?? c.createdAt).toISOString(),
+          // Date taken: equals the entry time unless the manager backdated it.
+          takenAt: c.createdAt.toISOString(),
           voidReason: c.voidReason,
           lines: c.lines.map((l) => ({
             name: l.product.name,

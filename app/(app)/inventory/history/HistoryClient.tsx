@@ -16,9 +16,16 @@ type Checkout = {
   issuedByUserId: string;
   status: string;
   submittedAt: string;
+  /** When the product was taken (backdated checkouts differ from submittedAt). */
+  takenAt: string;
   voidReason: string | null;
   lines: Line[];
 };
+
+/** A checkout entered after the day it was taken (date taken ≠ entry day). */
+function isBackdated(c: { takenAt: string; submittedAt: string }): boolean {
+  return new Date(c.takenAt).toDateString() !== new Date(c.submittedAt).toDateString() && new Date(c.takenAt) < new Date(c.submittedAt);
+}
 
 export default function HistoryClient({
   isAdmin,
@@ -54,7 +61,7 @@ export default function HistoryClient({
     return checkouts.filter((c) => {
       if (t && !c.technician.toLowerCase().includes(t)) return false;
       if (p && !c.lines.some((l) => l.name.toLowerCase().includes(p))) return false;
-      const at = new Date(c.submittedAt).getTime();
+      const at = new Date(c.takenAt).getTime();
       if (fromT && at < fromT) return false;
       if (toT && at >= toT) return false;
       return true;
@@ -106,10 +113,10 @@ export default function HistoryClient({
   }
 
   function exportCsv() {
-    const rows: string[][] = [["Checkout", "Date", "Branch", "Technician", "Issued by", "Status", "Product", "Quantity", "Unit", "Identified by"]];
+    const rows: string[][] = [["Checkout", "Date taken", "Entered", "Branch", "Technician", "Issued by", "Status", "Product", "Quantity", "Unit", "Identified by"]];
     for (const c of filtered) {
       for (const l of c.lines) {
-        rows.push([c.id, new Date(c.submittedAt).toISOString(), c.warehouse, c.technician, c.issuedBy, c.status, l.name, String(l.quantity), l.unit, l.identifiedBy]);
+        rows.push([c.id, new Date(c.takenAt).toISOString(), new Date(c.submittedAt).toISOString(), c.warehouse, c.technician, c.issuedBy, c.status, l.name, String(l.quantity), l.unit, l.identifiedBy]);
       }
     }
     const csv = rows.map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
@@ -177,7 +184,11 @@ export default function HistoryClient({
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <div className="font-medium text-sm">{c.technician} <span className="text-muted font-normal">· {c.warehouse}</span></div>
-                    <div className="text-xs text-muted">{new Date(c.submittedAt).toLocaleString()} · by {c.issuedBy}</div>
+                    <div className="text-xs text-muted">
+                      {isBackdated(c)
+                        ? <>Taken {new Date(c.takenAt).toLocaleDateString()} · entered {new Date(c.submittedAt).toLocaleString()}</>
+                        : new Date(c.submittedAt).toLocaleString()} · by {c.issuedBy}
+                    </div>
                   </div>
                   <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${voided ? "bg-red-100 text-red-700" : "bg-brand-50 text-brand-700"}`}>
                     {voided ? "Voided" : "Submitted"}
