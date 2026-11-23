@@ -5,6 +5,8 @@ import { branchLabel } from "@/lib/management";
 import { getBranchCommand, BRANCH_KEYS, weekPeriodLabel } from "@/lib/branch-command";
 import { listProductionPeriods, getBranchProductionMonth, getLeftBehindJobs, getProductionRollup } from "@/lib/branch-production-ingest";
 import { getRoutingSummary } from "@/lib/routing";
+import { prisma } from "@/lib/prisma";
+import { productionSeedErrorKey } from "@/lib/seed-production";
 import MyBranchViewToggle from "../my-branch/MyBranchViewToggle";
 import BranchCommandHero from "./BranchCommandHero";
 import BranchCommandFlow from "./BranchCommandFlow";
@@ -123,9 +125,25 @@ export default async function BranchCommandPage({
     jobs: { done: leftBehind.filter((j) => j.status === "addressed").length, total: leftBehind.length },
   };
 
+  // Admins only: if the committed route-completion data for this month failed to load
+  // (lib/seed-production.ts records the error), say so instead of silently showing
+  // the older data.
+  let seedError: { at?: string; error?: string } | null = null;
+  if (user.role === "admin" && prodPeriod) {
+    const s = await prisma.setting.findUnique({ where: { key: productionSeedErrorKey(prodPeriod) } }).catch(() => null);
+    if (s?.value) { try { seedError = JSON.parse(s.value); } catch { seedError = { error: s.value }; } }
+  }
+
   return (
     <div className="space-y-5">
       <MyBranchViewToggle view="command" branchQuery={branch ? `?branch=${branch}` : ""} />
+
+      {seedError ? (
+        <div role="alert" className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          <strong>The latest route-completion data didn&apos;t load</strong> — this page is showing the previous version. It retries automatically; uploading the reports under Production &amp; Completion below also replaces it.
+          <span className="mt-1 block text-xs text-amber-800">Admin detail{seedError.at ? ` (${new Date(seedError.at).toLocaleString("en-US", { timeZone: "America/New_York" })})` : ""}: {seedError.error}</span>
+        </div>
+      ) : null}
 
       <BranchCommandHero
         branch={branch}

@@ -16,7 +16,9 @@ import novSeed from "@/prisma/data/seed-production-2026-11.json";
 //
 // Months carried:
 //   2026-10 — full six-report ingest (real completion data).
-//   2026-11 — revision 5 (COO 11/23): month-to-date as of Mon 11/23 from the FULL six-report
+//   2026-11 — revision 6 = the same data as revision 5, re-issued with retry + error
+//             recording after rev 5 never showed in production (COO 11/23).
+//   (prior) revision 5 (COO 11/23): month-to-date as of Mon 11/23 from the FULL six-report
 //             set run 11/23 ~12:40 PM — Technician Schedule (11/01–11/30, the baseline),
 //             Technician Production detail, Appointment List, Uncommitted Orders, Gain &
 //             Loss (Tech-1 sorted; tech # = route #) and Call Back Report — through the
@@ -48,9 +50,18 @@ type ProductionSeed = any;
 const SEEDS: ProductionSeed[] = [octSeed, novSeed];
 
 let done = false;
+// A failed month is retried (at most once a minute per server instance) instead of
+// being given up on until the next deploy, and the error is kept in the Setting
+// `production_seed_error:<period>` so admins see it on Branch Command (COO 11/23:
+// the Nov rev-5 reload never showed and the old code swallowed why).
+let lastFailAt = 0;
+const RETRY_MS = 60_000;
+export const productionSeedErrorKey = (periodKey: string) => `production_seed_error:${periodKey}`;
 
 export async function ensureProductionSeed(): Promise<void> {
   if (done) return;
+  if (lastFailAt && Date.now() - lastFailAt < RETRY_MS) return;
+  let failed = false;
   try {
     for (const seed of SEEDS) {
       try {
@@ -91,13 +102,27 @@ export async function ensureProductionSeed(): Promise<void> {
             })),
           }),
           prisma.setting.upsert({ where: { key: markerKey }, update: { value: rev }, create: { key: markerKey, value: rev } }),
+          prisma.setting.deleteMany({ where: { key: productionSeedErrorKey(seed.periodKey) } }),
         ]);
-      } catch {
+        console.log(`ensureProductionSeed: loaded ${seed.periodKey} rev ${rev}`);
+      } catch (e) {
         // best-effort per month; a failure on one month must not block the others
+        failed = true;
+        const msg = (e instanceof Error ? e.message : String(e)).replace(/\s+/g, " ").slice(0, 600);
+        console.error(`ensureProductionSeed: ${seed.periodKey} rev ${String(seed.revision ?? 1)} failed:`, msg);
+        await prisma.setting
+          .upsert({
+            where: { key: productionSeedErrorKey(seed.periodKey) },
+            update: { value: JSON.stringify({ rev: seed.revision, at: new Date().toISOString(), error: msg }) },
+            create: { key: productionSeedErrorKey(seed.periodKey), value: JSON.stringify({ rev: seed.revision, at: new Date().toISOString(), error: msg }) },
+          })
+          .catch(() => {});
       }
     }
-    done = true;
+    if (failed) lastFailAt = Date.now();
+    else done = true;
   } catch {
     // best-effort; never block render
+    lastFailAt = Date.now();
   }
 }
