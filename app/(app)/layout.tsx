@@ -22,6 +22,7 @@ import { ensureFleetMaster } from "@/lib/fleet-master-ensure";
 import { ensureHolidayCloseTimes } from "@/lib/holiday-hours-ensure";
 import { ensureStaleRegistrationNudgesCleared } from "@/lib/registration-nudge-sweep";
 import { ensureRoutingAppointments } from "@/lib/routing-appointments-ensure";
+import { ensureRoutingSchedules } from "@/lib/routing-schedule-ensure";
 import { ensureGraceInspectionsRefiled, ensureInspectionTechnicianNames } from "@/lib/inspection-grace";
 import { ensureNovemberRoutingCredits } from "@/lib/routing-credit-ensure";
 import { ensureInspectionsRescored, ensureAdvisorInspectionsRescored } from "@/lib/inspection-rescore";
@@ -103,6 +104,9 @@ export default async function AppGroupLayout({
   // (Routes view): times shown, floated appointments sorted to the end of each day.
   // Idempotent (revisioned Setting marker), self-retries, non-fatal.
   await ensureRoutingAppointments();
+  // Next month's Technician Schedule Report (Routes review + sign-off), committed by
+  // the COO — December 2026. Revisioned; never overwrites a portal upload. Non-fatal.
+  await ensureRoutingSchedules();
 
   // Re-file any vehicle inspections completed in early November back to October
   // while the October-2026 grace window is open, so spare-truck / catch-up
