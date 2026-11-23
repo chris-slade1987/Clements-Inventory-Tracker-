@@ -9,6 +9,7 @@ import { postSystemThread } from "@/lib/threads";
 import { superAdminRecipients } from "@/lib/product-requests";
 import { appUrl } from "@/lib/app-url";
 import { branchLabel } from "@/lib/management";
+import { surfaceReceivedProducts } from "@/lib/received-product";
 
 export const maxDuration = 20;
 
@@ -217,12 +218,22 @@ export async function POST(req: Request) {
     return { invoiceId: invoice.id, itemCount, lineCount: lines.length };
   });
 
+  // An existing product picked on this invoice that is inactive (off the catalog)
+  // is turned back on and queued for super-admin approval, so received stock is
+  // never hidden from check-out or the catalog (lib/received-product.ts). Non-fatal.
+  const pendingApproval: string[] = [];
+  const surfaced = await surfaceReceivedProducts(
+    prisma,
+    lines.map((l) => l.productId).filter((x): x is string => !!x),
+    { distributor, invoiceNumber: invoiceNumber || "(no number)", warehouseName: warehouse.name, date: invoiceDate.toISOString().slice(0, 10) },
+  ).catch(() => []);
+  for (const p of surfaced) if (p.queue === "request") pendingApproval.push(p.name);
+
   // Route each brand-new product into the super-admin approval queue so an unknown
   // product checked IN prompts a decision (create / merge / decline) — the learning
   // loop. No onHandQty on the request (stock already posted via check_in), so
   // approval/merge never double-counts. Non-fatal; never fails the check-in.
-  const pendingApproval: string[] = [];
-  if (createdProducts.length > 0) {
+  if (createdProducts.length > 0 || pendingApproval.length > 0) {
     try {
       for (const p of createdProducts) {
         await prisma.productRequest.create({

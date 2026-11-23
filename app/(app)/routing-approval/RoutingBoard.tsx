@@ -130,11 +130,15 @@ export default function RoutingBoard({ data, canUpload, periodKey }: { data: Dat
   // Techs we've already auto-geocoded this session — so the map fills itself on
   // open without the manager hunting for "Locate stops", but never loops.
   const autoLocatedRef = useRef<Set<string>>(new Set());
-  // Smooth-scroll to the selected route's detail card when the manager picks a
-  // row, so the data/map that renders BELOW the roster isn't missed. Skipped on
-  // first mount so opening the page doesn't auto-jump past the table.
+  // Smooth-scroll to the selected route's detail card (map + route info) whenever
+  // the manager clicks a roster row — including the row that's already selected
+  // (the first tech is preselected on open). `focusTick` counts clicks, so it is 0
+  // on first mount and opening the page never auto-jumps past the table.
+  // `pendingFocusRef` keeps the request alive until that tech's days have loaded,
+  // so we scroll again once the map is actually on screen.
   const focusRef = useRef<HTMLDivElement | null>(null);
-  const firstSelRef = useRef(true);
+  const [focusTick, setFocusTick] = useState(0);
+  const pendingFocusRef = useRef(false);
   const [signName, setSignName] = useState("");
   const signed = data.month.status === "signed";
   const sel = data.techs.find((t) => t.id === selId) || data.techs[0] || null;
@@ -158,7 +162,12 @@ export default function RoutingBoard({ data, canUpload, periodKey }: { data: Dat
     setLocating(true);
     try {
       await fetch("/api/routing-approval", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "geocode", branch: data.month.branch, periodKey, techName: sel.name }) });
-      setDaysByTech((p) => { const n = { ...p }; delete n[sel.name]; return n; });
+      // Refresh in place: keep the current days on screen until the located ones
+      // arrive, so the map/route card never collapses back to "Loading…" (which
+      // made the page jump right after the manager was scrolled down to it).
+      const r = await fetch("/api/routing-approval", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "techDays", branch: data.month.branch, periodKey, techName: sel.name }) });
+      const j = await r.json().catch(() => ({}));
+      if (j.days) setDaysByTech((p) => ({ ...p, [sel.name]: j.days }));
     } catch { /* ignore */ } finally { setLocating(false); }
   }
 
@@ -188,17 +197,25 @@ export default function RoutingBoard({ data, canUpload, periodKey }: { data: Dat
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sel, daysByTech, locating]);
 
-  // When the manager selects a different route, bring its detail card into view.
+  // When the manager clicks a route, bring its detail card (map + route info) into
+  // view: once right away, and once more when that tech's days finish loading and
+  // the map has rendered (the card is only a "Loading…" line before that).
+  const daysLoaded = !!days;
   useEffect(() => {
-    if (firstSelRef.current) { firstSelRef.current = false; return; }
+    if (focusTick === 0 || !pendingFocusRef.current) return;
     const el = focusRef.current;
     if (!el) return;
-    // Defer a frame so the card has rendered/expanded before we measure it.
-    requestAnimationFrame(() => {
-      const y = el.getBoundingClientRect().top + window.scrollY - 84; // clear the sticky nav
-      window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+    if (daysLoaded) pendingFocusRef.current = false;
+    // Two frames so the card (and the map container) have laid out before we measure.
+    let raf2 = 0;
+    const raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => {
+        const y = el.getBoundingClientRect().top + window.scrollY - 84; // clear the sticky nav
+        window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+      });
     });
-  }, [selId]);
+    return () => { cancelAnimationFrame(raf1); cancelAnimationFrame(raf2); };
+  }, [focusTick, daysLoaded]);
 
   if (!data.month.loaded) {
     return <UploadEmpty canUpload={canUpload} periodKey={periodKey} branch={data.month.branch} />;
@@ -251,7 +268,7 @@ export default function RoutingBoard({ data, canUpload, periodKey }: { data: Dat
               {data.techs.map((t) => {
                 const bal = t.kind === "route" ? balanceOf(t.loads) : null;
                 return (
-                  <tr key={t.id} onClick={() => { setSelId(t.id); setSelDate(null); setProposal(null); setChangeset(null); }} className={`cursor-pointer border-b border-line last:border-0 hover:bg-brand-50 ${t.id === selId ? "bg-brand-50" : ""}`}>
+                  <tr key={t.id} onClick={() => { setSelId(t.id); setSelDate(null); setProposal(null); setChangeset(null); pendingFocusRef.current = true; setFocusTick((n) => n + 1); }} className={`cursor-pointer border-b border-line last:border-0 hover:bg-brand-50 ${t.id === selId ? "bg-brand-50" : ""}`}>
                     <td className="px-3 py-2 text-xs text-muted tabular-nums">{t.routeNo}</td>
                     <td className="px-3 py-2">{t.name}</td>
                     <td className="px-3 py-2"><KindChip kind={t.kind} /></td>
@@ -274,7 +291,8 @@ export default function RoutingBoard({ data, canUpload, periodKey }: { data: Dat
       </Card>
 
       {/* focus */}
-      <div ref={focusRef}>
+      {/* min-height while it loads, so the page is tall enough to scroll the card to the top */}
+      <div ref={focusRef} className={sel && !days ? "min-h-[80vh]" : undefined}>
         {sel && <FocusCard sel={sel} days={days} selDate={selDate} setSelDate={setSelDate} periodKey={periodKey} locks={locks} setLocks={setLocks} proposal={proposal} setProposal={setProposal} changeset={changeset} setChangeset={setChangeset} signed={signed} busy={busy} post={post} onLocate={locateStops} locating={locating} branch={data.month.branch} />}
       </div>
 

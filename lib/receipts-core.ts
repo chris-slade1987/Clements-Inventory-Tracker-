@@ -18,6 +18,7 @@
 import type { PrismaClient } from "@prisma/client";
 import { normalizeProductName, PRODUCT_ALIASES } from "./product-aliases";
 import { isDiscontinuedProduct } from "./catalog-names";
+import { surfaceReceivedProducts, type SurfacedProduct } from "./received-product";
 
 export type ReceiptFile = {
   key: string;
@@ -43,24 +44,30 @@ export type ReceiptFileResult = {
    *  warehouse within a few days (e.g. through the in-app Check-In) — never double-post. */
   alreadyReceived: string[];
   detail: { material: string; product: string | null; quantity: number }[];
+  /** Received products that were inactive (off the catalog) and were turned back on
+   *  and routed to a super admin for approval (lib/received-product.ts). */
+  surfaced: SurfacedProduct[];
 };
 
 const isUniqueViolation = (e: unknown) => (e as { code?: string })?.code === "P2002";
 
 export async function applyReceiptFile(prisma: PrismaClient, f: ReceiptFile, opts: { apply: boolean }): Promise<ReceiptFileResult> {
-  const res: ReceiptFileResult = { key: f.key, warehouse: f.warehouse, ready: false, posted: 0, skippedExisting: 0, unmatched: [], alreadyReceived: [], detail: [] };
+  const res: ReceiptFileResult = { key: f.key, warehouse: f.warehouse, ready: false, posted: 0, skippedExisting: 0, unmatched: [], alreadyReceived: [], detail: [], surfaced: [] };
 
   const wh = await prisma.warehouse.findFirst({ where: { name: f.warehouse }, select: { id: true } });
   if (!wh) return res;
-  const products = await prisma.product.findMany({ select: { id: true, name: true, approved: true, unitOfMeasure: true, unitsPerCase: true } });
+  const products = await prisma.product.findMany({ select: { id: true, name: true, active: true, approved: true, unitOfMeasure: true, unitsPerCase: true } });
   if (products.length === 0) return res;
   res.ready = true;
 
+  // When two rows normalize alike, prefer the live (active) one, then the approved one —
+  // never post stock to an inactive twin while a live row exists.
+  const rank = (p: (typeof products)[number]) => (p.active ? 2 : 0) + (p.approved ? 1 : 0);
   const byNorm = new Map<string, (typeof products)[number]>();
   for (const p of products) {
     const n = normalizeProductName(p.name);
     const prev = byNorm.get(n);
-    if (!prev || (!prev.approved && p.approved)) byNorm.set(n, p);
+    if (!prev || rank(p) > rank(prev)) byNorm.set(n, p);
   }
   const resolve = (material: string) => {
     const norm = normalizeProductName(material);
@@ -156,6 +163,11 @@ export async function applyReceiptFile(prisma: PrismaClient, f: ReceiptFile, opt
     }
     if (unitPrice != null) await prisma.product.update({ where: { id: prod.id }, data: { lastUnitCost: unitPrice } }).catch(() => {});
   }
+  // Received stock must be visible: an inactive product that just took stock is
+  // turned back on and queued for super-admin approval (lib/received-product.ts).
+  res.surfaced = await surfaceReceivedProducts(prisma, toPost.map((r) => r.prod!.id), {
+    distributor: f.distributor, invoiceNumber: f.invoiceNumber, warehouseName: f.warehouse, date: f.date,
+  });
   return res;
 }
 
