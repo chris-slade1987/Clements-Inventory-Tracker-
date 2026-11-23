@@ -372,7 +372,9 @@ export async function seedApprovedProducts(prisma: PrismaClient) {
       // A product an admin DISCARDED from the confirm queue — or a duplicate the
       // canonical-catalog reconcile MERGED into its owner-master product — stays off:
       // don't resurrect it (active/approved) on the next deploy.
-      const discarded = (found.notes ?? "").includes(DISCARD_MARK);
+      // A super admin who later approved it in-app (approval request / Product Review
+      // → Approve) overrides an earlier discard — never switch it back off.
+      const discarded = (found.notes ?? "").includes(DISCARD_MARK) && !isHumanApproved(found.notes);
       const merged = (found.notes ?? "").includes("Merged into");
       if (merged) { updated++; continue; } // leave the merged duplicate inactive
       await prisma.product.update({
