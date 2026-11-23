@@ -45,7 +45,8 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 72 · Last updated November 23, 2026",
+    effective: "Version 73 · Last updated November 23, 2026",
+    // v73: On-hand "How this number was built" breakdown; Purchases excludes receipts reversed in Reconcile. (Label only.)
     // v72: Received stock on an off-catalog (discarded) product turns it back on and queues it for super-admin approval. (Label only.)
     // v71: Service Setup List for cancel reasons — any sort/column layout accepted. (Label only.)
     // v70: Check-Out "Date taken" — enter a late check-out on the day it was taken. (Label only.)

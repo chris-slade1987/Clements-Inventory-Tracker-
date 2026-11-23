@@ -33,7 +33,8 @@ const SURFACE_REVISION = "2026-11-23";
 
 /** Tell the super admins (Julie, Chris, April) which received products now need
  *  their approval before they can be checked out. Non-fatal. */
-async function notifySurfaced(list: SurfacedProduct[]): Promise<void> {
+async function notifySurfaced(all: SurfacedProduct[]): Promise<void> {
+  const list = all.filter((p) => p.queue !== "merged"); // merged twins need no decision
   if (list.length === 0) return;
   try {
     const recipients = await superAdminRecipients();

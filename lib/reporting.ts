@@ -935,13 +935,43 @@ export async function purchasesDetail(f: ReportFilters): Promise<PurchasesDetail
     },
   });
 
+  // Receipts later reversed in Reconcile (an offsetting adjustment linked to the
+  // check_in) are no longer in stock, so Purchases must not keep counting them —
+  // otherwise Purchases says "received 160" while On-hand only ever got 120.
+  // Net each line by the share of its invoice+product check_in units that were
+  // reversed (a reversal always cancels a whole movement). Undo of a whole
+  // check-in voids the invoice and is already excluded by status above.
+  const invIds = [...new Set(lines.map((l) => l.invoice.id))];
+  const ins = invIds.length
+    ? await prisma.stockMovement.findMany({
+        where: { sourceInvoiceId: { in: invIds }, type: "check_in" },
+        select: { sourceInvoiceId: true, productId: true, quantity: true, reversedBy: { select: { id: true } } },
+      })
+    : [];
+  const inUnits = new Map<string, { all: number; reversed: number }>();
+  for (const m of ins) {
+    const k = `${m.sourceInvoiceId}:${m.productId}`;
+    const r = inUnits.get(k) ?? { all: 0, reversed: 0 };
+    r.all += m.quantity;
+    if (m.reversedBy) r.reversed += m.quantity;
+    inUnits.set(k, r);
+  }
+  const keptShare = (invoiceId: string, productId: string | null) => {
+    if (!productId) return 1;
+    const r = inUnits.get(`${invoiceId}:${productId}`);
+    if (!r || r.all <= 0 || r.reversed <= 0) return 1;
+    return Math.max(0, (r.all - r.reversed) / r.all);
+  };
+
   const byInvoice = new Map<string, PurchaseInvoiceGroup>();
   const byBranch = new Map<string, BranchSubtotal>();
   let grandTotal = 0;
 
   for (const l of lines) {
     const inv = l.invoice;
-    const lineTotal = l.lineTotal ?? l.quantity * (l.unitPrice ?? 0);
+    const share = keptShare(inv.id, l.productId);
+    if (share <= 1e-6) continue; // fully reversed — not a purchase any more
+    const lineTotal = (l.lineTotal ?? l.quantity * (l.unitPrice ?? 0)) * share;
     const rowWarehouseName = inv.warehouse?.name ?? "Unknown";
     const g =
       byInvoice.get(inv.id) ??
@@ -964,7 +994,7 @@ export async function purchasesDetail(f: ReportFilters): Promise<PurchasesDetail
       warehouseName: rowWarehouseName,
       productId: l.productId,
       product: l.product?.name ?? l.descriptionRaw,
-      qty: l.quantity,
+      qty: Math.round(l.quantity * share * 1000) / 1000,
       unit: l.unit ?? null,
       unitCost: l.unitPrice ?? null,
       lineTotal,

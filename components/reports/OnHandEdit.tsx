@@ -27,11 +27,79 @@ async function saveCount(warehouseId: string, productId: string, counted: number
   }
 }
 
+type LedgerRow = { id: string; date: string; kind: string; label: string; by: string | null; quantity: number; running: number; reversed: boolean };
+type Ledger = { rows: LedgerRow[]; summary: { received: number; dispersed: number; baseline: number; counts: number; reversals: number; other: number; onHand: number } };
+
+const signed = (n: number) => `${n > 0 ? "+" : ""}${fmt(n)}`;
+const shortDate = (iso: string) => new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "America/New_York" });
+
+/** "How this number was built" — every movement behind one branch's on-hand
+ *  (GET /api/inventory/onhand-ledger): received, checked out, and each
+ *  adjustment with its reason, with a running total. Loaded on demand. */
+function LedgerPanel({ productId, warehouseId }: { productId: string; warehouseId: string }) {
+  const [open, setOpen] = useState(false);
+  const [data, setData] = useState<Ledger | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+  async function toggle() {
+    const next = !open;
+    setOpen(next);
+    if (!next || data) return;
+    try {
+      const r = await fetch(`/api/inventory/onhand-ledger?productId=${encodeURIComponent(productId)}&warehouseId=${encodeURIComponent(warehouseId)}`);
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) { setErr(j.error ?? "Couldn't load."); return; }
+      setData(j as Ledger);
+    } catch { setErr("Network error — try again."); }
+  }
+  const s = data?.summary;
+  const parts: [string, number][] = s
+    ? ([["Received", s.received], ["Checked out", s.dispersed], ["10/30 baseline", s.baseline], ["Shelf counts", s.counts], ["Reversals", s.reversals], ["Other adjustments", s.other]] as [string, number][]).filter(([, v]) => Math.abs(v) > 1e-6)
+    : [];
+  return (
+    <div className="border-t border-line pt-2">
+      <button type="button" onClick={toggle} className="text-xs font-medium text-brand-700 underline underline-offset-4">
+        {open ? "Hide how this number was built" : "How this number was built"}
+      </button>
+      {open ? (
+        err ? <p className="mt-1 text-xs text-red-700">{err}</p>
+        : !data ? <p className="mt-1 text-xs text-muted">Loading…</p>
+        : (
+          <div className="mt-2 space-y-2">
+            <ul className="space-y-0.5 text-xs">
+              {parts.map(([k, v]) => (
+                <li key={k} className="flex justify-between"><span className="text-muted">{k}</span><span className="tabular-nums text-ink">{signed(v)}</span></li>
+              ))}
+              <li className="flex justify-between border-t border-line pt-0.5 font-medium"><span>On hand</span><span className="tabular-nums">{fmt(data.summary.onHand)}</span></li>
+            </ul>
+            <div className="max-h-48 overflow-y-auto rounded-lg border border-line">
+              <table className="w-full text-[11px]">
+                <tbody>
+                  {data.rows.length === 0 ? (
+                    <tr><td className="px-2 py-1.5 text-muted">No movements yet.</td></tr>
+                  ) : data.rows.map((r) => (
+                    <tr key={r.id} className="border-b border-line last:border-0 align-top">
+                      <td className="whitespace-nowrap px-2 py-1 text-muted">{shortDate(r.date)}</td>
+                      <td className="px-1 py-1 text-ink">{r.label}{r.reversed ? <span className="text-muted"> (reversed)</span> : null}{r.by ? <span className="text-muted"> · {r.by}</span> : null}</td>
+                      <td className="whitespace-nowrap px-1 py-1 text-right tabular-nums">{signed(r.quantity)}</td>
+                      <td className="whitespace-nowrap px-2 py-1 text-right tabular-nums text-muted">{fmt(r.running)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )
+      ) : null}
+    </div>
+  );
+}
+
 function Editor({
-  title, current, unit, onCancel, onSave,
+  title, current, unit, onCancel, onSave, ledger,
 }: {
   title: string; current: number; unit: string;
   onCancel: () => void; onSave: (counted: number, note: string) => Promise<string | null>;
+  ledger?: { productId: string; warehouseId: string };
 }) {
   const [val, setVal] = useState(String(Math.max(0, current)));
   const [note, setNote] = useState("");
@@ -69,6 +137,7 @@ function Editor({
           {busy ? "Saving…" : "Save"}
         </button>
       </div>
+      {ledger ? <LedgerPanel productId={ledger.productId} warehouseId={ledger.warehouseId} /> : null}
     </div>
   );
 }
@@ -91,8 +160,9 @@ export function EditableOnHand({
         <>
           <span className="fixed inset-0 z-40 bg-black/40" onClick={() => setOpen(false)} aria-hidden />
           <span role="dialog" aria-modal="true" aria-label={`Update ${productName} at ${warehouseName}`}
-            className="fixed left-1/2 top-1/2 z-50 block w-[min(22rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-line bg-white p-4 text-left shadow-2xl">
+            className="fixed left-1/2 top-1/2 z-50 block max-h-[calc(100dvh-2rem)] w-[min(26rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl border border-line bg-white p-4 text-left shadow-2xl">
             <Editor title={`${productName} · ${warehouseName.replace(" (HQ)", "")}`} current={current} unit={unit}
+              ledger={{ productId, warehouseId }}
               onCancel={() => setOpen(false)}
               onSave={async (counted, note) => {
                 const e = await saveCount(warehouseId, productId, counted, note);

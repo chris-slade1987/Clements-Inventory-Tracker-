@@ -25,7 +25,7 @@
 // No "server-only" and no fs: used by the receipts core (runtime + CLI) and the
 // in-app Check-In confirm route.
 import type { PrismaClient } from "@prisma/client";
-import { normalizeProductName } from "./product-aliases";
+import { normalizeProductName, PRODUCT_ALIASES } from "./product-aliases";
 import { canonicalProductName } from "./catalog-names";
 import { approvedCatalogShortNames, isHumanApproved } from "../prisma/seed-products-approved";
 
@@ -37,7 +37,34 @@ export const RECEIVED_REACTIVATED_MARK = "Reactivated — received on invoice";
 
 export type ReceivedContext = { distributor: string; invoiceNumber: string; warehouseName: string; date: string /* YYYY-MM-DD */ };
 
-export type SurfacedProduct = { id: string; name: string; from: string; queue: "confirm" | "request" };
+export type SurfacedProduct = { id: string; name: string; from: string; queue: "confirm" | "request" | "merged" };
+
+/** The catalog identity of a product name: its full catalog description (via the
+ *  PestPac alias map when the name is a PestPac material), normalized. */
+const catalogKey = (name: string) => {
+  const n = normalizeProductName(name.replace(/\s*\(merged\)\s*$/i, ""));
+  return normalizeProductName(canonicalProductName(PRODUCT_ALIASES[n] ?? name));
+};
+
+/** Move everything on `fromId` onto `toId` (same mechanics as Catalog Review →
+ *  Merge) and retire the twin. No movement quantity is written or deleted. */
+async function mergeInto(prisma: PrismaClient, from: { id: string; name: string; notes: string | null }, to: { id: string; name: string }, why: string) {
+  await prisma.$transaction([
+    prisma.invoiceLine.updateMany({ where: { productId: from.id }, data: { productId: to.id } }),
+    prisma.stockMovement.updateMany({ where: { productId: from.id }, data: { productId: to.id } }),
+    prisma.productBarcode.updateMany({ where: { productId: from.id }, data: { productId: to.id } }),
+    prisma.checkoutLine.updateMany({ where: { productId: from.id }, data: { productId: to.id } }),
+    prisma.productPhoto.updateMany({ where: { productId: from.id }, data: { productId: to.id, primary: false } }),
+    prisma.product.update({
+      where: { id: from.id },
+      data: {
+        active: false, approved: false, confirmed: true, barcode: null,
+        name: /\(merged\)\s*$/i.test(from.name) ? from.name : `${from.name} (merged)`,
+        notes: [from.notes, `Merged into "${to.name}" (${to.id}) — ${why}.`].filter(Boolean).join(" "),
+      },
+    }),
+  ]);
+}
 
 const isMerged = (p: { name: string; notes: string | null }) =>
   /\(merged\)\s*$/i.test(p.name) || (p.notes ?? "").includes("Merged into");
@@ -76,8 +103,27 @@ export async function surfaceReceivedProducts(
     select: { id: true, name: true, notes: true, approved: true, confirmed: true },
   });
   const out: SurfacedProduct[] = [];
+  // Live rows indexed by catalog identity, to fold a hidden twin into its live row.
+  const live = await prisma.product.findMany({ where: { active: true }, select: { id: true, name: true, approved: true, confirmed: true } });
+  const liveByKey = new Map<string, (typeof live)[number]>();
+  for (const l of live) {
+    const k = catalogKey(l.name);
+    const prev = liveByKey.get(k);
+    const rank = (x: (typeof live)[number]) => (x.approved ? 2 : 0) + (x.confirmed ? 1 : 0);
+    if (!prev || rank(l) > rank(prev)) liveByKey.set(k, l);
+  }
   for (const p of products) {
-    if (isMerged(p)) continue; // a merged-away twin: its stock belongs to the keeper
+    // A hidden twin of a product that is live under another row (an old short
+    // name, a merged-away duplicate, …): its received stock belongs on the live
+    // row — the one check-out and On-hand show — so merge it there rather than
+    // reviving a second copy.
+    const twinOf = liveByKey.get(catalogKey(p.name));
+    if (twinOf && twinOf.id !== p.id) {
+      await mergeInto(prisma, p, twinOf, `stock received on invoice ${ctx.invoiceNumber} was sitting on this inactive duplicate`);
+      out.push({ id: twinOf.id, name: twinOf.name, from: p.name, queue: "merged" });
+      continue;
+    }
+    if (isMerged(p)) continue; // retired twin with no live keeper to fold into — leave it
 
     // Show it under its full catalog description, unless another live row already
     // carries that name (then keep this row's name; a super admin can merge).
@@ -127,11 +173,14 @@ export async function surfaceReceivedProducts(
 }
 
 /** One-time repair for stock that was already received onto inactive products
- *  before this rule existed: every inactive, non-merged product holding positive
- *  on-hand that came in on an invoice is surfaced the same way. */
+ *  before this rule existed: every inactive product holding positive on-hand that
+ *  came in on an invoice is surfaced the same way — merged into its live row when
+ *  it is a hidden duplicate, otherwise turned back on and queued for approval. */
 export async function surfaceHiddenReceivedStock(prisma: PrismaClient): Promise<SurfacedProduct[]> {
   const inactive = await prisma.product.findMany({ where: { active: false }, select: { id: true, name: true, notes: true } });
-  const candidates = inactive.filter((p) => !isMerged(p));
+  // Merged-away twins are included: stock that still sits on one is folded into
+  // its live row (surfaceReceivedProducts skips a twin with no live keeper).
+  const candidates = inactive;
   if (candidates.length === 0) return [];
   const sums = await prisma.stockMovement.groupBy({
     by: ["productId", "warehouseId"],

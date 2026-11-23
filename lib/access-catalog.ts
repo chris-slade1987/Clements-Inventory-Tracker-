@@ -48,7 +48,7 @@ export const MODULES: AccessModule[] = [
     { id: "weather", name: "Weather Ops", note: "Forecast → routing/service impact: current + risk + AI ops briefing + 5-day + radar. Managers see their territory; admins all. Read-only page (config is weather-settings)." } ] },
   { id: "inventory", name: "Inventory", sub: "Stock & movements", items: [
     { id: "dashboard", name: "Inventory Dashboard" }, { id: "check-in", name: "Check-In" }, { id: "check-out", name: "Check-Out" }, { id: "stock", name: "Stock" },
-    { id: "stock-count", name: "Stock Count" }, { id: "history", name: "History" }, { id: "reconcile", name: "Reconcile" }, { id: "reports", name: "Reports" }, { id: "alerts", name: "Alerts" },
+    { id: "stock-count", name: "Stock Count" }, { id: "history", name: "History" }, { id: "reconcile", name: "Reconcile" }, { id: "reports", name: "Reports", note: "Includes the On-hand \"How this number was built\" breakdown (GET /api/inventory/onhand-ledger, read-only, same grant)." }, { id: "alerts", name: "Alerts" },
     { id: "photo-catalog", name: "Photo Catalog", note: "Capture + match product label photos (human-in-the-loop); managers + admins" },
     { id: "product-profile", name: "Product Profile (read-only)", note: "Read-only product detail view at /manage/products/[id] — photo, fields, linked barcodes, on-hand & movements. Any inventory viewer (managers + admins); editing stays super-admin on the Edit screen (the `products` item)." },
     { id: "catalog", name: "Catalog" }, { id: "labels", name: "Labels" } ] },

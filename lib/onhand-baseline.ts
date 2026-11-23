@@ -27,7 +27,18 @@ const MARKER = "onhand_baseline_2026-10-30";
 // rows (e.g. Orlando's 254x LESCO 25-0-10) unmatched and therefore unset. The
 // reset is self-correcting (delta = sheet target - current on-hand), so re-running
 // never double-counts — it only moves each product to the 10/30 counted figure.
-const REVISION = "2026-10-30.v3";
+//
+// v4 (2026-11-23): v1–v3 measured "current" as the SUM of EVERY movement, so a
+// re-run after go-live treated November receipts and check-outs as if they were
+// part of the 10/30 shelf and posted a 10/30-dated adjustment that cancelled
+// them (e.g. stock checked in on an invoice that then never showed on On-hand).
+// The baseline now measures on-hand AS OF the count (movements dated on or
+// before COUNT_AT, which includes the earlier baseline adjustments themselves),
+// so it only ever corrects the 10/30 figure and every movement after the count
+// flows through untouched. Re-running v4 is exact and idempotent: any earlier
+// pass that swallowed post-count activity is restored by one 10/30-dated
+// correction; where nothing was swallowed it posts nothing.
+const REVISION = "2026-10-30.v4";
 const COUNT_AT = new Date("2026-10-30T12:00:00Z");
 const REASON = "Go-live on-hand baseline 10/30/2026";
 
@@ -130,10 +141,11 @@ export async function applyOnHandBaseline(): Promise<BaselineResult> {
       target.set(prod.id, (target.get(prod.id) ?? 0) + qty);
     }
 
-    // Current on-hand per product at this branch.
+    // On-hand per product at this branch AS OF the count (never post-count
+    // activity — see the v4 note above). Reports date a movement by createdAt.
     const agg = await prisma.stockMovement.groupBy({
       by: ["productId"],
-      where: { warehouseId: wh.id },
+      where: { warehouseId: wh.id, createdAt: { lte: COUNT_AT } },
       _sum: { quantity: true },
     });
     const current = new Map<string, number>();
@@ -151,14 +163,17 @@ export async function applyOnHandBaseline(): Promise<BaselineResult> {
     for (const p of products) {
       const tgt = target.get(p.id) ?? 0;
       const cur = current.get(p.id) ?? 0;
-      const delta = tgt - cur;
-      if (delta === 0) continue;
+      const delta = Math.round((tgt - cur) * 10000) / 10000;
+      if (Math.abs(delta) < 1e-6) continue;
       moves.push({
         type: "adjustment",
         productId: p.id,
         warehouseId: wh.id,
         quantity: delta,
-        reason: REASON,
+        // A correction on top of an earlier pass is labelled so it reads clearly in
+        // Reconcile / the On-hand breakdown. (Avoid the words "count"/"reconcile":
+        // isCountReason() would treat it as a shelf count.)
+        reason: existing ? `${REASON} — correction: restores activity after 10/30 that an earlier pass cancelled` : REASON,
         createdAt: COUNT_AT,
       });
       if (tgt === 0) zeroed++;
