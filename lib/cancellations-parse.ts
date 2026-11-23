@@ -239,6 +239,30 @@ export function parseSetupList(text: string): ParsedSetups {
   if (startDate.slice(0, 7) !== endDate.slice(0, 7)) {
     throw new CancellationParseError(`This list covers cancel dates ${startDate} to ${endDate}. Run it for one calendar month at a time.`);
   }
+  // Columns are read BY HEADER NAME (the "Location …" header row), because the list's
+  // column set is user-configurable in PestPac — the 11/16 run had Company / Name /
+  // Charge Type / Total, the 11/23 run has Company/Name / Schedule / Last Service Date /
+  // Cancel Date / Annual. Falls back to the original fixed layout when no header is found.
+  const FIXED = { company: 1, name: 2, branch: 3, service: 4, chargeType: 5, tech: 6, start: 7, reason: 8, total: 9 };
+  let col: Record<keyof typeof FIXED, number> = { ...FIXED };
+  for (const line of lines) {
+    const h = line.split("\t").map((x) => x.trim().toLowerCase());
+    if (h[0] !== "location" || !h.includes("cancel reason")) continue;
+    const at = (...names: string[]) => h.findIndex((x) => names.includes(x));
+    col = {
+      company: at("company"),
+      name: at("name", "company/name", "location name"),
+      branch: at("branch"),
+      service: at("service"),
+      chargeType: at("charge type"),
+      tech: at("tech 1"),
+      start: at("start date"),
+      reason: at("cancel reason"),
+      total: at("total", "annual", "annual value"),
+    };
+    break;
+  }
+  const cell = (c: string[], i: number) => (i >= 0 ? (c[i] ?? "").trim() : "");
   const rows: SetupRow[] = [];
   let reportTotal: number | null = null;
   let reportCount: number | null = null;
@@ -247,19 +271,19 @@ export function parseSetupList(text: string): ParsedSetups {
     const c = line.split("\t");
     const col0 = (c[0] ?? "").trim();
     if (/^Report Totals/i.test(col0)) { reportCount = num(col0.match(/Setups:\s*([\d,]+)/i)?.[1]); pendingTotals = true; continue; }
-    if (pendingTotals && !col0 && c.length >= 10 && (c[9] ?? "").trim()) { reportTotal = num(c[9]); pendingTotals = false; continue; }
-    if (!/^\d+$/.test(col0) || c.length < 10) continue;
-    const branchText = (c[3] ?? "").trim();
+    if (pendingTotals && !col0 && col.total >= 0 && cell(c, col.total)) { reportTotal = num(cell(c, col.total)); pendingTotals = false; continue; }
+    if (!/^\d+$/.test(col0) || c.length <= Math.max(col.reason, col.service)) continue;
+    const techCode = cell(c, col.tech);
     rows.push({
-      branch: branchFromHeader(branchText) || branchFromRoute((c[6] ?? "").trim().split(/\s+/)[0] ?? ""),
+      branch: branchFromHeader(cell(c, col.branch)) || branchFromRoute(techCode.split(/\s+/)[0] ?? ""),
       account: col0,
-      customer: (c[2] ?? "").trim() || (c[1] ?? "").trim(),
-      serviceCode: (c[4] ?? "").trim().toUpperCase(),
-      chargeType: (c[5] ?? "").trim(),
-      techCode: (c[6] ?? "").trim(),
-      serviceStart: isoDate(c[7] ?? ""),
-      reason: (c[8] ?? "").trim().toUpperCase() || "NO REASON",
-      total: Math.round(num(c[9]) * 100) / 100,
+      customer: cell(c, col.name) || cell(c, col.company),
+      serviceCode: cell(c, col.service).toUpperCase(),
+      chargeType: cell(c, col.chargeType),
+      techCode,
+      serviceStart: isoDate(cell(c, col.start)),
+      reason: cell(c, col.reason).toUpperCase() || "NO REASON",
+      total: Math.round(num(cell(c, col.total)) * 100) / 100,
     });
   }
   return { startDate, endDate, periodKey: startDate.slice(0, 7), rows, reportTotal, reportCount };

@@ -94,3 +94,17 @@ test("parseCallbackReport reads callback events, skips group/totals", () => {
   assert.equal(rows.length, 1);
   assert.deepEqual(rows[0], { account: "100739", name: "2300 Ocean Drive LLC", city: "Vero Beach", route: "01", date: "2026-10-15", serviceCode: "3-CALLBACK", description: "CALLBACK SERVICE" });
 });
+
+test("parseGainLossReport: Tech-1-sorted export (no Route headings) uses the tech # as route", () => {
+  const text = T([
+    ["Tech 1: 01 JOSH"],
+    ["Tech 1: 01 JOSH", "Location", "Service", "Gains Count", "Gains Value", "Loss Count", "Loss Value", "Price Change Count", "Price Change Value", "Net"],
+    ["1002359", "PC-EOM", "", "", "1", "571.98", "0", "0.00", "-571.98"],
+    ["Totals Tech 1: 01 JOSH", "0", "0.00", "1", "571.98", "0", "0.00", "-571.98"],
+    ["Tech 1: 203MATTHEW"],
+    ["Tech 1: 203MATTHEW", "Location", "Service", "Gains Count", "Gains Value", "Loss Count", "Loss Value", "Price Change Count", "Price Change Value", "Net"],
+    ["128001", "PC-QTR", "", "", "1", "120.00", "0", "0.00", "-120.00"],
+  ]);
+  const rows = parseGainLossReport(text);
+  assert.deepEqual(rows.map((r) => [r.account, r.route, r.lossCount]), [["1002359", "01", 1], ["128001", "203", 1]]);
+});

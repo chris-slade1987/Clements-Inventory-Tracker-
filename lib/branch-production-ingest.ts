@@ -1,4 +1,5 @@
 import "server-only";
+import { snapshotAddressed, applyAddressed } from "@/lib/left-behind-carry";
 import { prisma } from "@/lib/prisma";
 import { parseRoutingReport, branchFromTechNumber } from "@/lib/routing-parse";
 import {
@@ -86,7 +87,9 @@ export async function ingestProductionReports(opts: { files: UploadFile[]; uploa
   const input: ProductionInput = { today: asOf, scheduled, completed, cancellations, newStarts, underservicedPastDue, rescheduledAccounts };
   const routes = computeRouteProduction(input);
 
-  // Persist — replace the whole period (re-upload replaces).
+  // Persist — replace the whole period (re-upload replaces), keeping any job a
+  // manager already marked addressed (status + plan note) — lib/left-behind-carry.ts.
+  const carry = await snapshotAddressed(periodKey);
   await prisma.$transaction([
     prisma.routeMonth.deleteMany({ where: { periodKey } }),
     prisma.leftBehindJob.deleteMany({ where: { periodKey } }),
@@ -123,6 +126,7 @@ export async function ingestProductionReports(opts: { files: UploadFile[]; uploa
     }
   }
   for (let i = 0; i < routeRows.length; i += 500) await prisma.routeMonth.createMany({ data: routeRows.slice(i, i + 500) });
+  applyAddressed(lbRows as (typeof lbRows[number] & { account: string })[], carry);
   for (let i = 0; i < lbRows.length; i += 500) await prisma.leftBehindJob.createMany({ data: lbRows.slice(i, i + 500) });
 
   for (const [type, f] of byType) {

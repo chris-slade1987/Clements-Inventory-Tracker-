@@ -99,6 +99,10 @@ export function parseUnservicedReport(text: string): UnservicedOrder[] {
  */
 export function parseGainLossReport(text: string): RouteGainLoss[] {
   const lines = text.split(/\r?\n/);
+  // Two PestPac layouts: sorted by Route ("Route: 26" headings) or sorted by Tech 1
+  // ("Tech 1: 26 ROB" headings only, COO 11/23 export). With no Route heading the
+  // route is the tech number — in PestPac the tech # IS the route # (same as the
+  // schedule's "01 JOSH" → route "01"), so cancellations still join to the route.
   let route = "";
   let tech = "";
   const out: RouteGainLoss[] = [];
@@ -110,7 +114,7 @@ export function parseGainLossReport(text: string): RouteGainLoss[] {
     if (/^Totals/i.test(col0)) continue;
     if (!/^\d/.test(col0)) continue; // account rows start with a digit
     out.push({
-      account: col0, service: (c[1] || "").trim().toUpperCase(), route, techName: tech,
+      account: col0, service: (c[1] || "").trim().toUpperCase(), route: route || (tech ? routeOf(tech) : ""), techName: tech,
       gainsCount: int(c[2]), gainsValue: money(c[3]), lossCount: int(c[4]), lossValue: money(c[5]), net: money(c[8]),
     });
   }

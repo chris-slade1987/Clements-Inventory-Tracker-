@@ -99,3 +99,24 @@ test("parses the Service Setup List (cancel reasons) and matches it to Gain & Lo
   const m = matchSetups([{ account: "120611", serviceCode: "PC-EOM" }, { account: "999", serviceCode: "PC-EOM" }], p.rows);
   assert.deepEqual(m, { match: [0, -1], unmatched: [1] });
 });
+
+test("parseSetupList reads columns by header (11/23 layout: Company/Name · Schedule · Annual)", async () => {
+  const { parseSetupList, setupTotalsMatch } = await import("./cancellations-parse");
+  const text = T([
+    ["Date:", "2026/11/23 12:47 PM"],
+    ["", "Service Setup List"],
+    ["", "Start Cancel Date:", "2026/11/01"],
+    ["", "End Cancel Date:", "2026/11/23"],
+    ["Location", "Company/Name", "Branch", "Service", "Schedule", "Tech 1", "Start Date", "Last Service Date (Setup)", "Cancel Date", "Cancel Reason", "Annual", ""],
+    ["120809", "Mosher, Ron", "Naples - Branch 4", "PC-EOM", "BJAN3WED", "403 JASON", "2021/12/21", "2026/11/18", "2026/11/18", "FINANCIAL", "612.00", ""],
+    ["123256", "Schaffer, Jackie", "Vero Beach - Branch 1", "L-WEED", "BJAN2TUE", "05 MIKE", "2026/01/19", "2026/09/17", "2026/11/10", "", "237.00", ""],
+    ["Report Totals  Setups: 2"],
+    ["", "", "", "", "", "", "", "", "", "", "849.00", ""],
+  ]);
+  const p = parseSetupList(text);
+  assert.equal(p.rows.length, 2);
+  assert.deepEqual(p.rows[0], { branch: "naples", account: "120809", customer: "Mosher, Ron", serviceCode: "PC-EOM", chargeType: "", techCode: "403 JASON", serviceStart: "2021-12-21", reason: "FINANCIAL", total: 612 });
+  assert.equal(p.rows[1].reason, "NO REASON");
+  assert.equal(p.rows[1].branch, "vero");
+  assert.equal(setupTotalsMatch(p), true);
+});

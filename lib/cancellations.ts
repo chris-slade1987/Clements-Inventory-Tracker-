@@ -150,8 +150,18 @@ export async function importSetups(opts: {
 }
 
 // --- November 2026 seed (runtime, once) ------------------------------------
-const SEED_MARKER = "cancellations_seed_2026_11_v1";
-const SETUPS_SEED_MARKER = "cancellations_setups_seed_2026_11_v1";
+// v2 (COO 2026-11-23): November month-to-date through 11/23 — Gain & Loss (Tech-1
+// sorted; branch + route from the tech #, the 11/16 Branch,Route rows' routes kept)
+// + the 11/23 Service Setup List (reasons). Replaces the v1 (11/16) SEED rows; a real
+// portal upload for the month is never replaced (see seedMayReplace).
+const SEED_MARKER = "cancellations_seed_2026_11_v2";
+const SETUPS_SEED_MARKER = "cancellations_setups_seed_2026_11_v2";
+
+/** True when the month has no active upload of this kind, or only a seed one. */
+async function seedMayReplace(periodKey: string, kind: "gainloss" | "setups"): Promise<boolean> {
+  const active = await prisma.cancellationUpload.findMany({ where: { periodKey, active: true, kind }, select: { source: true } });
+  return active.every((u) => u.source === "seed");
+}
 let seeding: Promise<void> | null = null;
 
 export function ensureCancellationsSeeded(): Promise<void> {
@@ -163,9 +173,8 @@ export function ensureCancellationsSeeded(): Promise<void> {
         if (done) return;
         const parsed = nov2026 as unknown as ParsedCancellations & { fileName: string };
         // A real upload for the month always wins over the seed.
-        const existing = await prisma.cancellationUpload.count({ where: { periodKey: parsed.periodKey, active: true, kind: "gainloss" } });
-        if (!existing && totalsMatch(parsed) !== false) {
-          await importCancellations({ parsed, fileName: parsed.fileName, source: "seed", uploadedBy: "Chris Slade (11/16 report)" });
+        if ((await seedMayReplace(parsed.periodKey, "gainloss")) && totalsMatch(parsed) !== false) {
+          await importCancellations({ parsed, fileName: parsed.fileName, source: "seed", uploadedBy: "Chris Slade (11/23 reports)" });
         }
         await prisma.setting.upsert({
           where: { key: SEED_MARKER },
@@ -186,9 +195,8 @@ async function seedSetupsOnce(): Promise<void> {
   const done = await prisma.setting.findUnique({ where: { key: SETUPS_SEED_MARKER } });
   if (done) return;
   const parsed = nov2026Setups as unknown as ParsedSetups & { fileName: string };
-  const existing = await prisma.cancellationUpload.count({ where: { periodKey: parsed.periodKey, active: true, kind: "setups" } });
-  if (!existing && setupTotalsMatch(parsed) !== false) {
-    await importSetups({ parsed, fileName: parsed.fileName, source: "seed", uploadedBy: "Chris Slade (11/16 report)" });
+  if ((await seedMayReplace(parsed.periodKey, "setups")) && setupTotalsMatch(parsed) !== false) {
+    await importSetups({ parsed, fileName: parsed.fileName, source: "seed", uploadedBy: "Chris Slade (11/23 report)" });
   }
   await prisma.setting.upsert({
     where: { key: SETUPS_SEED_MARKER },

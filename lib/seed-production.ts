@@ -1,5 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
+import { snapshotAddressed, applyAddressed } from "@/lib/left-behind-carry";
 import octSeed from "@/prisma/data/seed-production-2026-10.json";
 import novSeed from "@/prisma/data/seed-production-2026-11.json";
 
@@ -15,7 +16,13 @@ import novSeed from "@/prisma/data/seed-production-2026-11.json";
 //
 // Months carried:
 //   2026-10 — full six-report ingest (real completion data).
-//   2026-11 — revision 4: month-to-date as of Fri 11/13 from three PestPac reports run
+//   2026-11 — revision 5 (COO 11/23): month-to-date as of Mon 11/23 from the FULL six-report
+//             set run 11/23 ~12:40 PM — Technician Schedule (11/01–11/30, the baseline),
+//             Technician Production detail, Appointment List, Uncommitted Orders, Gain &
+//             Loss (Tech-1 sorted; tech # = route #) and Call Back Report — through the
+//             live ingest (ingestProductionReports, asOf 11/23). Jobs managers already
+//             marked addressed are carried over on reload (lib/left-behind-carry.ts).
+//   (prior) revision 4: month-to-date as of Fri 11/13 from three PestPac reports run
 //             11/13 ~4:22 PM — Appointment List (11/01–11/30, still-open appointments),
 //             Uncommitted Orders (11/01–11/13) and the Technician Production Report
 //             (11/01–11/13, per-tech summary). Completed = committed production per route
@@ -52,6 +59,8 @@ export async function ensureProductionSeed(): Promise<void> {
         const marker = await prisma.setting.findUnique({ where: { key: markerKey } });
         if (marker?.value === rev) continue; // already at this revision — leave live data alone
 
+        // Keep jobs managers already marked addressed (status + plan note) across the reload.
+        const carry = await snapshotAddressed(seed.periodKey);
         // (Re)load this month: replace its rows, then stamp the revision. All-or-nothing so a
         // partial seed can't let a manager sign a week with jobs silently dropped.
         await prisma.$transaction([
@@ -65,10 +74,13 @@ export async function ensureProductionSeed(): Promise<void> {
             })),
           }),
           prisma.leftBehindJob.createMany({
-            data: (seed.leftBehindJob as ProductionSeed[]).map((r) => ({
-              ...r,
-              scheduledDate: r.scheduledDate ? new Date(r.scheduledDate) : null,
-            })),
+            data: applyAddressed(
+              (seed.leftBehindJob as ProductionSeed[]).map((r) => ({
+                ...r,
+                scheduledDate: r.scheduledDate ? new Date(r.scheduledDate) : null,
+              })),
+              carry,
+            ),
           }),
           prisma.productionReportUpload.createMany({
             data: (seed.productionReportUpload as ProductionSeed[]).map((r) => ({

@@ -45,7 +45,8 @@ const DOCS: DocSeed[] = [
     audience: "manager",
     file: "manager-manual.md",
     summary: "Manager-only operating reference, reconciled against what the Clements Command & Control portal does today.",
-    effective: "Version 70 · Last updated November 23, 2026",
+    effective: "Version 71 · Last updated November 23, 2026",
+    // v71: Service Setup List for cancel reasons — any sort/column layout accepted. (Label only.)
     // v70: Check-Out "Date taken" — enter a late check-out on the day it was taken. (Label only.)
     // v69: Service advisors can view the Sales Team hub (whole team) and the Cancellation Center (own branch). (Label only.)
     // v68: Service advisors land on My Sales Goals + Message-the-Sales-Director button; advisor access spelled out. (Label only.)
